@@ -20,6 +20,7 @@ SuiteSparse = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 
 [targets]
-test = ["Test"]
+test = ["Test","SafeTestsets"]
