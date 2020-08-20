@@ -30,3 +30,5 @@ after_success:
       Pkg.add("Coverage")
       using Coverage
       Codecov.submit(process_folder())'
+      CODECOV_TOKEN="17ae06a7-b36c-403c-b6e0-d044aded3a97"
+      bash <(curl -s https://codecov.io/bash)
