@@ -2,5 +2,6 @@ using JuLDL
 using Test
 
 @testset "JuLDL.jl" begin
-    # Write your tests here.
+    @test JuLDL.test_func(1,0) == 1
+    @test JuLDL.test_func(11,10) == 21
 end
