@@ -1,7 +1,3 @@
-using JuLDL
-using Test
+using SafeTestsets
 
-@testset "JuLDL.jl" begin
-    @test JuLDL.test_func(1,0) == 1
-    @test JuLDL.test_func(11,10) == 21
-end
+@safetestset "make cue matrix tests" begin include("make_cue_matrix_tests.jl") end

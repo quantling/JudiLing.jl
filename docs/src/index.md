@@ -10,3 +10,8 @@ CurrentModule = JuLDL
 ```@autodocs
 Modules = [JuLDL]
 ```
+
+```@docs
+  make_cue_matrix()
+  f()
+```
