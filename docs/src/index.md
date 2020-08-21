@@ -8,10 +8,8 @@ CurrentModule = JuLDL
 ```
 
 ```@autodocs
-Modules = [JuLDL]
+  Modules = [JuLDL]
 ```
 
 ```@docs
-  make_cue_matrix()
-  f()
 ```
