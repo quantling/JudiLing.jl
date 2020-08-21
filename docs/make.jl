@@ -13,6 +13,9 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Manual" => Any[
+            "Make Cue Matrix" => "man/make_cue_matrix.md",
+        ],
     ],
 )
 

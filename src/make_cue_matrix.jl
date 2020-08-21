@@ -14,40 +14,21 @@ struct Cue_Matrix_Struct
   A::SparseMatrixCSC
 end
 
-# """
-#   f()
-
-# This is a test
-# """
-# function f() end
-
-# """
-#   f(::Int64)
-
-# This is a test
-# """
-# function f(a::Int64) end
-
-# """
-#   f(::Float64)
-
-# This is a test
-# """
-# function f(a::Float64) end
-
 """
-  make_cue_matrix(
-  data::DataFrame;
-  grams=3::Int64,
-  words_column=:Words::Union{String, Symbol},
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  keep_sep=false::Bool,
-  start_end_token="#"::Union{String, Char},
-  verbose=false::Bool
-  )::Cue_Matrix_Struct
+  make_cue_matrix(::DataFrame)
 
 This function make cue matrix and corresponding indices giving dataset as csv file.
+
+```julia
+latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
+latin_cue_obj_train = JuLDL.make_cue_matrix(
+  latin,
+  grams=3,
+  words_column=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+```
 """
 function make_cue_matrix(
   data::DataFrame;
@@ -132,13 +113,186 @@ function make_cue_matrix(
 end
 
 """
-  make_ngrams(
-  tokens::Array,
+  make_cue_matrix(::DataFrame,::Cue_Matrix_Struct)
+
+This function make cue matrix and corresponding indices giving dataset as csv file and
+train dataset cue obj. This is often used to construct val_cue_obj, in order to maintain
+the same indices.
+
+```julia
+latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
+latin_cue_obj_train = JuLDL.make_cue_matrix(
+  latin,
+  grams=3,
+  words_column=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+# simulate the val dataset. Notice here that latin_val is part of training dataset to make
+# sure all features and n-grams covered by training dataset.
+latin_val = latin[101:150,:]
+latin_cue_obj_val = JuLDL.make_cue_matrix(
+  latin_val,
+  latin_cue_obj_train,
+  grams=3,
+  words_column=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+```
+"""
+function make_cue_matrix(
+  data::DataFrame,
+  cue_obj::Cue_Matrix_Struct;
   grams=3::Int64,
-  keep_sep=false::Bool,
+  words_column="Words"::String,
+  tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
-  start_end_token="#"::Union{String, Char}
-  )::Array
+  keep_sep=false::Bool,
+  start_end_token="#"::Union{String, Char},
+  verbose=false::Bool
+  )::Cue_Matrix_Struct
+
+  # split tokens from words or other columns
+  if tokenized && !isnothing(sep_token)
+    tokens = split.(data[:, words_column], sep_token)
+  else
+    tokens = split.(data[:, words_column], "")
+  end
+
+  # making ngrams from tokens
+  # make_ngrams function are below
+  ngrams = make_ngrams.(tokens, grams, keep_sep, sep_token, start_end_token)
+
+  f2i = cue_obj.f2i
+  i2f = cue_obj.i2f
+
+  n_f = sum([length(v) for v in ngrams])
+
+  m = size(data, 1)
+  n = length(f2i)
+  I = zeros(Int64, n_f)
+  J = zeros(Int64, n_f)
+  V = ones(Int64, n_f)
+
+
+  cnt = 0
+  for (i, v) in enumerate(ngrams)
+    for (j, f) in enumerate(v)
+      cnt += 1
+      I[cnt] = i
+      J[cnt] = f2i[f]
+    end
+  end
+
+  cue = sparse(I, J, V, m, n, *)
+  ngrams_ind = [[f2i[x] for x in y] for y in ngrams]
+
+  Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, cue_obj.A)
+end
+
+
+# """
+#   make_cue_matrix(
+#   data::DataFrame,
+#   pyndl_weights::Pyndl_Weight_Struct;
+#   grams=3::Int64,
+#   words_column="Words"::String,
+#   tokenized=false::Bool,
+#   sep_token=nothing::Union{Nothing, String, Char},
+#   keep_sep=false::Bool,
+#   start_end_token="#"::Union{String, Char},
+#   verbose=false::Bool
+#   )::Cue_Matrix_Struct
+
+#   This method is for making cue matrix when setting to :pyndl mode.
+# """
+# function make_cue_matrix(
+#   data::DataFrame,
+#   pyndl_weights::Pyndl_Weight_Struct;
+#   grams=3::Int64,
+#   words_column="Words"::String,
+#   tokenized=false::Bool,
+#   sep_token=nothing::Union{Nothing, String, Char},
+#   keep_sep=false::Bool,
+#   start_end_token="#"::Union{String, Char},
+#   verbose=false::Bool
+#   )::Cue_Matrix_Struct
+
+#   # split tokens from words or other columns
+#   if tokenized && !isnothing(sep_token)
+#     tokens = split.(data[:, words_column], sep_token)
+#   else
+#     tokens = split.(data[:, words_column], "")
+#   end
+
+#   # making ngrams from tokens
+#   # make_ngrams function are below
+#   ngrams = make_ngrams.(tokens, grams, keep_sep, sep_token, start_end_token)
+
+#   # find all unique ngrams features
+#   ngrams_features = unique(vcat(ngrams...))
+
+#   f2i = Dict(v => i for (i, v) in enumerate(pyndl_weights.cues))
+#   i2f = Dict(i => v for (i, v) in enumerate(pyndl_weights.cues))
+
+#   n_f = sum([length(v) for v in ngrams])
+
+#   m = size(data, 1)
+#   n = length(ngrams_features)
+#   I = zeros(Int64, n_f)
+#   J = zeros(Int64, n_f)
+#   V = ones(Int64, n_f)
+
+#   A = [Int64[] for i in 1:length(ngrams_features)]
+
+#   cnt = 0
+#   for (i, v) in enumerate(ngrams)
+#     last = 0
+#     for (j, f) in enumerate(v)
+#       cnt += 1
+#       I[cnt] = i
+#       fi = f2i[f]
+#       J[cnt] = fi
+#       if j == 1
+#         last = fi
+#       else
+#         push!(A[last], fi)
+#         last = fi
+#       end
+#     end
+#   end
+
+#   cue = sparse(I, J, V, m, n, *)
+
+#   ngrams_ind = [[f2i[x] for x in y] for y in ngrams]
+
+#   verbose && println("making adjacency matrix...")
+#   A = [sort(unique(i)) for i in A]
+#   n_adj = sum(length.(A))
+#   I = zeros(Int64, n_adj)
+#   J = zeros(Int64, n_adj)
+#   V = ones(Int64, n_adj)
+
+#   cnt = 0
+#   iter = enumerate(A)
+#   verbose && begin iter = tqdm(iter) end
+#   for (i,v) in iter
+#     for j in v
+#       cnt += 1
+#       I[cnt] = i
+#       J[cnt] = j
+#     end
+#   end
+
+#   A = sparse(I, J, V, length(f2i), length(f2i))
+
+#   Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A)
+# end
+
+"""
+  make_ngrams(::Array,::Int64,::Bool,
+  ::Union{Nothing, String, Char},::Union{String, Char}
 
 given a list of tokens, return all ngrams in a list
 """
