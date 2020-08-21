@@ -14,31 +14,41 @@ struct Cue_Matrix_Struct
   A::SparseMatrixCSC
 end
 
-"""
-  f()
+# """
+#   f()
 
-This is a test
-"""
-function f() end
+# This is a test
+# """
+# function f() end
+
+# """
+#   f(::Int64)
+
+# This is a test
+# """
+# function f(a::Int64) end
+
+# """
+#   f(::Float64)
+
+# This is a test
+# """
+# function f(a::Float64) end
 
 """
-  make_cue_matrix()
-
-JuLDL.make_cue_matrix(
-data::DataFrame;
-grams=3::Int64,
-words_column=:Words::Union{String, Symbol},
-tokenized=false::Bool,
-sep_token=nothing::Union{Nothing, String, Char},
-keep_sep=false::Bool,
-start_end_token="#"::Union{String, Char},
-verbose=false::Bool
-)::Cue_Matrix_Struct
+  make_cue_matrix(
+  data::DataFrame;
+  grams=3::Int64,
+  words_column=:Words::Union{String, Symbol},
+  tokenized=false::Bool,
+  sep_token=nothing::Union{Nothing, String, Char},
+  keep_sep=false::Bool,
+  start_end_token="#"::Union{String, Char},
+  verbose=false::Bool
+  )::Cue_Matrix_Struct
 
 This function make cue matrix and corresponding indices giving dataset as csv file.
 """
-function make_cue_matrix() end
-
 function make_cue_matrix(
   data::DataFrame;
   grams=3::Int64,
