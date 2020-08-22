@@ -11,5 +11,6 @@ using GZip
 using PyCall
 
 include("make_cue_matrix.jl")
+include("make_semantic_matrix.jl")
 
 end
