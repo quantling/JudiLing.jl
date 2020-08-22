@@ -79,6 +79,24 @@ git-tree-sha1 = "dec9607adfa6a82399cce0bd9b8557f8cc3b7bcd"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
 version = "0.23.9"
 
+[[DocStringExtensions]]
+deps = ["LibGit2", "Markdown", "Pkg", "Test"]
+git-tree-sha1 = "c5714d9bcdba66389612dc4c47ed827c64112997"
+uuid = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
+version = "0.8.2"
+
+[[Documenter]]
+deps = ["Base64", "Dates", "DocStringExtensions", "InteractiveUtils", "JSON", "LibGit2", "Logging", "Markdown", "REPL", "Test", "Unicode"]
+git-tree-sha1 = "fb1ff838470573adc15c71ba79f8d31328f035da"
+uuid = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+version = "0.25.2"
+
+[[DocumenterLaTeX]]
+deps = ["Documenter", "Test"]
+git-tree-sha1 = "653299370be20ff580bccd707dc9f360c0852d7f"
+uuid = "cd674d7a-5f81-5cf3-af33-235ef1834b99"
+version = "0.2.0"
+
 [[FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays"]
 git-tree-sha1 = "9a457808000939be5f052291cbed7de409c2839d"
