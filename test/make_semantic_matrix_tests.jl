@@ -17,3 +17,28 @@ using Test
   @test s_obj_val.f2i["telephone"] == 107
   @test s_obj_val.i2f[75] == "does"
 end
+
+@testset "make semantic matrix for french" begin
+  french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
+  S_train = JuLDL.make_S_matrix(
+    french,
+    ["Lexeme"],
+    ["Tense","Aspect","Person","Number","Gender","Class","Mood"])
+
+  french_val = french[100:end,:]
+  S_val = JuLDL.make_S_matrix(
+    french_val,
+    S_train,
+    ["Lexeme"],
+    ["Tense","Aspect","Person","Number","Gender","Class","Mood"])
+
+  S_train = JuLDL.make_S_matrix(
+    french,
+    base=["Lexeme"])
+
+  french_val = french[100:end,:]
+  S_val = JuLDL.make_S_matrix(
+    french_val,
+    S_train,
+    base=["Lexeme"])
+end
