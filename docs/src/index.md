@@ -1,8 +1,5 @@
 # Package Guilds
 
-```@index
-```
-
 ## Installation
 
 Documenter can be installed using the Julia package manager vie GitHub HTTPS

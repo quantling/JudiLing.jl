@@ -26,9 +26,9 @@ end
     ["Tense","Aspect","Person","Number","Gender","Class","Mood"])
 
   french_val = french[100:end,:]
-  S_val = JuLDL.make_S_matrix(
+  S_train, S_val = JuLDL.make_S_matrix(
+    french,
     french_val,
-    S_train,
     ["Lexeme"],
     ["Tense","Aspect","Person","Number","Gender","Class","Mood"])
 
@@ -36,9 +36,8 @@ end
     french,
     base=["Lexeme"])
 
-  french_val = french[100:end,:]
-  S_val = JuLDL.make_S_matrix(
+  S_train, S_val = JuLDL.make_S_matrix(
+    french,
     french_val,
-    S_train,
     base=["Lexeme"])
 end
