@@ -15,9 +15,19 @@ struct Cue_Matrix_Struct
 end
 
 """
+Construct cue matrix.
+"""
+function make_cue_matrix end
+
+"""
+Given tokens make n-grams.
+"""
+function make_ngrams end
+
+"""
   make_cue_matrix(::DataFrame)
 
-This function make cue matrix and corresponding indices giving dataset as csv file.
+This function makes cue matrix and corresponding indices given dataset as csv file.
 
 ...
 # Arguments
@@ -28,8 +38,8 @@ This function make cue matrix and corresponding indices giving dataset as csv fi
 - `keep_sep::Bool=false`: whether to keep seperater in cues
 - `start_end_token::Union{String, Char}="#"`: start and end token
 - `verbose::Bool=false`: if verbose, more information prints out
-...
 
+# Examples
 ```julia
 latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
 latin_cue_obj_train = JuLDL.make_cue_matrix(
@@ -40,6 +50,7 @@ latin_cue_obj_train = JuLDL.make_cue_matrix(
   keep_sep=false
   )
 ```
+...
 """
 function make_cue_matrix(
   data::DataFrame;
@@ -139,8 +150,8 @@ the same indices.
 - `keep_sep::Bool=false`: whether to keep seperater in cues
 - `start_end_token::Union{String, Char}="#"`: start and end token
 - `verbose::Bool=false`: if verbose, more information prints out
-...
 
+# Examples
 ```julia
 latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
 latin_cue_obj_train = JuLDL.make_cue_matrix(
@@ -162,6 +173,7 @@ latin_cue_obj_val = JuLDL.make_cue_matrix(
   keep_sep=false
   )
 ```
+...
 """
 function make_cue_matrix(
   data::DataFrame,

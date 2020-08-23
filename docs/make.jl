@@ -17,7 +17,7 @@ makedocs(;
             "Make Cue Matrix" => "man/make_cue_matrix.md",
             "Make Semantic Matrix" => "man/make_semantic_matrix.md"
         ],
-        "All Manual" => "man/all_manual.md"
+        "All Manual index" => "man/all_manual.md"
     ],
 )
 
