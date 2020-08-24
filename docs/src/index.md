@@ -1,4 +1,4 @@
-# Package Guilds
+# Package Guides
 
 ## Installation
 
