@@ -17,7 +17,8 @@ they are seen in the training data. This usually takes hours for large dataset.
 
 # Examples
 ```julia
-
+i2f = Dict([(1, "#ab"), (2, "abc"), (3, "bc#"), (4, "#bc"), (5, "ab#")])
+JuLDL.make_adjacency_matrix(i2f)
 ```
 ...
 """
