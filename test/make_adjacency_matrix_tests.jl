@@ -7,6 +7,6 @@ using Test
     JuLDL.make_adjacency_matrix(i2f)
     @test true
   catch e
-    @test false
+    @test e == false
   end
 end

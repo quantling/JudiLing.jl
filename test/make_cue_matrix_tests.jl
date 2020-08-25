@@ -24,7 +24,7 @@ using Test
       )
     @test true
   catch e
-    @test false
+    @test e == false
   end
 end
 
@@ -52,7 +52,7 @@ try
     )
     @test true
   catch e
-    @test false
+    @test e == false
   end
 end
 
@@ -81,6 +81,6 @@ end
 
     @test true
   catch e
-    @test false
+    @test e == false
   end
 end

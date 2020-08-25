@@ -4,7 +4,7 @@ using Test
 
 @testset "make prelinguistic semantic matrix for utterance" begin
   try
-    utterance = CSV.DataFrame!(CSV.File(joinpath("data", "utterance_mini.csv")))
+    utterance = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "utterance_mini.csv")))
     s_obj_train = JuLDL.make_pS_matrix(utterance)
 
     utterance_val = utterance[101:end, :]
@@ -12,13 +12,13 @@ using Test
 
     @test true
   catch e
-    @test false
+    @test e == false
   end
 end
 
 @testset "make semantic matrix for french" begin
   try
-    french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
+    french = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "french_mini.csv")))
     S_train = JuLDL.make_S_matrix(
       french,
       ["Lexeme"],
@@ -41,6 +41,6 @@ end
       base=["Lexeme"])
     @test true
   catch e
-    @test false
+    @test e == false
   end
 end

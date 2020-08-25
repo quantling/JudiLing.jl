@@ -28,6 +28,6 @@ using SparseArrays
 
     @test true
   catch e
-    @test false
+    @test e == false
   end
 end
