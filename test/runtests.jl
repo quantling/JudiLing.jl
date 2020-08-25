@@ -7,3 +7,7 @@ end
 @safetestset "make semantic matrix tests" begin
   include("make_semantic_matrix_tests.jl")
 end
+
+@safetestset "cholesky tests" begin
+  include("cholesky_tests.jl")
+end
