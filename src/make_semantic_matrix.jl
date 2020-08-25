@@ -62,9 +62,9 @@ function make_pS_matrix(
   # initialize sparse matrix components
   m = size(utterances, 1)
   n = length(i2f)
-  I = zeros(Int64, n_f)
-  J = zeros(Int64, n_f)
-  V = ones(Int64, n_f)
+  I = zeros(Integer, n_f)
+  J = zeros(Integer, n_f)
+  V = ones(Integer, n_f)
 
   # calculate each cell in sparse matrix
   cnt = 0
@@ -126,9 +126,9 @@ function make_pS_matrix(
   # initialize sparse matrix components
   m = size(utterances, 1)
   n = length(i2f)
-  I = zeros(Int64, n_f)
-  J = zeros(Int64, n_f)
-  V = ones(Int64, n_f)
+  I = zeros(Integer, n_f)
+  J = zeros(Integer, n_f)
+  V = ones(Integer, n_f)
 
   # calculate each cell in sparse matrix
   cnt = 0
@@ -154,15 +154,15 @@ random semantic vector, and sum up all features to compose the semantic vector.
 
 ...
 # Arguments
-- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
-- `sd_base_mean::Int64=1`: the sd mean of base features
-- `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
-- `sd_base::Int64=4`: the sd of base features
-- `sd_inflection::Int64=4`: the sd of inflectional features
-- `seed::Int64=314`: the random seed
+- `ncol::Integer=200`: the dimension size of vectors, usually the same as cue vectors
+- `sd_base_mean::Integer=1`: the sd mean of base features
+- `sd_inflection_mean::Integer=1`: the sd mean of inflectional features
+- `sd_base::Integer=4`: the sd of base features
+- `sd_inflection::Integer=4`: the sd of inflectional features
+- `seed::Integer=314`: the random seed
 - `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
 - `add_noise::Bool=true`: whether to add noise at the end of construction
-- `sd_noise::Int64=1`: the sd of the noise matrix
+- `sd_noise::Integer=1`: the sd of the noise matrix
 - `isnormalize::Bool=false`: if normalized, values of matrix maintain close between 1 and -1
 
 # Examples
@@ -180,15 +180,15 @@ function make_S_matrix(
   data::DataFrame,
   base=["Lexeme"]::Vector,
   inflections=["Person", "Number", "Tense", "Voice", "Mood"]::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_inflection_mean=1::Int64,
-  sd_base=4::Int64,
-  sd_inflection=4::Int64,
-  seed=314::Int64,
+  ncol=200::Integer,
+  sd_base_mean=1::Integer,
+  sd_inflection_mean=1::Integer,
+  sd_base=4::Integer,
+  sd_inflection=4::Integer,
+  seed=314::Integer,
   isdeep=true::Bool,
   add_noise=true::Bool,
-  sd_noise=1::Int64,
+  sd_noise=1::Integer,
   isnormalize=false::Bool
   )::Matrix
 
@@ -214,7 +214,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St = Array{Float64, 2}(undef, ncol, size(data, 1))
+  St = Array{AbstractFloat, 2}(undef, ncol, size(data, 1))
   for i in 1:size(data, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data[i, base]])
     s_infl = sum([infl_m[infl_f2i[f]] for f in data[i, inflections]])
@@ -242,15 +242,15 @@ random semantic vector, and sum up all features to compose the semantic vector.
 
 ...
 # Arguments
-- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
-- `sd_base_mean::Int64=1`: the sd mean of base features
-- `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
-- `sd_base::Int64=4`: the sd of base features
-- `sd_inflection::Int64=4`: the sd of inflectional features
-- `seed::Int64=314`: the random seed
+- `ncol::Integer=200`: the dimension size of vectors, usually the same as cue vectors
+- `sd_base_mean::Integer=1`: the sd mean of base features
+- `sd_inflection_mean::Integer=1`: the sd mean of inflectional features
+- `sd_base::Integer=4`: the sd of base features
+- `sd_inflection::Integer=4`: the sd of inflectional features
+- `seed::Integer=314`: the random seed
 - `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
 - `add_noise::Bool=true`: whether to add noise at the end of construction
-- `sd_noise::Int64=1`: the sd of the noise matrix
+- `sd_noise::Integer=1`: the sd of the noise matrix
 - `isnormalize::Bool=false`: if normalized, values of matrix maintain close between 1 and -1
 # Examples
 
@@ -271,15 +271,15 @@ function make_S_matrix(
   data_val::DataFrame,
   base=["Lexeme"]::Vector,
   inflections=["Person", "Number", "Tense", "Voice", "Mood"]::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_inflection_mean=1::Int64,
-  sd_base=4::Int64,
-  sd_inflection=4::Int64,
-  seed=314::Int64,
+  ncol=200::Integer,
+  sd_base_mean=1::Integer,
+  sd_inflection_mean=1::Integer,
+  sd_base=4::Integer,
+  sd_inflection=4::Integer,
+  seed=314::Integer,
   isdeep=true::Bool,
   add_noise=true::Bool,
-  sd_noise=1::Int64,
+  sd_noise=1::Integer,
   isnormalize=false::Bool
   )::Tuple{Matrix, Matrix}
 
@@ -305,7 +305,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St_train = Array{Float64, 2}(undef, ncol, size(data_train, 1))
+  St_train = Array{AbstractFloat, 2}(undef, ncol, size(data_train, 1))
   for i in 1:size(data_train, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data_train[i, base]])
     s_infl = sum([infl_m[infl_f2i[f]] for f in data_train[i, inflections]])
@@ -321,7 +321,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St_val = Array{Float64, 2}(undef, ncol, size(data_val, 1))
+  St_val = Array{AbstractFloat, 2}(undef, ncol, size(data_val, 1))
   for i in 1:size(data_val, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data_val[i, base]])
     s_infl = sum([infl_m[infl_f2i[f]] for f in data_val[i, inflections]])
@@ -352,13 +352,13 @@ vector, and sum up all features to compose the semantic vector.
 ...
 # Arguments
 - `base::Vector=["Lexeme"]`: the base features 
-- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
-- `sd_base_mean::Int64=1`: the sd mean of base features
-- `sd_base::Int64=4`: the sd of base features
-- `seed::Int64=314`: the random seed
+- `ncol::Integer=200`: the dimension size of vectors, usually the same as cue vectors
+- `sd_base_mean::Integer=1`: the sd mean of base features
+- `sd_base::Integer=4`: the sd of base features
+- `seed::Integer=314`: the random seed
 - `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
 - `add_noise::Bool=true`: whether to add noise at the end of construction
-- `sd_noise::Int64=1`: the sd of the noise matrix
+- `sd_noise::Integer=1`: the sd of the noise matrix
 
 # Examples
 ```julia
@@ -373,13 +373,13 @@ S_train = JuLDL.make_S_matrix(
 function make_S_matrix(
   data::DataFrame;
   base=["Lexeme"]::Vector,
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_base=4::Int64,
-  seed=314::Int64,
+  ncol=200::Integer,
+  sd_base_mean=1::Integer,
+  sd_base=4::Integer,
+  seed=314::Integer,
   isdeep=true::Bool,
   add_noise=true::Bool,
-  sd_noise=1::Int64
+  sd_noise=1::Integer
   )::Matrix
 
   # collect all infl_features
@@ -397,7 +397,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St = Array{Float64, 2}(undef, ncol, size(data, 1))
+  St = Array{AbstractFloat, 2}(undef, ncol, size(data, 1))
   for i in 1:size(data, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data[i, base]])
     s = s_base
@@ -423,13 +423,13 @@ vector, and sum up all features to compose the semantic vector.
 ...
 # Arguments
 - `base::Vector=["Lexeme"]`: the base features 
-- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
-- `sd_base_mean::Int64=1`: the sd mean of base features
-- `sd_base::Int64=4`: the sd of base features
-- `seed::Int64=314`: the random seed
+- `ncol::Integer=200`: the dimension size of vectors, usually the same as cue vectors
+- `sd_base_mean::Integer=1`: the sd mean of base features
+- `sd_base::Integer=4`: the sd of base features
+- `seed::Integer=314`: the random seed
 - `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
 - `add_noise::Bool=true`: whether to add noise at the end of construction
-- `sd_noise::Int64=1`: the sd of the noise matrix
+- `sd_noise::Integer=1`: the sd of the noise matrix
 
 # Examples
 ```julia
@@ -446,13 +446,13 @@ function make_S_matrix(
   data_train::DataFrame,
   data_val::DataFrame;
   base=["Lexeme"]::Array,
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_base=4::Int64,
-  seed=314::Int64,
+  ncol=200::Integer,
+  sd_base_mean=1::Integer,
+  sd_base=4::Integer,
+  seed=314::Integer,
   isdeep=true::Bool,
   add_noise=true::Bool,
-  sd_noise=1::Int64
+  sd_noise=1::Integer
   )::Tuple{Matrix, Matrix}
 
   # collect all infl_features
@@ -470,7 +470,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St_train = Array{Float64, 2}(undef, ncol, size(data_train, 1))
+  St_train = Array{AbstractFloat, 2}(undef, ncol, size(data_train, 1))
   for i in 1:size(data_train, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data_train[i, base]])
     s = s_base
@@ -485,7 +485,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St_val = Array{Float64, 2}(undef, ncol, size(data_val, 1))
+  St_val = Array{AbstractFloat, 2}(undef, ncol, size(data_val, 1))
   for i in 1:size(data_val, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data_val[i, base]])
     s = s_base

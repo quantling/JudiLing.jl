@@ -14,7 +14,7 @@ display prediction nicely
 function display_pred(
   preds::Array,
   i2f::Dict,
-  grams::Int64,
+  grams::Integer,
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   start_end_token="#"::Union{String, Char},
@@ -39,7 +39,7 @@ translate indices into words or utterances
 function translate(
   ngrams_ind,
   i2f,
-  grams::Int64,
+  grams::Integer,
   tokenized::Bool,
   sep_token::Union{Nothing, String, Char},
   start_end_token::Union{String, Char},
@@ -76,7 +76,7 @@ check whether a matrix is truly sparse regardless its format
 """
 function is_truly_sparse(
   M::SparseMatrixCSC;
-  threshold=0.25::Float64,
+  threshold=0.25::AbstractFloat,
   verbose=false::Bool
   )::Bool
   verbose && println("Sparsity: $(length(M.nzval)/M.m/M.n)")
@@ -88,7 +88,7 @@ check whether a matrix is truly sparse regardless its format
 """
 function is_truly_sparse(
   M::Matrix;
-  threshold=0.25::Float64,
+  threshold=0.25::AbstractFloat,
   verbose=false::Bool
   )::Bool
   M = sparse(M)
@@ -112,7 +112,7 @@ check a gram is attach to another gram
 """
 function isattachable(
   a::Array,
-  c::Int64,
+  c::Integer,
   Al::SparseMatrixCSC
   )::Bool
 
@@ -144,7 +144,7 @@ end
 check a gram could start a path
 """
 function isstart(
-  c::Int64,
+  c::Integer,
   i2f::Dict;
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char}

@@ -10,7 +10,7 @@ struct Cue_Matrix_Struct
   C::Union{Matrix, SparseMatrixCSC}
   f2i::Dict
   i2f::Dict
-  gold_ind::Vector{Vector{Int64}}
+  gold_ind::Vector{Vector{Integer}}
   A::SparseMatrixCSC
 end
 
@@ -31,7 +31,7 @@ This function makes cue matrix and corresponding indices given dataset as csv fi
 
 ...
 # Arguments
-- `grams::Int64=3`: the number of grams for cues 
+- `grams::Integer=3`: the number of grams for cues 
 - `words_column::Union{String, Symbol}=:Words`: the column name for word
 - `tokenized::Bool=false`: whether the word is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: what is the seperate token
@@ -54,7 +54,7 @@ latin_cue_obj_train = JuLDL.make_cue_matrix(
 """
 function make_cue_matrix(
   data::DataFrame;
-  grams=3::Int64,
+  grams=3::Integer,
   words_column=:Words::Union{String, Symbol},
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
@@ -84,11 +84,11 @@ function make_cue_matrix(
 
   m = size(data, 1)
   n = length(ngrams_features)
-  I = zeros(Int64, n_f)
-  J = zeros(Int64, n_f)
-  V = ones(Int64, n_f)
+  I = zeros(Integer, n_f)
+  J = zeros(Integer, n_f)
+  V = ones(Integer, n_f)
 
-  A = [Int64[] for i in 1:length(ngrams_features)]
+  A = [Integer[] for i in 1:length(ngrams_features)]
 
   cnt = 0
   for (i, v) in enumerate(ngrams)
@@ -114,9 +114,9 @@ function make_cue_matrix(
   verbose && println("making adjacency matrix...")
   A = [sort(unique(i)) for i in A]
   n_adj = sum(length.(A))
-  I = zeros(Int64, n_adj)
-  J = zeros(Int64, n_adj)
-  V = ones(Int64, n_adj)
+  I = zeros(Integer, n_adj)
+  J = zeros(Integer, n_adj)
+  V = ones(Integer, n_adj)
 
   cnt = 0
   iter = enumerate(A)
@@ -143,7 +143,7 @@ the same indices.
 
 ...
 # Arguments
-- `grams::Int64=3`: the number of grams for cues 
+- `grams::Integer=3`: the number of grams for cues 
 - `words_column::Union{String, Symbol}=:Words`: the column name for word
 - `tokenized::Bool=false`: whether the word is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: what is the seperate token
@@ -178,7 +178,7 @@ latin_cue_obj_val = JuLDL.make_cue_matrix(
 function make_cue_matrix(
   data::DataFrame,
   cue_obj::Cue_Matrix_Struct;
-  grams=3::Int64,
+  grams=3::Integer,
   words_column="Words"::String,
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
@@ -205,9 +205,9 @@ function make_cue_matrix(
 
   m = size(data, 1)
   n = length(f2i)
-  I = zeros(Int64, n_f)
-  J = zeros(Int64, n_f)
-  V = ones(Int64, n_f)
+  I = zeros(Integer, n_f)
+  J = zeros(Integer, n_f)
+  V = ones(Integer, n_f)
 
 
   cnt = 0
@@ -226,14 +226,14 @@ function make_cue_matrix(
 end
 
 """
-  make_ngrams(::Array,::Int64,::Bool,
+  make_ngrams(::Array,::Integer,::Bool,
   ::Union{Nothing, String, Char},::Union{String, Char}
 
 given a list of tokens, return all ngrams in a list
 """
 function make_ngrams(
   tokens::Array,
-  grams=3::Int64,
+  grams=3::Integer,
   keep_sep=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   start_end_token="#"::Union{String, Char}
