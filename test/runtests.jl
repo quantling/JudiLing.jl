@@ -11,3 +11,7 @@ end
 @safetestset "cholesky tests" begin
   include("cholesky_tests.jl")
 end
+
+@safetestset "make adjacency matrix" begin
+    include("make_adjacency_matrix_tests.jl")
+end

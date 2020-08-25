@@ -14,5 +14,6 @@ include("utils.jl")
 include("make_cue_matrix.jl")
 include("make_semantic_matrix.jl")
 include("cholesky.jl")
+include("make_adjacency_matrix.jl")
 
 end

@@ -17,6 +17,7 @@ makedocs(;
             "Make Cue Matrix" => "man/make_cue_matrix.md",
             "Make Semantic Matrix" => "man/make_semantic_matrix.md",
             "Cholesky" => "man/cholesky.md",
+            "Make Adjacency Matrix" => "man/make_adjacency_matrix.md",
             "Utils" => "man/utils.md"
         ],
         "All Manual index" => "man/all_manual.md"
