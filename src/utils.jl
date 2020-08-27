@@ -171,3 +171,65 @@ function isnovel(
 
   !(pred_ngrams_ind in gold_ind)
 end
+
+"""
+check whether there are token used in dataset
+"""
+function check_used_token(
+  data::DataFrame,
+  words_column::Symbol,
+  token::Union{String, Char},
+  token_name::String
+  )::Nothing
+  data_columns = data[:, words_column]
+  res = filter(x->!isnothing(findfirst(token, x)) , data_columns)
+
+  if length(res) > 0
+    throw(ArgumentError("$token_name \"$token\" is already used in the dataset"))
+  end
+end
+
+"""
+calculate max timestep given training and validation datasets
+"""
+function cal_max_timestep(
+  data_train::DataFrame,
+  data_val::DataFrame,
+  words_column::Union{Symbol, String};
+  tokenized=false::Bool,
+  sep_token=""::Union{String, Char, Nothing}
+  )::Integer
+  words_train = data_train[:, words_column]
+  words_val = data_val[:, words_column]
+
+  if tokenized && !isnothing(sep_token)
+    max_l_words_train = maximum(x->length(split(x, sep_token)), words_train)
+    max_l_words_val = maximum(x->length(split(x, sep_token)), words_val)
+  else
+    max_l_words_train = maximum(x->length(split(x, "")), words_train)
+    max_l_words_val = maximum(x->length(split(x, "")), words_val)
+  end
+
+  maximum([max_l_words_train, max_l_words_val])+1
+end
+
+"""
+calculate max timestep given training dataset
+"""
+function cal_max_timestep(
+  data::DataFrame,
+  words_column::Union{Symbol, String};
+  tokenized=false::Bool,
+  sep_token=""::Union{String, Char}
+  )::Integer
+
+  words = data[:, words_column]
+
+  if tokenized && !isnothing(sep_token)
+    max_l_words = maximum(x->length(split(x, sep_token)), words)
+  else
+    max_l_words = maximum(x->length(split(x, "")), words)
+  end
+
+  max_l_words+1
+end

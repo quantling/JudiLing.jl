@@ -2,7 +2,7 @@
 CurrentModule = JuLDL
 ```
 
-# Cholesky
+# Make Adjacency Matrix
 
 ```@docs
   make_adjacency_matrix

@@ -19,3 +19,7 @@ end
 @safetestset "make yt matrix tests" begin
     include("make_yt_matrix_tests.jl")
 end
+
+@safetestset "find path tests" begin
+    include("find_path_tests.jl")
+end

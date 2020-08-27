@@ -19,6 +19,7 @@ makedocs(;
             "Cholesky" => "man/cholesky.md",
             "Make Adjacency Matrix" => "man/make_adjacency_matrix.md",
             "Make Yt Matrix" => "man/make_yt_matrix.md",
+            "Find Paths" => "man/find_path.md"
             "Utils" => "man/utils.md"
         ],
         "All Manual index" => "man/all_manual.md"

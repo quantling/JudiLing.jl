@@ -84,11 +84,11 @@ function make_cue_matrix(
 
   m = size(data, 1)
   n = length(ngrams_features)
-  I = zeros(Integer, n_f)
-  J = zeros(Integer, n_f)
-  V = ones(Integer, n_f)
+  I = zeros(Int64, n_f)
+  J = zeros(Int64, n_f)
+  V = ones(Int64, n_f)
 
-  A = [Integer[] for i in 1:length(ngrams_features)]
+  A = [Int64[] for i in 1:length(ngrams_features)]
 
   cnt = 0
   for (i, v) in enumerate(ngrams)
@@ -114,9 +114,9 @@ function make_cue_matrix(
   verbose && println("making adjacency matrix...")
   A = [sort(unique(i)) for i in A]
   n_adj = sum(length.(A))
-  I = zeros(Integer, n_adj)
-  J = zeros(Integer, n_adj)
-  V = ones(Integer, n_adj)
+  I = zeros(Int64, n_adj)
+  J = zeros(Int64, n_adj)
+  V = ones(Int64, n_adj)
 
   cnt = 0
   iter = enumerate(A)
@@ -205,9 +205,9 @@ function make_cue_matrix(
 
   m = size(data, 1)
   n = length(f2i)
-  I = zeros(Integer, n_f)
-  J = zeros(Integer, n_f)
-  V = ones(Integer, n_f)
+  I = zeros(Int64, n_f)
+  J = zeros(Int64, n_f)
+  V = ones(Int64, n_f)
 
 
   cnt = 0

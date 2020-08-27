@@ -2,7 +2,7 @@
 CurrentModule = JuLDL
 ```
 
-# Make Semantic Matrix
+# Make Yt Matrix
 
 ```@docs
   make_Yt_matrix

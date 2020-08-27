@@ -58,9 +58,9 @@ function make_Yt_matrix(
 
   m = size(data, 1)
   n = length(ngrams_features)
-  I = zeros(Integer, n_f)
-  J = zeros(Integer, n_f)
-  V = ones(Integer, n_f)
+  I = zeros(Int64, n_f)
+  J = zeros(Int64, n_f)
+  V = ones(Int64, n_f)
 
   cnt = 0
   for (i, v) in enumerate(ngrams)

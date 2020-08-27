@@ -62,9 +62,9 @@ function make_pS_matrix(
   # initialize sparse matrix components
   m = size(utterances, 1)
   n = length(i2f)
-  I = zeros(Integer, n_f)
-  J = zeros(Integer, n_f)
-  V = ones(Integer, n_f)
+  I = zeros(Int64, n_f)
+  J = zeros(Int64, n_f)
+  V = ones(Int64, n_f)
 
   # calculate each cell in sparse matrix
   cnt = 0
@@ -126,9 +126,9 @@ function make_pS_matrix(
   # initialize sparse matrix components
   m = size(utterances, 1)
   n = length(i2f)
-  I = zeros(Integer, n_f)
-  J = zeros(Integer, n_f)
-  V = ones(Integer, n_f)
+  I = zeros(Int64, n_f)
+  J = zeros(Int64, n_f)
+  V = ones(Int64, n_f)
 
   # calculate each cell in sparse matrix
   cnt = 0

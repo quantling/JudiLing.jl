@@ -29,7 +29,7 @@ function make_transform_fac(
   else
     # convert value to AbstractFloat
     # otherwise multiplier would raise error
-    XtX = convert(SparseMatrixCSC{AbstractFloat,Integer}, XtX)
+    XtX = convert(SparseMatrixCSC{AbstractFloat,Int64}, XtX)
     for i in 1:size(XtX,2)
       XtX[i,i] *= multiplier
     end
@@ -134,7 +134,7 @@ function make_transform_matrix(
   if method == :additive
     fac = cholesky(XtX, shift=shift)
   else
-    XtX = convert(SparseMatrixCSC{AbstractFloat,Integer}, XtX)
+    XtX = convert(SparseMatrixCSC{AbstractFloat,Int64}, XtX)
     for i in 1:size(XtX,2)
       XtX[i,i] *= multiplier
     end
@@ -237,7 +237,7 @@ function make_transform_matrix(
   else
     # convert value to AbstractFloat
     # otherwise multiplier would raise error
-    XtX = convert(SparseMatrixCSC{AbstractFloat,Integer}, XtX)
+    XtX = convert(SparseMatrixCSC{AbstractFloat,Int64}, XtX)
     for i in 1:size(XtX,2)
       XtX[i,i] *= multiplier
     end
