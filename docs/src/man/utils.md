@@ -14,4 +14,6 @@ CurrentModule = JuLDL
   iscomplete
   isstart
   isnovel
+  check_used_token
+  cal_max_timestep
 ```
