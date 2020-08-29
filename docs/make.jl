@@ -20,6 +20,7 @@ makedocs(;
             "Make Adjacency Matrix" => "man/make_adjacency_matrix.md",
             "Make Yt Matrix" => "man/make_yt_matrix.md",
             "Find Paths" => "man/find_path.md",
+            "Evaluation" => "man/eval.md",
             "Utils" => "man/utils.md"
         ],
         "All Manual index" => "man/all_manual.md"

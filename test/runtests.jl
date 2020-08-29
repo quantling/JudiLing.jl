@@ -23,3 +23,7 @@ end
 @safetestset "find path tests" begin
     include("find_path_tests.jl")
 end
+
+@safetestset "eval tests" begin
+    include("eval_tests.jl")
+end

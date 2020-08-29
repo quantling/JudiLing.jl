@@ -2,7 +2,7 @@ using JuLDL
 using CSV
 using Test
 
-@testset "path finding for latin" begin
+@testset "eval for latin" begin
   try
     latin_train = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
     cue_obj_train = JuLDL.make_cue_matrix(
@@ -36,11 +36,15 @@ using Test
 
     Chat_train = S_train * G_train
     Chat_val = S_val * G_train
+    JuLDL.eval_SC(cue_obj_train.C, Chat_train)
+    JuLDL.eval_SC(cue_obj_val.C, Chat_val)
 
     F_train = JuLDL.make_transform_matrix(cue_obj_train.C, S_train)
 
     Shat_train = cue_obj_train.C * F_train
     Shat_val = cue_obj_val.C * F_train
+    JuLDL.eval_SC(S_train, Shat_train)
+    JuLDL.eval_SC(S_val, Shat_val)
 
     A = cue_obj_train.A
 
@@ -94,6 +98,27 @@ using Test
       words_column=:Word,
       issparse=:dense,
       verbose=false)
+
+    acc_train = JuLDL.eval_acc(
+      res_train,
+      cue_obj_train.gold_ind,
+      verbose=false
+    )
+    acc_val = JuLDL.eval_acc(
+      res_val,
+      cue_obj_val.gold_ind,
+      verbose=false
+    )
+    acc_train_loose = JuLDL.eval_acc_loose(
+      res_train,
+      cue_obj_train.gold_ind,
+      verbose=false
+    )
+    acc_val_loose = JuLDL.eval_acc_loose(
+      res_val,
+      cue_obj_val.gold_ind,
+      verbose=false
+    )
 
     @test true
   catch e

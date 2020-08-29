@@ -17,5 +17,6 @@ include("cholesky.jl")
 include("make_adjacency_matrix.jl")
 include("make_yt_matrix.jl")
 include("find_path.jl")
+include("eval.jl")
 
 end
