@@ -134,12 +134,6 @@ git-tree-sha1 = "b34d7cef7b337321e97d22242c3c2b91f476748e"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.0"
 
-[[JuLDL]]
-deps = ["BenchmarkTools", "CSV", "DataFrames", "DataStructures", "Distributions", "Documenter", "DocumenterLaTeX", "GZip", "LinearAlgebra", "ProgressBars", "PyCall", "Random", "SparseArrays", "Statistics", "SuiteSparse"]
-path = ".."
-uuid = "b43a184b-0e9d-488b-813a-80fd5dbc9fd8"
-version = "0.1.0"
-
 [[LibGit2]]
 deps = ["Printf"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"

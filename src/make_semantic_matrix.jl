@@ -34,7 +34,7 @@ This is a function that create prelinguistic matrix giving a csv file.
 # Examples
 ```julia
 utterance = CSV.DataFrame!(CSV.File(joinpath("data", "utterance_mini.csv")))
-s_obj_train = JuLDL.make_pS_matrix(utterance)
+s_obj_train = JudiLing.make_pS_matrix(utterance)
 ```
 ...
 """
@@ -96,8 +96,8 @@ training s_obj. The feature indices should maintain the same as thoes in s_obj.
 # Examples
 ```julia
 utterance = CSV.DataFrame!(CSV.File(joinpath("data", "utterance_mini.csv")))
-s_obj_train = JuLDL.make_pS_matrix(utterance)
-s_obj_val = JuLDL.make_pS_matrix(utterance_val, s_obj_train)
+s_obj_train = JudiLing.make_pS_matrix(utterance)
+s_obj_val = JudiLing.make_pS_matrix(utterance_val, s_obj_train)
 ```
 ...
 """
@@ -169,7 +169,7 @@ random semantic vector, and sum up all features to compose the semantic vector.
 ```julia
 # Examples
 french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
-S_train = JuLDL.make_S_matrix(
+S_train = JudiLing.make_S_matrix(
   french,
   ["Lexeme"],
   ["Tense","Aspect","Person","Number","Gender","Class","Mood"])
@@ -258,7 +258,7 @@ random semantic vector, and sum up all features to compose the semantic vector.
 # Examples
 french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
 french_val = french[100:end,:]
-S_train, S_val = JuLDL.make_S_matrix(
+S_train, S_val = JudiLing.make_S_matrix(
     french,
     french_val,
     ["Lexeme"],
@@ -364,7 +364,7 @@ vector, and sum up all features to compose the semantic vector.
 ```julia
 french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
 
-S_train = JuLDL.make_S_matrix(
+S_train = JudiLing.make_S_matrix(
   french,
   base=["Lexeme"])=
 ```
@@ -435,7 +435,7 @@ vector, and sum up all features to compose the semantic vector.
 ```julia
 french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
 french_val = french[100:end,:]
-S_train, S_val = JuLDL.make_S_matrix(
+S_train, S_val = JudiLing.make_S_matrix(
     french,
     french_val,
     base=["Lexeme"])

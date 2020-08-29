@@ -1,11 +1,11 @@
-using JuLDL
+using JudiLing
 using Test
 using CSV
 
 @testset "make cue matrix for latin" begin
   try
     latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
-    JuLDL.make_Yt_matrix(
+    JudiLing.make_Yt_matrix(
       2,
       latin,
       words_column=:Word)

@@ -1,14 +1,14 @@
-using JuLDL
+using JudiLing
 using Documenter
 
 makedocs(;
-    modules=[JuLDL],
+    modules=[JudiLing],
     authors="Xuefeng Luo",
-    repo="https://github.com/MegamindHenry/JuLDL.jl/blob/{commit}{path}#L{line}",
-    sitename="JuLDL.jl",
+    repo="https://github.com/MegamindHenry/JudiLing.jl/blob/{commit}{path}#L{line}",
+    sitename="JudiLing.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://MegamindHenry.github.io/JuLDL.jl",
+        canonical="https://MegamindHenry.github.io/JudiLing.jl",
         assets=String[],
     ),
     pages=[
@@ -28,5 +28,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/MegamindHenry/JuLDL.jl",
+    repo="github.com/MegamindHenry/JudiLing.jl",
 )

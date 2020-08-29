@@ -1,4 +1,4 @@
-module JuLDL
+module JudiLing
 
 using DataFrames
 using Random, Distributions

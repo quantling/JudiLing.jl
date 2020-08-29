@@ -42,7 +42,7 @@ This function makes cue matrix and corresponding indices given dataset as csv fi
 # Examples
 ```julia
 latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
-latin_cue_obj_train = JuLDL.make_cue_matrix(
+latin_cue_obj_train = JudiLing.make_cue_matrix(
   latin,
   grams=3,
   words_column=:Word,
@@ -154,7 +154,7 @@ the same indices.
 # Examples
 ```julia
 latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
-latin_cue_obj_train = JuLDL.make_cue_matrix(
+latin_cue_obj_train = JudiLing.make_cue_matrix(
   latin,
   grams=3,
   words_column=:Word,
@@ -164,7 +164,7 @@ latin_cue_obj_train = JuLDL.make_cue_matrix(
 # simulate the val dataset. Notice here that latin_val is part of training dataset to make
 # sure all features and n-grams covered by training dataset.
 latin_val = latin[101:150,:]
-latin_cue_obj_val = JuLDL.make_cue_matrix(
+latin_cue_obj_val = JudiLing.make_cue_matrix(
   latin_val,
   latin_cue_obj_train,
   grams=3,

@@ -80,7 +80,7 @@ second part of calculate cholesky decomposition transformation matrix
   C = [1 1 1 1 0 0 0 0; 1 0 1 0 1 0 1 0; 0 0 0 0 1 1 1 1]
   S = [1 0 1 0; 1 1 0 0; 0 0 1 1]
 
-  JuLDL.make_transform_matrix(C, S)
+  JudiLing.make_transform_matrix(C, S)
 ```
 ...
 """
@@ -115,7 +115,7 @@ where X is a sparse matrix and Y is a dense matrix
   C = [1 1 1 1 0 0 0 0; 1 0 1 0 1 0 1 0; 0 0 0 0 1 1 1 1]
   S = [1 0 1 0; 1 1 0 0; 0 0 1 1]
 
-  JuLDL.make_transform_matrix(C, S)
+  JudiLing.make_transform_matrix(C, S)
 ```
 ...
 """
@@ -166,7 +166,7 @@ where X is a dense matrix and Y is either a dense matrix or a sparse matrix
   C = [1 1 1 1 0 0 0 0; 1 0 1 0 1 0 1 0; 0 0 0 0 1 1 1 1]
   S = [1 0 1 0; 1 1 0 0; 0 0 1 1]
 
-  JuLDL.make_transform_matrix(C, S)
+  JudiLing.make_transform_matrix(C, S)
 ```
 ...
 """
@@ -216,7 +216,7 @@ where X is a sparse matrix and Y is a sparse matrix
   C = [1 1 1 1 0 0 0 0; 1 0 1 0 1 0 1 0; 0 0 0 0 1 1 1 1]
   S = [1 0 1 0; 1 1 0 0; 0 0 1 1]
 
-  JuLDL.make_transform_matrix(C, S)
+  JudiLing.make_transform_matrix(C, S)
 ```
 ...
 """

@@ -78,12 +78,12 @@ Evaluate the outputs from shuo function or hua function
 # Examples
 ```julia
 #after you had results from shuo or hua
-acc_train = JuLDL.eval_acc(
+acc_train = JudiLing.eval_acc(
   res_train,
   cue_obj_train.gold_ind,
   verbose=false
 )
-acc_val = JuLDL.eval_acc(
+acc_val = JudiLing.eval_acc(
   res_val,
   cue_obj_val.gold_ind,
   verbose=false
@@ -126,12 +126,12 @@ but we could not recogni
 # Examples
 ```julia
 #after you had results from shuo or hua
-acc_train_loose = JuLDL.eval_acc_loose(
+acc_train_loose = JudiLing.eval_acc_loose(
   res_train,
   cue_obj_train.gold_ind,
   verbose=false
 )
-acc_val_loose = JuLDL.eval_acc_loose(
+acc_val_loose = JudiLing.eval_acc_loose(
   res_val,
   cue_obj_val.gold_ind,
   verbose=false

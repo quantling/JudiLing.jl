@@ -1,11 +1,11 @@
-using JuLDL
+using JudiLing
 using CSV
 using Test
 
 @testset "eval for latin" begin
   try
     latin_train = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
-    cue_obj_train = JuLDL.make_cue_matrix(
+    cue_obj_train = JudiLing.make_cue_matrix(
       latin_train,
       grams=3,
       words_column=:Word,
@@ -14,7 +14,7 @@ using Test
       )
 
     latin_val = latin_train[101:150,:]
-    cue_obj_val = JuLDL.make_cue_matrix(
+    cue_obj_val = JudiLing.make_cue_matrix(
       latin_val,
       cue_obj_train,
       grams=3,
@@ -25,32 +25,32 @@ using Test
 
     n_features = size(cue_obj_train.C, 2)
 
-    S_train, S_val = JuLDL.make_S_matrix(
+    S_train, S_val = JudiLing.make_S_matrix(
       latin_train,
       latin_val,
       ["Lexeme"],
       ["Person","Number","Tense","Voice","Mood"],
       ncol=n_features)
 
-    G_train = JuLDL.make_transform_matrix(S_train, cue_obj_train.C)
+    G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
 
     Chat_train = S_train * G_train
     Chat_val = S_val * G_train
-    JuLDL.eval_SC(cue_obj_train.C, Chat_train)
-    JuLDL.eval_SC(cue_obj_val.C, Chat_val)
+    JudiLing.eval_SC(cue_obj_train.C, Chat_train)
+    JudiLing.eval_SC(cue_obj_val.C, Chat_val)
 
-    F_train = JuLDL.make_transform_matrix(cue_obj_train.C, S_train)
+    F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
 
     Shat_train = cue_obj_train.C * F_train
     Shat_val = cue_obj_val.C * F_train
-    JuLDL.eval_SC(S_train, Shat_train)
-    JuLDL.eval_SC(S_val, Shat_val)
+    JudiLing.eval_SC(S_train, Shat_train)
+    JudiLing.eval_SC(S_val, Shat_val)
 
     A = cue_obj_train.A
 
-    max_t = JuLDL.cal_max_timestep(latin_train, latin_val, :Word)
+    max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
 
-    res_train, gpi_train = JuLDL.shuo(
+    res_train, gpi_train = JudiLing.shuo(
       latin_train,
       latin_train,
       cue_obj_train.C,
@@ -73,7 +73,7 @@ using Test
       issparse=:dense,
       verbose=false)
 
-    res_val, gpi_val = JuLDL.shuo(
+    res_val, gpi_val = JudiLing.shuo(
       latin_train,
       latin_val,
       cue_obj_train.C,
@@ -99,22 +99,22 @@ using Test
       issparse=:dense,
       verbose=false)
 
-    acc_train = JuLDL.eval_acc(
+    acc_train = JudiLing.eval_acc(
       res_train,
       cue_obj_train.gold_ind,
       verbose=false
     )
-    acc_val = JuLDL.eval_acc(
+    acc_val = JudiLing.eval_acc(
       res_val,
       cue_obj_val.gold_ind,
       verbose=false
     )
-    acc_train_loose = JuLDL.eval_acc_loose(
+    acc_train_loose = JudiLing.eval_acc_loose(
       res_train,
       cue_obj_train.gold_ind,
       verbose=false
     )
-    acc_val_loose = JuLDL.eval_acc_loose(
+    acc_val_loose = JudiLing.eval_acc_loose(
       res_val,
       cue_obj_val.gold_ind,
       verbose=false

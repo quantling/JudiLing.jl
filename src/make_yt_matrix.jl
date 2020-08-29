@@ -18,7 +18,7 @@ they are seen in the training data. This usually takes hours for large dataset.
 # Examples
 ```julia
 latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
-JuLDL.make_Yt_matrix(2, latin)
+JudiLing.make_Yt_matrix(2, latin)
 ```
 ...
 """
