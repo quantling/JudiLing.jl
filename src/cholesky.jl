@@ -1,5 +1,5 @@
 """
-the first part of make transform matrix, usually in the shuo function to same
+the first part of make transform matrix, usually in the learn_paths function to same
 time and computing resources
 """
 function make_transform_fac end

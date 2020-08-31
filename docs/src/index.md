@@ -53,7 +53,7 @@ We use letter n-grams to encode our forms. For word `vocoo`, for example, we enc
 cue_obj_train = JudiLing.make_cue_matrix(
   latin_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -66,7 +66,7 @@ cue_obj_val = JudiLing.make_cue_matrix(
   latin_val,
   cue_obj_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -127,7 +127,7 @@ max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
 
 Finally, we make to our path finding function to predict forms in a sequence.
 ```julia
-res_train, gpi_train = JudiLing.shuo(
+res_train, gpi_train = JudiLing.learn_paths(
   latin_train,
   latin_train,
   cue_obj_train.C,
@@ -146,11 +146,11 @@ res_train, gpi_train = JudiLing.shuo(
   tokenized=false,
   sep_token="_",
   keep_sep=false,
-  words_column=:Word,
+  target_col=:Word,
   issparse=:dense,
   verbose=true)
 
-res_val, gpi_val = JudiLing.shuo(
+res_val, gpi_val = JudiLing.learn_paths(
   latin_train,
   latin_val,
   cue_obj_train.C,
@@ -172,7 +172,7 @@ res_val, gpi_val = JudiLing.shuo(
   tokenized=false,
   sep_token="-",
   keep_sep=false,
-  words_column=:Word,
+  target_col=:Word,
   issparse=:dense,
   verbose=true)
 ```

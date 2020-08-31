@@ -1,5 +1,5 @@
 """
-store paths information found by shuo or hua function
+store paths information found by learn_paths or build_paths function
 """
 struct Result_Path_Info_Struct
   ngrams_ind::Array
@@ -18,20 +18,20 @@ struct Gold_Path_Info_Struct
 end
 
 """
-shuo function takes each timestep individually and calculate Yt_hat respectively,
+learn_paths function takes each timestep individually and calculate Yt_hat respectively,
 """
-function shuo end
+function learn_paths end
 
 """
-hua function is shortcut algorithms that only takes n-grams that closed to the
+build_paths function is shortcut algorithms that only takes n-grams that closed to the
 validation data
 """
-function hua end
+function build_paths end
 
 """
-  shuo(::DataFrame,::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict)
+  learn_paths(::DataFrame,::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict)
 
-shuo function takes each timestep individually and calculate Yt_hat respectively,
+learn_paths function takes each timestep individually and calculate Yt_hat respectively,
 
 ...
 # Arguments
@@ -48,7 +48,7 @@ shuo function takes each timestep individually and calculate Yt_hat respectively
 - `tokenized::Bool=false`: whether tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: seperate token
 - `keep_sep::Bool=false`: whether keep seperaters in grams
-- `words_column::Union{String, :Symbol}=:Words`: word column names
+- `target_col::Union{String, :Symbol}=:Words`: word column names
 - `issparse::Symbol=:auto`: mt matrix output format mode
 - `verbose::Bool=false`: if verbose, more information will be printed out
 
@@ -58,7 +58,7 @@ latin_train = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
 cue_obj_train = JudiLing.make_cue_matrix(
   latin_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -68,7 +68,7 @@ cue_obj_val = JudiLing.make_cue_matrix(
   latin_val,
   cue_obj_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -96,7 +96,7 @@ A = cue_obj_train.A
 
 max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
 
-res_train, gpi_train = JudiLing.shuo(
+res_train, gpi_train = JudiLing.learn_paths(
   latin_train,
   latin_train,
   cue_obj_train.C,
@@ -115,11 +115,11 @@ res_train, gpi_train = JudiLing.shuo(
   tokenized=false,
   sep_token="_",
   keep_sep=false,
-  words_column=:Word,
+  target_col=:Word,
   issparse=:dense,
   verbose=false)
 
-res_val, gpi_val = JudiLing.shuo(
+res_val, gpi_val = JudiLing.learn_paths(
   latin_train,
   latin_val,
   cue_obj_train.C,
@@ -141,13 +141,13 @@ res_val, gpi_val = JudiLing.shuo(
   tokenized=false,
   sep_token="-",
   keep_sep=false,
-  words_column=:Word,
+  target_col=:Word,
   issparse=:dense,
   verbose=false)
 ```
 ...
 """
-function shuo(
+function learn_paths(
   data_train::DataFrame,
   data_val::DataFrame,
   C_train::SparseMatrixCSC,
@@ -169,7 +169,7 @@ function shuo(
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   keep_sep=false::Bool,
-  words_column="Words"::String,
+  target_col="Words"::String,
   issparse=:auto::Symbol,
   verbose=false::Bool
   )::Union{Tuple{Vector{Vector{Result_Path_Info_Struct}}, Vector{Gold_Path_Info_Struct}}, Vector{Vector{Result_Path_Info_Struct}}}
@@ -206,7 +206,7 @@ function shuo(
       i,
       data_train,
       grams=grams,
-      words_column=words_column,
+      target_col=target_col,
       tokenized=tokenized,
       sep_token=sep_token,
       keep_sep=keep_sep)
@@ -342,21 +342,21 @@ function shuo(
 end
 
 """
-  hua(::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict,::Array)
+  build_paths(::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict,::Array)
 
-hua function is shortcut algorithms that only takes n-grams that closed to the
+build_paths function is shortcut algorithms that only takes n-grams that closed to the
 validation data
 
 ...
 # Arguments
-- `rC::Union{Nothing, Matrix}=nothing`: correlation between c and chat, passing to save computing time 
+- `rC::Union{Nothing, Matrix}=nothing`: correlation Matrix of C and Chat, passing it to save computing time
 - `max_t::Integer=15`: maximum timestep
 - `max_can::Integer=10`: maximum candidates when output
 - `n_neighbors::Integer=10`: find indices only in top n neighbors
 - `grams::Integer=3`: n-grams
 - `tokenized::Bool=false`: whether tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: seperate token
-- `words_column::Union{String, :Symbol}=:Words`: word column names
+- `target_col::Union{String, :Symbol}=:Words`: word column names
 - `verbose::Bool=false`: if verbose, more information will be printed out
 
 # Examples
@@ -365,7 +365,7 @@ latin_train = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
 cue_obj_train = JudiLing.make_cue_matrix(
   latin_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -375,7 +375,7 @@ cue_obj_val = JudiLing.make_cue_matrix(
   latin_val,
   cue_obj_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -403,7 +403,7 @@ A = cue_obj_train.A
 
 max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
 
-JudiLing.hua(
+JudiLing.build_paths(
   latin_train,
   cue_obj_train.C,
   S_train,
@@ -417,7 +417,7 @@ JudiLing.hua(
   verbose=false
   )
 
-JudiLing.hua(
+JudiLing.build_paths(
   latin_val,
   cue_obj_train.C,
   S_val,
@@ -433,7 +433,7 @@ JudiLing.hua(
 ```
 ...
 """
-function hua(
+function build_paths(
   data_val::DataFrame,
   C_train::SparseMatrixCSC,
   S_val::Union{SparseMatrixCSC, Matrix},
@@ -449,7 +449,7 @@ function hua(
   grams=3::Integer,
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
-  words_column=:Words::Union{String, Symbol},
+  target_col=:Words::Union{String, Symbol},
   verbose=false::Bool
   )::Vector{Vector{Result_Path_Info_Struct}}
   # initialize queues for storing paths

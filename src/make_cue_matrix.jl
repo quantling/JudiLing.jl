@@ -32,7 +32,7 @@ This function makes cue matrix and corresponding indices given dataset as csv fi
 ...
 # Arguments
 - `grams::Integer=3`: the number of grams for cues 
-- `words_column::Union{String, Symbol}=:Words`: the column name for word
+- `target_col::Union{String, Symbol}=:Words`: the column name for target
 - `tokenized::Bool=false`: whether the word is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: what is the seperate token
 - `keep_sep::Bool=false`: whether to keep seperater in cues
@@ -45,7 +45,7 @@ latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
 latin_cue_obj_train = JudiLing.make_cue_matrix(
   latin,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -55,7 +55,7 @@ latin_cue_obj_train = JudiLing.make_cue_matrix(
 function make_cue_matrix(
   data::DataFrame;
   grams=3::Integer,
-  words_column=:Words::Union{String, Symbol},
+  target_col=:Words::Union{String, Symbol},
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   keep_sep=false::Bool,
@@ -65,9 +65,9 @@ function make_cue_matrix(
 
   # split tokens from words or other columns
   if tokenized && !isnothing(sep_token)
-    tokens = split.(data[:, words_column], sep_token)
+    tokens = split.(data[:, target_col], sep_token)
   else
-    tokens = split.(data[:, words_column], "")
+    tokens = split.(data[:, target_col], "")
   end
 
   # making ngrams from tokens
@@ -144,7 +144,7 @@ the same indices.
 ...
 # Arguments
 - `grams::Integer=3`: the number of grams for cues 
-- `words_column::Union{String, Symbol}=:Words`: the column name for word
+- `target_col::Union{String, Symbol}=:Words`: the column name for target
 - `tokenized::Bool=false`: whether the word is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: what is the seperate token
 - `keep_sep::Bool=false`: whether to keep seperater in cues
@@ -157,7 +157,7 @@ latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
 latin_cue_obj_train = JudiLing.make_cue_matrix(
   latin,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -168,7 +168,7 @@ latin_cue_obj_val = JudiLing.make_cue_matrix(
   latin_val,
   latin_cue_obj_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -179,7 +179,7 @@ function make_cue_matrix(
   data::DataFrame,
   cue_obj::Cue_Matrix_Struct;
   grams=3::Integer,
-  words_column="Words"::String,
+  target_col="Words"::String,
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   keep_sep=false::Bool,
@@ -189,9 +189,9 @@ function make_cue_matrix(
 
   # split tokens from words or other columns
   if tokenized && !isnothing(sep_token)
-    tokens = split.(data[:, words_column], sep_token)
+    tokens = split.(data[:, target_col], sep_token)
   else
-    tokens = split.(data[:, words_column], "")
+    tokens = split.(data[:, target_col], "")
   end
 
   # making ngrams from tokens

@@ -38,7 +38,7 @@ end
     cue_obj_train = JudiLing.make_cue_matrix(
       latin_train,
       grams=3,
-      words_column=:Word,
+      target_col=:Word,
       tokenized=false,
       keep_sep=false
       )
@@ -48,7 +48,7 @@ end
       latin_val,
       cue_obj_train,
       grams=3,
-      words_column=:Word,
+      target_col=:Word,
       tokenized=false,
       keep_sep=false
       )

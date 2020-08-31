@@ -69,7 +69,7 @@ end
 """
   eval_acc(::Array, ::Array)
 
-Evaluate the outputs from shuo function or hua function
+Evaluate the outputs from learn_paths function or build_paths function
 
 ...
 # Arguments
@@ -77,7 +77,7 @@ Evaluate the outputs from shuo function or hua function
 
 # Examples
 ```julia
-#after you had results from shuo or hua
+#after you had results from learn_paths or build_paths
 acc_train = JudiLing.eval_acc(
   res_train,
   cue_obj_train.gold_ind,
@@ -115,7 +115,7 @@ end
 """
   eval_acc_loose(::Array, ::Array)
 
-Evaluate the outputs from shuo function or hua function, if one of the candidates
+Evaluate the outputs from learn_paths function or build_paths function, if one of the candidates
 are correct, then we take it correct. This reflects how many paths we could found
 but we could not recogni
 
@@ -125,7 +125,7 @@ but we could not recogni
 
 # Examples
 ```julia
-#after you had results from shuo or hua
+#after you had results from learn_paths or build_paths
 acc_train_loose = JudiLing.eval_acc_loose(
   res_train,
   cue_obj_train.gold_ind,

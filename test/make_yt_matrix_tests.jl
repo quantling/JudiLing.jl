@@ -8,7 +8,7 @@ using CSV
     JudiLing.make_Yt_matrix(
       2,
       latin,
-      words_column=:Word)
+      target_col=:Word)
     @test true
   catch e
     @test e == false

@@ -26,7 +26,7 @@ function make_Yt_matrix(
   t::Integer,
   data::DataFrame;
   grams=3::Integer,
-  words_column="Words"::String,
+  target_col="Words"::String,
   tokenized=false::Bool,
   keep_sep=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
@@ -35,9 +35,9 @@ function make_Yt_matrix(
 
   # split tokens from words or other columns
   if tokenized && !isnothing(sep_token)
-    tokens = split.(data[:, words_column], sep_token)
+    tokens = split.(data[:, target_col], sep_token)
   else
-    tokens = split.(data[:, words_column], "")
+    tokens = split.(data[:, target_col], "")
   end
 
   # making ngrams from tokens

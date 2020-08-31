@@ -28,7 +28,7 @@ This is a function that create prelinguistic matrix giving a csv file.
 
 ...
 # Arguments
-- `col_name::Symbol=:CommunicativeIntention`: the column name for communicative intention
+- `features_col::Symbol=:CommunicativeIntention`: the column name for communicative intention
 - `sep_token::String="_"`: the seperated token in the communicative intention column
 
 # Examples
@@ -40,20 +40,20 @@ s_obj_train = JudiLing.make_pS_matrix(utterance)
 """
 function make_pS_matrix(
   utterances::DataFrame;
-  col_name=:CommunicativeIntention::Symbol,
+  features_col=:CommunicativeIntention::Symbol,
   sep_token="_"::String
   )::PS_Matrix_Struct
 
   # find out all possible features in this dataset
   features = unique(vcat(
-    split.(utterances[:, col_name], sep_token)...))
+    split.(utterances[:, features_col], sep_token)...))
 
   # using dict to store feature names
   f2i = Dict(v => i for (i, v) in enumerate(features))
   i2f = Dict(i => v for (i, v) in enumerate(features))
 
   # find out features for each utterance
-  vs = unique.(split.(utterances[:, col_name], sep_token))
+  vs = unique.(split.(utterances[:, features_col], sep_token))
 
   # total number of feature in the entire dataset
   # to initialize a sparse matrix
@@ -90,7 +90,7 @@ training s_obj. The feature indices should maintain the same as thoes in s_obj.
 
 ...
 # Arguments
-- `col_name::Symbol=:CommunicativeIntention`: the column name for communicative intention
+- `features_col::Symbol=:CommunicativeIntention`: the column name for communicative intention
 - `sep_token::String="_"`: the seperated token in the communicative intention column
 
 # Examples
@@ -104,20 +104,20 @@ s_obj_val = JudiLing.make_pS_matrix(utterance_val, s_obj_train)
 function make_pS_matrix(
   utterances::DataFrame,
   utterances_train::PS_Matrix_Struct;
-  col_name=:CommunicativeIntention::Symbol,
+  features_col=:CommunicativeIntention::Symbol,
   sep_token="_"::String
   )::PS_Matrix_Struct
 
   # find out all possible features in this dataset
   features = unique(vcat(
-    split.(utterances[:, col_name], sep_token)...))
+    split.(utterances[:, features_col], sep_token)...))
 
   # using dict to store feature names
   f2i = utterances_train.f2i
   i2f = utterances_train.i2f
 
   # find out features for each utterance
-  vs = unique.(split.(utterances[:, col_name], sep_token))
+  vs = unique.(split.(utterances[:, features_col], sep_token))
 
   # total number of feature in the entire dataset
   # to initialize a sparse matrix
@@ -163,7 +163,7 @@ random semantic vector, and sum up all features to compose the semantic vector.
 - `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
 - `add_noise::Bool=true`: whether to add noise at the end of construction
 - `sd_noise::Integer=1`: the sd of the noise matrix
-- `isnormalize::Bool=false`: if normalized, values of matrix maintain close between 1 and -1
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may exceeds 1 or -1 depending on the sd
 
 # Examples
 ```julia
@@ -189,7 +189,7 @@ function make_S_matrix(
   isdeep=true::Bool,
   add_noise=true::Bool,
   sd_noise=1::Integer,
-  isnormalize=false::Bool
+  normalized=false::Bool
   )::Matrix
 
   # collect all infl_features
@@ -227,7 +227,7 @@ function make_S_matrix(
       noise = rand(Normal(0, sd_noise), size(St, 1), size(St, 2))
       St += noise
   end
-  if isnormalize
+  if normalized
     n_features = length(base) + length(inflections)
     return St'./n_features
   end
@@ -251,7 +251,7 @@ random semantic vector, and sum up all features to compose the semantic vector.
 - `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
 - `add_noise::Bool=true`: whether to add noise at the end of construction
 - `sd_noise::Integer=1`: the sd of the noise matrix
-- `isnormalize::Bool=false`: if normalized, values of matrix maintain close between 1 and -1
+- `normalized::Bool=false`: if normalized, values of matrix maintain close between 1 and -1
 # Examples
 
 ```julia
@@ -280,7 +280,7 @@ function make_S_matrix(
   isdeep=true::Bool,
   add_noise=true::Bool,
   sd_noise=1::Integer,
-  isnormalize=false::Bool
+  normalized=false::Bool
   )::Tuple{Matrix, Matrix}
 
   # collect all infl_features
@@ -335,7 +335,7 @@ function make_S_matrix(
       St_val += noise
   end
 
-  if isnormalize
+  if normalized
     n_features = length(base) + length(inflections)
     return St_train'./n_features, St_val'./n_features
   end

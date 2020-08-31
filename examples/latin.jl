@@ -11,7 +11,7 @@ latin_val = latin_train[101:150,:]
 cue_obj_train = JudiLing.make_cue_matrix(
   latin_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -19,7 +19,7 @@ cue_obj_val = JudiLing.make_cue_matrix(
   latin_val,
   cue_obj_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )
@@ -57,11 +57,11 @@ Shat_val = cue_obj_val.C * F_train
 # here we only use a adjacency matrix as we got it from training dataset
 A = cue_obj_train.A
 
-# we calculate how many timestep we need for shuo and huo function
+# we calculate how many timestep we need for learn_paths and huo function
 max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
 
-# we calculate shuo and hua function
-res_train, gpi_train = JudiLing.shuo(
+# we calculate learn_paths and hua function
+res_train, gpi_train = JudiLing.learn_paths(
   latin_train,
   latin_train,
   cue_obj_train.C,
@@ -80,11 +80,11 @@ res_train, gpi_train = JudiLing.shuo(
   tokenized=false,
   sep_token="_",
   keep_sep=false,
-  words_column=:Word,
+  target_col=:Word,
   issparse=:dense,
   verbose=true)
 
-res_val, gpi_val = JudiLing.shuo(
+res_val, gpi_val = JudiLing.learn_paths(
   latin_train,
   latin_val,
   cue_obj_train.C,
@@ -106,7 +106,7 @@ res_val, gpi_val = JudiLing.shuo(
   tokenized=false,
   sep_token="-",
   keep_sep=false,
-  words_column=:Word,
+  target_col=:Word,
   issparse=:dense,
   verbose=true)
 

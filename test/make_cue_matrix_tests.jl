@@ -8,7 +8,7 @@ using Test
     latin_cue_obj_train = JudiLing.make_cue_matrix(
       latin,
       grams=3,
-      words_column=:Word,
+      target_col=:Word,
       tokenized=false,
       keep_sep=false
       )
@@ -18,7 +18,7 @@ using Test
       latin_val,
       latin_cue_obj_train,
       grams=3,
-      words_column=:Word,
+      target_col=:Word,
       tokenized=false,
       keep_sep=false
       )
@@ -29,28 +29,28 @@ using Test
 end
 
 @testset "make cue matrix for french" begin
-try
-  french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
-  french_cue_obj_train = JudiLing.make_cue_matrix(
-    french,
-    grams=2,
-    words_column=:Syllables,
-    tokenized=true,
-    sep_token="-",
-    keep_sep=true
-    )
+  try
+    french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
+    french_cue_obj_train = JudiLing.make_cue_matrix(
+      french,
+      grams=2,
+      target_col=:Syllables,
+      tokenized=true,
+      sep_token="-",
+      keep_sep=true
+      )
 
-  french_val = french[101:150,:]
-  french_cue_obj_val = JudiLing.make_cue_matrix(
-    french_val,
-    french_cue_obj_train,
-    grams=2,
-    words_column=:Syllables,
-    tokenized=true,
-    sep_token="-",
-    keep_sep=true
-    )
-    @test true
+    french_val = french[101:150,:]
+    french_cue_obj_val = JudiLing.make_cue_matrix(
+      french_val,
+      french_cue_obj_train,
+      grams=2,
+      target_col=:Syllables,
+      tokenized=true,
+      sep_token="-",
+      keep_sep=true
+      )
+      @test true
   catch e
     @test e == false
   end
@@ -62,7 +62,7 @@ end
     utterance_cue_obj_train = JudiLing.make_cue_matrix(
       utterance,
       grams=3,
-      words_column=:Words,
+      target_col=:Words,
       tokenized=true,
       sep_token=".",
       keep_sep=true
@@ -73,7 +73,7 @@ end
       utterance_val,
       utterance_cue_obj_train,
       grams=3,
-      words_column=:Words,
+      target_col=:Words,
       tokenized=true,
       sep_token=".",
       keep_sep=true
