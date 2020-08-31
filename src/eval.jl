@@ -1,4 +1,124 @@
 """
+a struct that store info about comprehension accuracy
+"""
+struct Comp_Acc_Struct
+  dfr::DataFrame
+  acc::Float64
+  err::Array
+end
+
+"""
+  accuracy_comprehension(::Matrix, ::Matrix)
+
+Evaluate the comprehension accuracy
+
+...
+# Arguments
+- `target_col::Union{String, Symbol}=:Words`: target column name
+- `base::Vector=["Lexeme"]`: base features
+- `inflections::Union{Nothing, Vector}=nothing`: inflective features
+
+# Examples
+```julia
+latin_train = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
+cue_obj_train = JudiLing.make_cue_matrix(
+  latin_train,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+
+latin_val = latin_train[101:150,:]
+cue_obj_val = JudiLing.make_cue_matrix(
+  latin_val,
+  cue_obj_train,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+
+n_features = size(cue_obj_train.C, 2)
+
+S_train, S_val = JudiLing.make_S_matrix(
+  latin_train,
+  latin_val,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  ncol=n_features)
+
+G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
+
+Chat_train = S_train * G_train
+Chat_val = S_val * G_train
+JudiLing.eval_SC(cue_obj_train.C, Chat_train)
+JudiLing.eval_SC(cue_obj_val.C, Chat_val)
+
+F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
+
+Shat_train = cue_obj_train.C * F_train
+Shat_val = cue_obj_val.C * F_train
+JudiLing.eval_SC(S_train, Shat_train)
+JudiLing.eval_SC(S_val, Shat_val)
+
+accuracy_comprehension(
+  S_train,
+  Shat_train,
+  latin_val,
+  target_col=:Words,
+  base=["Lexeme"],
+  inflections=["Person","Number","Tense","Voice","Mood"]
+  )
+
+accuracy_comprehension(
+  S_val,
+  Shat_val,
+  latin_train,
+  target_col=:Words,
+  base=["Lexeme"],
+  inflections=["Person","Number","Tense","Voice","Mood"]
+  )
+```
+...
+"""
+function accuracy_comprehension(
+  S::Matrix,
+  Shat::Matrix,
+  data::DataFrame;
+  target_col=:Words::Union{String, Symbol},
+  base=["Lexeme"]::Vector,
+  inflections=nothing::Union{Nothing, Vector}
+  )::Comp_Acc_Struct
+
+  corMat = cor(Shat, S, dims=2)
+  top_index = [i[2] for i in argmax(corMat, dims=2)]
+
+  dfr = DataFrame()
+  dfr.target = data[:,target_col]
+  dfr.form = vec([data[i,target_col] for i in top_index])
+  dfr.r = vec([corMat[index, value] for (index, value) in enumerate(top_index)])
+  dfr.r_target = corMat[diagind(corMat)]
+  dfr.correct = [dfr.target[i]==dfr.form[i] for i in 1:size(dfr, 1)]
+
+  if !isnothing(inflections)
+    all_features = vcat(base, inflections)
+  else
+    all_features = base
+  end
+
+  for f in all_features
+    dfr.tmp = vec([data[index, f]==data[value, f] for (index, value) in enumerate(top_index)])
+    rename!(dfr, "tmp" => f)
+  end
+
+  acc = sum(dfr[:,"correct"])/size(dfr,1)
+  err = findall(x->x!=1, dfr[:,"correct"])
+
+  Comp_Acc_Struct(dfr, acc, err)
+end
+
+"""
   eval_SC(Union{SparseMatrixCSC, Matrix}, Union{SparseMatrixCSC, Matrix})
 
 evaluate S and Shat or C and Chat

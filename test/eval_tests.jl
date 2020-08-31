@@ -46,6 +46,24 @@ using Test
     JudiLing.eval_SC(S_train, Shat_train)
     JudiLing.eval_SC(S_val, Shat_val)
 
+    JudiLing.accuracy_comprehension(
+      S_train,
+      Shat_train,
+      latin_train,
+      target_col=:Word,
+      base=["Lexeme"],
+      inflections=["Person","Number","Tense","Voice","Mood"]
+      )
+
+    JudiLing.accuracy_comprehension(
+      S_val,
+      Shat_val,
+      latin_val,
+      target_col=:Word,
+      base=["Lexeme"],
+      inflections=["Person","Number","Tense","Voice","Mood"]
+      )
+
     A = cue_obj_train.A
 
     max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
@@ -122,8 +140,6 @@ using Test
 
     @test true
   catch e
-    @show e
-    display(e)
     @test e == false
   end
 end
