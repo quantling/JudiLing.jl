@@ -9,14 +9,14 @@
 using CSV # read csv files into dataframes</code></pre><p>Then, we need to read csv file by:</p><pre><code class="language-julia">latin_train = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, &quot;data&quot;, &quot;latin.csv&quot;)))</code></pre><p>and here we simulate our validation csv file, where contain the same lexemes and inflective features and cues.</p><pre><code class="language-julia">latin_val = latin_train[101:150,:]</code></pre><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>The real validation dataset should NOT contains datarows in the training dataset.</p></div></div><p>For production model, we want to predict correct forms given their lexemes and inflective features. For example, giving the lexeme <code>vocare</code> and its inflective features <code>p1</code>, <code>sg</code>, <code>present</code>, <code>active</code> and <code>ind</code>, the model should be able to produce the form <code>vocoo</code>. On the other hand, the comprehension model takes forms as input and try to predict theirs lexemes and inflective features.</p><p>We use letter n-grams to encode our forms. For word <code>vocoo</code>, for example, we encode it as <code>#vo</code>, <code>voc</code>, <code>oco</code>, <code>coo</code> and <code>oo#</code>. Here, <code>#</code> is used as start/end token to encode the beginning and ending of a word. To make the C matrix, we use:</p><pre><code class="language-julia">cue_obj_train = JudiLing.make_cue_matrix(
   latin_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )</code></pre><p>In order to maintain the same indices as in the training C matrix, we need to pass it when we construct validation C matrix.</p><pre><code class="language-julia">cue_obj_val = JudiLing.make_cue_matrix(
   latin_val,
   cue_obj_train,
   grams=3,
-  words_column=:Word,
+  target_col=:Word,
   tokenized=false,
   keep_sep=false
   )</code></pre><p>Then, we can simulate our training and validation S matrices by:</p><pre><code class="language-julia">n_features = size(cue_obj_train.C, 2)
@@ -31,7 +31,7 @@ Chat_val = S_val * G_train</code></pre><p>and we can evaluate our prediction by:
 Shat_val = cue_obj_val.C * F_train
 
 @show JudiLing.eval_SC(S_train, Shat_train)
-@show JudiLing.eval_SC(S_val, Shat_val)</code></pre><p>We have path finding algorithm to further predict the forms in a sequence. The first step is to construct adjacency matrix. Here we use adjacency constructed inside make<em>cue</em>matrix(), but we can also make a full adjacency matrix if we need.</p><pre><code class="language-julia">A = cue_obj_train.A</code></pre><p>Then, we calculate how timesteps do we need for our learning function.</p><pre><code class="language-julia">max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)</code></pre><p>Finally, we make to our path finding function to predict forms in a sequence.</p><pre><code class="language-julia">res_train, gpi_train = JudiLing.shuo(
+@show JudiLing.eval_SC(S_val, Shat_val)</code></pre><p>We have path finding algorithm to further predict the forms in a sequence. The first step is to construct adjacency matrix. Here we use adjacency constructed inside make<em>cue</em>matrix(), but we can also make a full adjacency matrix if we need.</p><pre><code class="language-julia">A = cue_obj_train.A</code></pre><p>Then, we calculate how timesteps do we need for our learning function.</p><pre><code class="language-julia">max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)</code></pre><p>Finally, we make to our path finding function to predict forms in a sequence.</p><pre><code class="language-julia">res_train, gpi_train = JudiLing.learn_paths(
   latin_train,
   latin_train,
   cue_obj_train.C,
@@ -50,11 +50,11 @@ Shat_val = cue_obj_val.C * F_train
   tokenized=false,
   sep_token=&quot;_&quot;,
   keep_sep=false,
-  words_column=:Word,
+  target_col=:Word,
   issparse=:dense,
   verbose=true)
 
-res_val, gpi_val = JudiLing.shuo(
+res_val, gpi_val = JudiLing.learn_paths(
   latin_train,
   latin_val,
   cue_obj_train.C,
@@ -76,7 +76,7 @@ res_val, gpi_val = JudiLing.shuo(
   tokenized=false,
   sep_token=&quot;-&quot;,
   keep_sep=false,
-  words_column=:Word,
+  target_col=:Word,
   issparse=:dense,
   verbose=true)</code></pre><p>and we evaluate our results:</p><pre><code class="language-julia">acc_train = JudiLing.eval_acc(
   res_train,
@@ -90,4 +90,4 @@ acc_val = JudiLing.eval_acc(
 )
 
 println(&quot;Acc for train: $acc_train&quot;)
-println(&quot;Acc for val: $acc_val&quot;)</code></pre><p>You can download and try our completed <a href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl">script</a>.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="man/make_cue_matrix/">Make Cue Matrix »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 30 August 2020 20:13">Sunday 30 August 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+println(&quot;Acc for val: $acc_val&quot;)</code></pre><p>You can download and try our completed <a href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl">script</a>.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="man/make_cue_matrix/">Make Cue Matrix »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Monday 31 August 2020 14:16">Monday 31 August 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
