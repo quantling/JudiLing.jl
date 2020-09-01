@@ -33,7 +33,7 @@ This function makes cue matrix and corresponding indices given dataset as csv fi
 # Arguments
 - `grams::Integer=3`: the number of grams for cues 
 - `target_col::Union{String, Symbol}=:Words`: the column name for target
-- `tokenized::Bool=false`: whether the word is tokenized
+- `tokenized::Bool=false`: whether the target is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: what is the seperate token
 - `keep_sep::Bool=false`: whether to keep seperater in cues
 - `start_end_token::Union{String, Char}="#"`: start and end token

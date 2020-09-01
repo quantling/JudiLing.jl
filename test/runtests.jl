@@ -13,17 +13,21 @@ end
 end
 
 @safetestset "make adjacency matrix tests" begin
-    include("make_adjacency_matrix_tests.jl")
+  include("make_adjacency_matrix_tests.jl")
 end
 
 @safetestset "make yt matrix tests" begin
-    include("make_yt_matrix_tests.jl")
+  include("make_yt_matrix_tests.jl")
 end
 
 @safetestset "find path tests" begin
-    include("find_path_tests.jl")
+  include("find_path_tests.jl")
 end
 
 @safetestset "eval tests" begin
-    include("eval_tests.jl")
+  include("eval_tests.jl")
+end
+
+@safetestset "output tests" begin
+  include("output_tests.jl")
 end

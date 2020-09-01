@@ -21,6 +21,7 @@ makedocs(;
             "Make Yt Matrix" => "man/make_yt_matrix.md",
             "Find Paths" => "man/find_path.md",
             "Evaluation" => "man/eval.md",
+            "Output" => "man/output.md",
             "Utils" => "man/utils.md"
         ],
         "All Manual index" => "man/all_manual.md"

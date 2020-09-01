@@ -65,10 +65,11 @@ just append indices together
 """
 function translate_path(
   ngrams_ind,
-  i2f
+  i2f;
+  sep_token=":"
   )::String
 
-  join([i2f[i] for i in ngrams_ind], ":")
+  join([i2f[i] for i in ngrams_ind], sep_token)
 end
 
 """
