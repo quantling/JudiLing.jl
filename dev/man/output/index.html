@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Output · JudiLing.jl</title><link rel="canonical" href="https://MegamindHenry.github.io/JudiLing.jl/man/output/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">JudiLing.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../make_cue_matrix/">Make Cue Matrix</a></li><li><a class="tocitem" href="../make_semantic_matrix/">Make Semantic Matrix</a></li><li><a class="tocitem" href="../cholesky/">Cholesky</a></li><li><a class="tocitem" href="../make_adjacency_matrix/">Make Adjacency Matrix</a></li><li><a class="tocitem" href="../make_yt_matrix/">Make Yt Matrix</a></li><li><a class="tocitem" href="../find_path/">Find Paths</a></li><li><a class="tocitem" href="../eval/">Evaluation</a></li><li class="is-active"><a class="tocitem" href>Output</a></li><li><a class="tocitem" href="../utils/">Utils</a></li></ul></li><li><a class="tocitem" href="../all_manual/">All Manual index</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>Output</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Output</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/docs/src/man/output.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Utils"><a class="docs-heading-anchor" href="#Utils">Utils</a><a id="Utils-1"></a><a class="docs-heading-anchor-permalink" href="#Utils" title="Permalink"></a></h1><article class="docstring"><header><a class="docstring-binding" id="JudiLing.write2csv" href="#JudiLing.write2csv"><code>JudiLing.write2csv</code></a> — <span class="docstring-category">Function</span></header><section><div><p>write results into csv file, support for path results and gold path information</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MegamindHenry/JudiLing.jl/blob/dfaba08ac2d1073dce31259e994238122e76b441/src/output.jl#LL1-L3">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="JudiLing.write2df" href="#JudiLing.write2df"><code>JudiLing.write2df</code></a> — <span class="docstring-category">Function</span></header><section><div><p>create a datafrate with results</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MegamindHenry/JudiLing.jl/blob/dfaba08ac2d1073dce31259e994238122e76b441/src/output.jl#LL6-L8">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="JudiLing.write2csv-Tuple{Array{Array{JudiLing.Result_Path_Info_Struct,1},1},DataFrames.DataFrame,JudiLing.Cue_Matrix_Struct,JudiLing.Cue_Matrix_Struct,String}" href="#JudiLing.write2csv-Tuple{Array{Array{JudiLing.Result_Path_Info_Struct,1},1},DataFrames.DataFrame,JudiLing.Cue_Matrix_Struct,JudiLing.Cue_Matrix_Struct,String}"><code>JudiLing.write2csv</code></a> — <span class="docstring-category">Method</span></header><section><div><p>write2csv(::Array{Array{Result<em>Path</em>Info<em>Struct,1},1}, ::DataFrame, ::Cue</em>Matrix<em>Struct, ::Cue</em>Matrix_Struct, ::String)</p><p>write results into csv file, support for path results</p><p>...</p><p><strong>Arguments</strong></p><ul><li><code>grams::Int64=3</code>: the number of grams for cues </li><li><code>tokenized::Bool=false</code>: whether the target is tokenized</li><li><code>sep_token::Union{Nothing, String, Char}=nothing</code>: what is the separate token</li><li><code>start_end_token::Union{String, Char}=&quot;#&quot;</code>: token at beginning and ending token</li><li><code>output_sep_token::Union{String, Char}=&quot;&quot;</code>: output separate token</li><li><code>path_sep_token::Union{String, Char}=&quot;:&quot;</code>: token glued path nodes together</li><li><code>target_col::Union{String, Symbol}=:Words</code>: the column name for target</li><li><code>root_dir::String=&quot;.&quot;</code>: dir path for package root dir</li><li><code>output_dir::String=&quot;.&quot;</code>: output dir inside root dir</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia">#after you had results from learn_paths or build_paths
+JudiLing.write2csv(
+  res_train,
+  latin_train,
+  cue_obj_train,
+  cue_obj_train,
+  &quot;res_latin_train.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word,
+  root_dir=&quot;.&quot;,
+  output_dir=&quot;test_out&quot;)
+
+JudiLing.write2csv(
+  res_val,
+  latin_val,
+  cue_obj_train,
+  cue_obj_val,
+  &quot;res_latin_val.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word,
+  root_dir=&quot;.&quot;,
+  output_dir=&quot;test_out&quot;)</code></pre><p>...</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MegamindHenry/JudiLing.jl/blob/dfaba08ac2d1073dce31259e994238122e76b441/src/output.jl#LL11-L64">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="JudiLing.write2csv-Tuple{Array{JudiLing.Gold_Path_Info_Struct,1},String}" href="#JudiLing.write2csv-Tuple{Array{JudiLing.Gold_Path_Info_Struct,1},String}"><code>JudiLing.write2csv</code></a> — <span class="docstring-category">Method</span></header><section><div><p>write2csv(::Vector{Gold<em>Path</em>Info_Struct}, ::String)</p><p>write gold path information into csv file</p><p>...</p><p><strong>Arguments</strong></p><ul><li><code>root_dir::String=&quot;.&quot;</code>: dir path for package root dir</li><li><code>output_dir::String=&quot;.&quot;</code>: output dir inside root dir</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia">#after you had results from learn_paths or build_paths
+JudiLing.write2csv(
+  gpi_train,
+  &quot;gpi_latin_train.csv&quot;,
+  root_dir=&quot;.&quot;,
+  output_dir=&quot;test_out&quot;
+  )
+
+JudiLing.write2csv(
+  gpi_val,
+  &quot;gpi_latin_val.csv&quot;,
+  root_dir=&quot;.&quot;,
+  output_dir=&quot;test_out&quot;
+  )</code></pre><p>...</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MegamindHenry/JudiLing.jl/blob/dfaba08ac2d1073dce31259e994238122e76b441/src/output.jl#LL131-L159">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="JudiLing.write2df-Tuple{Array{Array{JudiLing.Result_Path_Info_Struct,1},1},DataFrames.DataFrame,JudiLing.Cue_Matrix_Struct,JudiLing.Cue_Matrix_Struct,String}" href="#JudiLing.write2df-Tuple{Array{Array{JudiLing.Result_Path_Info_Struct,1},1},DataFrames.DataFrame,JudiLing.Cue_Matrix_Struct,JudiLing.Cue_Matrix_Struct,String}"><code>JudiLing.write2df</code></a> — <span class="docstring-category">Method</span></header><section><div><p>write2df(::Array{Array{Result<em>Path</em>Info<em>Struct,1},1}, ::DataFrame, ::Cue</em>Matrix<em>Struct, ::Cue</em>Matrix_Struct, ::String)</p><p>write results into dataframe, support for path results</p><p>...</p><p><strong>Arguments</strong></p><ul><li><code>grams::Int64=3</code>: the number of grams for cues </li><li><code>tokenized::Bool=false</code>: whether the target is tokenized</li><li><code>sep_token::Union{Nothing, String, Char}=nothing</code>: what is the separate token</li><li><code>start_end_token::Union{String, Char}=&quot;#&quot;</code>: token at beginning and ending token</li><li><code>output_sep_token::Union{String, Char}=&quot;&quot;</code>: output separate token</li><li><code>path_sep_token::Union{String, Char}=&quot;:&quot;</code>: token glued path nodes together</li><li><code>target_col::Union{String, Symbol}=:Words</code>: the column name for target</li></ul><p><strong>Examples</strong></p><pre><code class="language-julia">#after you had results from learn_paths or build_paths
+JudiLing.write2df(
+  res_train,
+  latin_train,
+  cue_obj_train,
+  cue_obj_train,
+  &quot;res_latin_train.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word)
+
+JudiLing.write2df(
+  res_val,
+  latin_val,
+  cue_obj_train,
+  cue_obj_val,
+  &quot;res_latin_val.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word)</code></pre><p>...</p></div><a class="docs-sourcelink" target="_blank" href="https://github.com/MegamindHenry/JudiLing.jl/blob/dfaba08ac2d1073dce31259e994238122e76b441/src/output.jl#LL183-L230">source</a></section></article></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../eval/">« Evaluation</a><a class="docs-footer-nextpage" href="../utils/">Utils »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 1 September 2020 12:41">Tuesday 1 September 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
