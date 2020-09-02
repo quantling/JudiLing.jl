@@ -31,3 +31,7 @@ end
 @safetestset "output tests" begin
   include("output_tests.jl")
 end
+
+@safetestset "test_combo tests" begin
+  include("test_combo_tests.jl")
+end

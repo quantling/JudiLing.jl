@@ -22,6 +22,7 @@ makedocs(;
             "Find Paths" => "man/find_path.md",
             "Evaluation" => "man/eval.md",
             "Output" => "man/output.md",
+            "Test Combo" => "man/test_combo.md",
             "Utils" => "man/utils.md"
         ],
         "All Manual index" => "man/all_manual.md"

@@ -19,5 +19,7 @@ include("make_yt_matrix.jl")
 include("find_path.jl")
 include("eval.jl")
 include("output.jl")
+include("preprocess.jl")
+include("test_combo.jl")
 
 end

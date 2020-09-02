@@ -72,7 +72,7 @@ function write2csv(
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   start_end_token="#"::Union{String, Char},
-  output_sep_token=""::Union{String, Char},
+  output_sep_token=""::Union{String, Char, nothing},
   path_sep_token=":"::Union{String, Char},
   target_col=:Words::Union{String, Symbol},
   root_dir="."::String,
@@ -84,6 +84,10 @@ function write2csv(
   mkpath(output_path)
   # open a file
   io = open(joinpath(output_path, filename), "w")
+
+  if isnothing(output_sep_token)
+    output_sep_token = ""
+  end
 
   # write header
   write(io, "\"utterance\",\"identifier\",\"path\",\"pred\",\"num_tolerance\",\"support\",\"isbest\",\"iscorrect\",\"isnovel\"\n")

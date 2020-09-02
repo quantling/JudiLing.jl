@@ -37,14 +37,18 @@ end
 translate indices into words or utterances
 """
 function translate(
-  ngrams_ind,
-  i2f,
+  ngrams_ind::Vector,
+  i2f::Dict,
   grams::Integer,
   tokenized::Bool,
   sep_token::Union{Nothing, String, Char},
   start_end_token::Union{String, Char},
-  output_sep_token::Union{String, Char}
+  output_sep_token::Union{String, Char, Nothing}
   )::String
+
+  if isnothing(output_sep_token)
+    output_sep_token = ""
+  end
 
   if tokenized && !isnothing(sep_token)
     s1 = join([split(i2f[i], sep_token)[1] for i in ngrams_ind], output_sep_token)
@@ -178,11 +182,11 @@ check whether there are token used in dataset
 """
 function check_used_token(
   data::DataFrame,
-  words_column::Symbol,
+  target_col::Symbol,
   token::Union{String, Char},
   token_name::String
   )::Nothing
-  data_columns = data[:, words_column]
+  data_columns = data[:, target_col]
   res = filter(x->!isnothing(findfirst(token, x)) , data_columns)
 
   if length(res) > 0
@@ -196,12 +200,12 @@ calculate max timestep given training and validation datasets
 function cal_max_timestep(
   data_train::DataFrame,
   data_val::DataFrame,
-  words_column::Union{Symbol, String};
+  target_col::Union{Symbol, String};
   tokenized=false::Bool,
   sep_token=""::Union{String, Char, Nothing}
   )::Integer
-  words_train = data_train[:, words_column]
-  words_val = data_val[:, words_column]
+  words_train = data_train[:, target_col]
+  words_val = data_val[:, target_col]
 
   if tokenized && !isnothing(sep_token)
     max_l_words_train = maximum(x->length(split(x, sep_token)), words_train)
@@ -219,12 +223,12 @@ calculate max timestep given training dataset
 """
 function cal_max_timestep(
   data::DataFrame,
-  words_column::Union{Symbol, String};
+  target_col::Union{Symbol, String};
   tokenized=false::Bool,
   sep_token=""::Union{String, Char}
   )::Integer
 
-  words = data[:, words_column]
+  words = data[:, target_col]
 
   if tokenized && !isnothing(sep_token)
     max_l_words = maximum(x->length(split(x, sep_token)), words)
