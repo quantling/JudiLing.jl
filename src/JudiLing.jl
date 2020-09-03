@@ -20,6 +20,8 @@ include("find_path.jl")
 include("eval.jl")
 include("output.jl")
 include("preprocess.jl")
+include("pickle.jl")
+include("pyndl.jl")
 include("test_combo.jl")
 
 end

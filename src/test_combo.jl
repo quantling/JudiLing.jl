@@ -69,7 +69,7 @@ function test_combo(
     is_full_A=false::Bool,
     n_grams_target_col=:PhonWord::Symbol,
     n_grams_tokenized=false::Bool,
-    n_grams_sep_token=nothing::Union{Nothing, String, Char},
+    n_grams_sep_token=""::Union{String, Char},
     n_grams_keep_sep=false::Bool,
     grams=3::Int64,
     start_end_token="#"::Union{String, Char},
