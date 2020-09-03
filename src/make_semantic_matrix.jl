@@ -500,3 +500,32 @@ function make_S_matrix(
 
   St_train', St_val'
 end
+
+function make_S_matrix(
+  data_train::DataFrame,
+  data_val::DataFrame,
+  pyndl_weights::Pyndl_Weight_Struct,
+  n_features_columns=["Lexeme", "Person", "Number", "Tense", "Voice", "Mood"]::Vector{String}
+  )::Tuple{Matrix, Matrix}
+  
+  f2i = Dict(v => i for (i, v) in enumerate(pyndl_weights.outcomes))
+  i2f = Dict(i => v for (i, v) in enumerate(pyndl_weights.outcomes))
+
+  n_f = length(pyndl_weights.outcomes)
+
+  St_train = zeros(Float64, n_f, size(data_train, 1))
+  for i in 1:size(data_train, 1)
+    for f in data_train[i, n_features_columns]
+      St_train[f2i[f],i] = 1
+    end
+  end
+
+  St_val = zeros(Float64, n_f, size(data_val, 1))
+  for i in 1:size(data_val, 1)
+    for f in data_val[i, n_features_columns]
+      St_val[f2i[f],i] = 1
+    end
+  end
+
+  St_train', St_val'
+end

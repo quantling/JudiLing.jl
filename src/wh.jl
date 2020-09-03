@@ -2,7 +2,7 @@ function wh_learn(
   inputs::Union{Matrix, SparseMatrixCSC},
   outputs::Union{Matrix, SparseMatrixCSC};
   eta=0.1::Float64,
-  n_repeat=nothing::Union{Int64, Nothing},
+  n_epochs=nothing::Union{Int64, Nothing},
   weights=nothing::Union{Matrix{Float64},Nothing},
   verbose=false::Bool
   )
@@ -28,8 +28,8 @@ function wh_learn(
 
   iter = 1:n_events
   # iter = 1:10
-  if !isnothing(n_repeat)
-    iter = collect(repeat(iter, outer=n_repeat))
+  if !isnothing(n_epochs)
+    iter = collect(repeat(iter, outer=n_epochs))
     rng = MersenneTwister(1234)
     iter = shuffle(rng, iter)
   end

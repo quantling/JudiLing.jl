@@ -19,7 +19,7 @@ function pyndl(
     method="openmp",
     remove_duplicates=true)
 
-  Ldl.unwrap_xarray(weights_py)
+  unwrap_xarray(weights_py)
 
 end
 

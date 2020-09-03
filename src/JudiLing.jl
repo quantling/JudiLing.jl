@@ -11,6 +11,8 @@ using GZip
 using PyCall
 
 include("utils.jl")
+include("pyndl.jl")
+include("wh.jl")
 include("make_cue_matrix.jl")
 include("make_semantic_matrix.jl")
 include("cholesky.jl")
@@ -21,7 +23,6 @@ include("eval.jl")
 include("output.jl")
 include("preprocess.jl")
 include("pickle.jl")
-include("pyndl.jl")
 include("test_combo.jl")
 
 end
