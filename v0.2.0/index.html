@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · JudiLing.jl</title><link rel="canonical" href="https://MegamindHenry.github.io/JudiLing.jl/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">JudiLing.jl</span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Home</a><ul class="internal"><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#Examples"><span>Examples</span></a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="man/make_cue_matrix/">Make Cue Matrix</a></li><li><a class="tocitem" href="man/make_semantic_matrix/">Make Semantic Matrix</a></li><li><a class="tocitem" href="man/cholesky/">Cholesky</a></li><li><a class="tocitem" href="man/make_adjacency_matrix/">Make Adjacency Matrix</a></li><li><a class="tocitem" href="man/make_yt_matrix/">Make Yt Matrix</a></li><li><a class="tocitem" href="man/find_path/">Find Paths</a></li><li><a class="tocitem" href="man/eval/">Evaluation</a></li><li><a class="tocitem" href="man/output/">Output</a></li><li><a class="tocitem" href="man/test_combo/">Test Combo</a></li><li><a class="tocitem" href="man/utils/">Utils</a></li></ul></li><li><a class="tocitem" href="man/all_manual/">All Manual index</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Home</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Home</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/docs/src/index.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="JudiLing"><a class="docs-heading-anchor" href="#JudiLing">JudiLing</a><a id="JudiLing-1"></a><a class="docs-heading-anchor-permalink" href="#JudiLing" title="Permalink"></a></h1><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><p>JudiLing can be installed using the Julia package manager via GitHub HTTPS Links. From the Julia REPL, type <code>]</code> to enter the Pkg REPL mode and run</p><pre><code class="language-none">pkg&gt; add https://github.com/MegamindHenry/JudiLing.jl.git</code></pre><h2 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h2><h3 id="Latin"><a class="docs-heading-anchor" href="#Latin">Latin</a><a id="Latin-1"></a><a class="docs-heading-anchor-permalink" href="#Latin" title="Permalink"></a></h3><p>Let&#39;s look at our first real dataset example. <a href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/data/latin.csv">latin.csv</a> contains lexemes and inflective features about Latin verbs.</p><pre><code class="language-none">&quot;&quot;,&quot;Word&quot;,&quot;Lexeme&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;
+&quot;1&quot;,&quot;vocoo&quot;,&quot;vocare&quot;,&quot;p1&quot;,&quot;sg&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
+&quot;2&quot;,&quot;vocaas&quot;,&quot;vocare&quot;,&quot;p2&quot;,&quot;sg&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
+&quot;3&quot;,&quot;vocat&quot;,&quot;vocare&quot;,&quot;p3&quot;,&quot;sg&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
+&quot;4&quot;,&quot;vocaamus&quot;,&quot;vocare&quot;,&quot;p1&quot;,&quot;pl&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
+&quot;5&quot;,&quot;vocaatis&quot;,&quot;vocare&quot;,&quot;p2&quot;,&quot;pl&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
+&quot;6&quot;,&quot;vocant&quot;,&quot;vocare&quot;,&quot;p3&quot;,&quot;pl&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;</code></pre><p>Before we start, we first need to add two packages in julia by:</p><pre><code class="language-julia">using JudiLing # our package
+using CSV # read csv files into dataframes</code></pre><p>Then, we need to read csv file by:</p><pre><code class="language-julia">latin_train = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, &quot;data&quot;, &quot;latin.csv&quot;)))</code></pre><p>and here we simulate our validation csv file, where contain the same lexemes and inflective features and cues.</p><pre><code class="language-julia">latin_val = latin_train[101:150,:]</code></pre><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>The real validation dataset should NOT contains datarows in the training dataset.</p></div></div><p>For production model, we want to predict correct forms given their lexemes and inflective features. For example, giving the lexeme <code>vocare</code> and its inflective features <code>p1</code>, <code>sg</code>, <code>present</code>, <code>active</code> and <code>ind</code>, the model should be able to produce the form <code>vocoo</code>. On the other hand, the comprehension model takes forms as input and try to predict theirs lexemes and inflective features.</p><p>We use letter n-grams to encode our forms. For word <code>vocoo</code>, for example, we encode it as <code>#vo</code>, <code>voc</code>, <code>oco</code>, <code>coo</code> and <code>oo#</code>. Here, <code>#</code> is used as start/end token to encode the beginning and ending of a word. To make the C matrix, we use:</p><pre><code class="language-julia">cue_obj_train = JudiLing.make_cue_matrix(
+  latin_train,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )</code></pre><p>In order to maintain the same indices as in the training C matrix, we need to pass it when we construct validation C matrix.</p><pre><code class="language-julia">cue_obj_val = JudiLing.make_cue_matrix(
+  latin_val,
+  cue_obj_train,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )</code></pre><p>Then, we can simulate our training and validation S matrices by:</p><pre><code class="language-julia">n_features = size(cue_obj_train.C, 2)
+S_train, S_val = JudiLing.make_S_matrix(
+  latin_train,
+  latin_val,
+  [&quot;Lexeme&quot;],
+  [&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;],
+  ncol=n_features)</code></pre><p>For this simulation, random vectors are assigned to every lexemes and inflective features and we sum up add lexemes and features as our semantic vector for each word entry. As our studies shown, similar dimensions between C and S work the best. Thus, we retrieve dimension from C matrix and pass it to construct S matrix.</p><p>Then, the next step is to calculate mapping from S to C by solving equation C = SG. We have several mapping mode, but here we use cholesky decomposition mode to solve the equation.</p><pre><code class="language-julia">G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)</code></pre><p>Then, we can make our predicted C matrix Chat by:</p><pre><code class="language-julia">Chat_train = S_train * G_train
+Chat_val = S_val * G_train</code></pre><p>and we can evaluate our prediction by:</p><pre><code class="language-julia">@show JudiLing.eval_SC(cue_obj_train.C, Chat_train)
+@show JudiLing.eval_SC(cue_obj_val.C, Chat_val)</code></pre><p>Similar to G and Chat, we can solve S = CF by:</p><pre><code class="language-julia">F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)</code></pre><p>and we can predict Shat matrices and evaluate them:</p><pre><code class="language-julia">Shat_train = cue_obj_train.C * F_train
+Shat_val = cue_obj_val.C * F_train
+
+@show JudiLing.eval_SC(S_train, Shat_train)
+@show JudiLing.eval_SC(S_val, Shat_val)</code></pre><p>We have path finding algorithm to further predict the forms in a sequence. The first step is to construct adjacency matrix. Here we use adjacency constructed inside make<em>cue</em>matrix(), but we can also make a full adjacency matrix if we need.</p><pre><code class="language-julia">A = cue_obj_train.A</code></pre><p>Then, we calculate how timesteps do we need for our learning function.</p><pre><code class="language-julia">max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)</code></pre><p>Finally, we make to our path finding function to predict forms in a sequence.</p><pre><code class="language-julia">res_train, gpi_train = JudiLing.learn_paths(
+  latin_train,
+  latin_train,
+  cue_obj_train.C,
+  S_train,
+  F_train,
+  Chat_train,
+  A,
+  cue_obj_train.i2f,
+  gold_ind=cue_obj_train.gold_ind,
+  Shat_val=Shat_train,
+  check_gold_path=true,
+  max_t=max_t,
+  max_can=10,
+  grams=3,
+  threshold=0.1,
+  tokenized=false,
+  sep_token=&quot;_&quot;,
+  keep_sep=false,
+  target_col=:Word,
+  issparse=:dense,
+  verbose=true)
+
+res_val, gpi_val = JudiLing.learn_paths(
+  latin_train,
+  latin_val,
+  cue_obj_train.C,
+  S_val,
+  F_train,
+  Chat_val,
+  A,
+  cue_obj_train.i2f,
+  gold_ind=cue_obj_val.gold_ind,
+  Shat_val=Shat_val,
+  check_gold_path=true,
+  max_t=max_t,
+  max_can=10,
+  grams=3,
+  threshold=0.1,
+  is_tolerant=true,
+  tolerance=-0.1,
+  max_tolerance=2,
+  tokenized=false,
+  sep_token=&quot;-&quot;,
+  keep_sep=false,
+  target_col=:Word,
+  issparse=:dense,
+  verbose=true)</code></pre><p>and we evaluate our results:</p><pre><code class="language-julia">acc_train = JudiLing.eval_acc(
+  res_train,
+  cue_obj_train.gold_ind,
+  verbose=false
+)
+acc_val = JudiLing.eval_acc(
+  res_val,
+  cue_obj_val.gold_ind,
+  verbose=false
+)
+
+println(&quot;Acc for train: $acc_train&quot;)
+println(&quot;Acc for val: $acc_val&quot;)</code></pre><p>You can download and try our completed <a href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl">script</a>.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="man/make_cue_matrix/">Make Cue Matrix »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 4 September 2020 10:35">Friday 4 September 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
