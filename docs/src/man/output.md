@@ -2,7 +2,7 @@
 CurrentModule = JudiLing
 ```
 
-# Utils
+# Output
 
 ```@docs
   write2csv

@@ -8,8 +8,14 @@ pickle = pyimport("pickle")
 
 
 """
+save pickle from python pickle file
 """
 function mypickle end
+
+"""
+load pickle from python pickle file
+"""
+function myunpickle end
 
 function mypickle(filename, obj)
     out = open(filename,"w")
