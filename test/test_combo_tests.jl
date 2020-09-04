@@ -47,7 +47,7 @@ using Test
         csv_prefix="latin",
         random_seed=314,
         log_io=test_io,
-        verbose=true)
+        verbose=false)
     end
 
     close(test_io)
@@ -56,7 +56,7 @@ using Test
   catch e
     @test e == false
   finally
-    path = joinpath(".", "french_out")
+    path = joinpath(".", "latin_out")
     rm(path, force=true, recursive=true)
   end
 end
