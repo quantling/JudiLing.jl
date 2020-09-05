@@ -193,4 +193,94 @@ println("Acc for train: $acc_train")
 println("Acc for val: $acc_val")
 ```
 
+After you had results from path finding functions like learn_paths or build_paths, you can later save the results into a csv file or into a dataframe which can be loaded into R.
+Examples are like these:
+
+```julia
+JudiLing.write2csv(
+  res_train,
+  latin_train,
+  cue_obj_train,
+  cue_obj_train,
+  "latin_train_res.csv",
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir="latin_out"
+  )
+
+JudiLing.write2csv(
+  res_val,
+  latin_val,
+  cue_obj_train,
+  cue_obj_val,
+  "latin_val_res.csv",
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir="latin_out"
+  )
+
+JudiLing.write2csv(
+  gpi_train,
+  "latin_train_gpi.csv",
+  root_dir=@__DIR__,
+  output_dir="latin_out"
+  )
+
+JudiLing.write2csv(
+  gpi_val,
+  "latin_val_gpi.csv",
+  root_dir=@__DIR__,
+  output_dir="latin_out"
+  )
+
+df_train = JudiLing.write2df(
+  res_train,
+  latin_train,
+  cue_obj_train,
+  cue_obj_train,
+  "latin_train_res.csv",
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word
+  )
+
+df_val = JudiLing.write2df(
+  res_val,
+  latin_val,
+  cue_obj_train,
+  cue_obj_val,
+  "latin_val_res.csv",
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word
+  )
+
+display(df_train)
+display(df_val)
+
+# you may want to delete the temp out folder
+path = joinpath(@__DIR__, "latin_out")
+rm(path, force=true, recursive=true)
+```
+
 You can download and try our completed [script](https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl).
