@@ -90,4 +90,87 @@ acc_val = JudiLing.eval_acc(
 )
 
 println(&quot;Acc for train: $acc_train&quot;)
-println(&quot;Acc for val: $acc_val&quot;)</code></pre><p>You can download and try our completed <a href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl">script</a>.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="man/make_cue_matrix/">Make Cue Matrix »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 4 September 2020 10:12">Friday 4 September 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+println(&quot;Acc for val: $acc_val&quot;)</code></pre><p>After you had results from path finding functions like learn<em>paths or build</em>paths, you can later save the results into a csv file or into a dataframe which can be loaded into R. Examples are like these:</p><pre><code class="language-julia">JudiLing.write2csv(
+  res_train,
+  latin_train,
+  cue_obj_train,
+  cue_obj_train,
+  &quot;latin_train_res.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir=&quot;latin_out&quot;
+  )
+
+JudiLing.write2csv(
+  res_val,
+  latin_val,
+  cue_obj_train,
+  cue_obj_val,
+  &quot;latin_val_res.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir=&quot;latin_out&quot;
+  )
+
+JudiLing.write2csv(
+  gpi_train,
+  &quot;latin_train_gpi.csv&quot;,
+  root_dir=@__DIR__,
+  output_dir=&quot;latin_out&quot;
+  )
+
+JudiLing.write2csv(
+  gpi_val,
+  &quot;latin_val_gpi.csv&quot;,
+  root_dir=@__DIR__,
+  output_dir=&quot;latin_out&quot;
+  )
+
+df_train = JudiLing.write2df(
+  res_train,
+  latin_train,
+  cue_obj_train,
+  cue_obj_train,
+  &quot;latin_train_res.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word
+  )
+
+df_val = JudiLing.write2df(
+  res_val,
+  latin_val,
+  cue_obj_train,
+  cue_obj_val,
+  &quot;latin_val_res.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word
+  )
+
+display(df_train)
+display(df_val)
+
+# you may want to delete the temp out folder
+path = joinpath(@__DIR__, &quot;latin_out&quot;)
+rm(path, force=true, recursive=true)</code></pre><p>You can download and try our completed <a href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl">script</a>.</p></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="man/make_cue_matrix/">Make Cue Matrix »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Saturday 5 September 2020 00:31">Saturday 5 September 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
