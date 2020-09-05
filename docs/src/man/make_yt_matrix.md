@@ -6,5 +6,5 @@ CurrentModule = JudiLing
 
 ```@docs
   make_Yt_matrix
-  make_Yt_matrix(::Integer, ::DataFrame)
+  make_Yt_matrix(::Int64, ::DataFrame)
 ```

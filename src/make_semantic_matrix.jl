@@ -154,15 +154,15 @@ random semantic vector, and sum up all features to compose the semantic vector.
 
 ...
 # Arguments
-- `ncol::Integer=200`: the dimension size of vectors, usually the same as cue vectors
-- `sd_base_mean::Integer=1`: the sd mean of base features
-- `sd_inflection_mean::Integer=1`: the sd mean of inflectional features
-- `sd_base::Integer=4`: the sd of base features
-- `sd_inflection::Integer=4`: the sd of inflectional features
-- `seed::Integer=314`: the random seed
+- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
+- `sd_base::Int64=4`: the sd of base features
+- `sd_inflection::Int64=4`: the sd of inflectional features
+- `seed::Int64=314`: the random seed
 - `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
 - `add_noise::Bool=true`: whether to add noise at the end of construction
-- `sd_noise::Integer=1`: the sd of the noise matrix
+- `sd_noise::Int64=1`: the sd of the noise matrix
 - `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may exceeds 1 or -1 depending on the sd
 
 # Examples
@@ -180,15 +180,15 @@ function make_S_matrix(
   data::DataFrame,
   base=["Lexeme"]::Vector,
   inflections=["Person", "Number", "Tense", "Voice", "Mood"]::Vector;
-  ncol=200::Integer,
-  sd_base_mean=1::Integer,
-  sd_inflection_mean=1::Integer,
-  sd_base=4::Integer,
-  sd_inflection=4::Integer,
-  seed=314::Integer,
+  ncol=200::Int64,
+  sd_base_mean=1::Int64,
+  sd_inflection_mean=1::Int64,
+  sd_base=4::Int64,
+  sd_inflection=4::Int64,
+  seed=314::Int64,
   isdeep=true::Bool,
   add_noise=true::Bool,
-  sd_noise=1::Integer,
+  sd_noise=1::Int64,
   normalized=false::Bool
   )::Matrix
 
@@ -242,15 +242,15 @@ random semantic vector, and sum up all features to compose the semantic vector.
 
 ...
 # Arguments
-- `ncol::Integer=200`: the dimension size of vectors, usually the same as cue vectors
-- `sd_base_mean::Integer=1`: the sd mean of base features
-- `sd_inflection_mean::Integer=1`: the sd mean of inflectional features
-- `sd_base::Integer=4`: the sd of base features
-- `sd_inflection::Integer=4`: the sd of inflectional features
-- `seed::Integer=314`: the random seed
+- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
+- `sd_base::Int64=4`: the sd of base features
+- `sd_inflection::Int64=4`: the sd of inflectional features
+- `seed::Int64=314`: the random seed
 - `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
 - `add_noise::Bool=true`: whether to add noise at the end of construction
-- `sd_noise::Integer=1`: the sd of the noise matrix
+- `sd_noise::Int64=1`: the sd of the noise matrix
 - `normalized::Bool=false`: if normalized, values of matrix maintain close between 1 and -1
 # Examples
 
@@ -271,15 +271,15 @@ function make_S_matrix(
   data_val::DataFrame,
   base=["Lexeme"]::Vector,
   inflections=["Person", "Number", "Tense", "Voice", "Mood"]::Vector;
-  ncol=200::Integer,
-  sd_base_mean=1::Integer,
-  sd_inflection_mean=1::Integer,
-  sd_base=4::Integer,
-  sd_inflection=4::Integer,
-  seed=314::Integer,
+  ncol=200::Int64,
+  sd_base_mean=1::Int64,
+  sd_inflection_mean=1::Int64,
+  sd_base=4::Int64,
+  sd_inflection=4::Int64,
+  seed=314::Int64,
   isdeep=true::Bool,
   add_noise=true::Bool,
-  sd_noise=1::Integer,
+  sd_noise=1::Int64,
   normalized=false::Bool
   )::Tuple{Matrix, Matrix}
 
@@ -352,13 +352,13 @@ vector, and sum up all features to compose the semantic vector.
 ...
 # Arguments
 - `base::Vector=["Lexeme"]`: the base features 
-- `ncol::Integer=200`: the dimension size of vectors, usually the same as cue vectors
-- `sd_base_mean::Integer=1`: the sd mean of base features
-- `sd_base::Integer=4`: the sd of base features
-- `seed::Integer=314`: the random seed
+- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_base::Int64=4`: the sd of base features
+- `seed::Int64=314`: the random seed
 - `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
 - `add_noise::Bool=true`: whether to add noise at the end of construction
-- `sd_noise::Integer=1`: the sd of the noise matrix
+- `sd_noise::Int64=1`: the sd of the noise matrix
 
 # Examples
 ```julia
@@ -373,13 +373,13 @@ S_train = JudiLing.make_S_matrix(
 function make_S_matrix(
   data::DataFrame;
   base=["Lexeme"]::Vector,
-  ncol=200::Integer,
-  sd_base_mean=1::Integer,
-  sd_base=4::Integer,
-  seed=314::Integer,
+  ncol=200::Int64,
+  sd_base_mean=1::Int64,
+  sd_base=4::Int64,
+  seed=314::Int64,
   isdeep=true::Bool,
   add_noise=true::Bool,
-  sd_noise=1::Integer
+  sd_noise=1::Int64
   )::Matrix
 
   # collect all infl_features
@@ -423,13 +423,13 @@ vector, and sum up all features to compose the semantic vector.
 ...
 # Arguments
 - `base::Vector=["Lexeme"]`: the base features 
-- `ncol::Integer=200`: the dimension size of vectors, usually the same as cue vectors
-- `sd_base_mean::Integer=1`: the sd mean of base features
-- `sd_base::Integer=4`: the sd of base features
-- `seed::Integer=314`: the random seed
+- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_base::Int64=4`: the sd of base features
+- `seed::Int64=314`: the random seed
 - `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
 - `add_noise::Bool=true`: whether to add noise at the end of construction
-- `sd_noise::Integer=1`: the sd of the noise matrix
+- `sd_noise::Int64=1`: the sd of the noise matrix
 
 # Examples
 ```julia
@@ -446,13 +446,13 @@ function make_S_matrix(
   data_train::DataFrame,
   data_val::DataFrame;
   base=["Lexeme"]::Array,
-  ncol=200::Integer,
-  sd_base_mean=1::Integer,
-  sd_base=4::Integer,
-  seed=314::Integer,
+  ncol=200::Int64,
+  sd_base_mean=1::Int64,
+  sd_base=4::Int64,
+  seed=314::Int64,
   isdeep=true::Bool,
   add_noise=true::Bool,
-  sd_noise=1::Integer
+  sd_noise=1::Int64
   )::Tuple{Matrix, Matrix}
 
   # collect all infl_features

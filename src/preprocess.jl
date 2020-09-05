@@ -280,7 +280,7 @@ function preprocess_ndl end
 function preprocess_ndl(
   data_path::String,
   save_path::String;
-  grams=3::Integer,
+  grams=3::Int64,
   n_grams_target_col=:Word::Union{String, Symbol},
   n_grams_tokenized=false::Bool,
   n_grams_sep_token="-"::String,

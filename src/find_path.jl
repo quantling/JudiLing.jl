@@ -3,7 +3,7 @@ store paths information found by learn_paths or build_paths function
 """
 struct Result_Path_Info_Struct
   ngrams_ind::Array
-  num_tolerance::Integer
+  num_tolerance::Int64
   support::AbstractFloat
 end
 
@@ -38,13 +38,13 @@ learn_paths function takes each timestep individually and calculate Yt_hat respe
 - `gold_ind::Union{Nothing, Vector}=nothing`: for in gold_path_info mode
 - `Shat_val::Union{Nothing, Matrix}=nothing`: for gold_path_info mode
 - `check_gold_path::Bool=false`: if turn on gold_path_info mode
-- `max_t::Integer=15`: maximum timestep
-- `max_can::Integer=10`: maximum candidates when output
+- `max_t::Int64=15`: maximum timestep
+- `max_can::Int64=10`: maximum candidates when output
 - `threshold::AbstractFloat=0.1`: for each timestep, only grams greater than threshold will be selected
 - `is_tolerant::Bool=false`: if in tolerant mode, path allows limited nodes under threshold but greater than tolerance
 - `tolerance::AbstractFloat=(-1000.0)`: in tolerant mode, only nodes greater than tolerance and lesser than threshold will be selected
-- `max_tolerance::Integer=4`: maximum numbers of nodes allowed in a path
-- `grams::Integer=3`: n-grams
+- `max_tolerance::Int64=4`: maximum numbers of nodes allowed in a path
+- `grams::Int64=3`: n-grams
 - `tokenized::Bool=false`: whether tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: seperate token
 - `keep_sep::Bool=false`: whether keep seperaters in grams
@@ -159,13 +159,13 @@ function learn_paths(
   gold_ind=nothing::Union{Nothing, Vector},
   Shat_val=nothing::Union{Nothing, Matrix},
   check_gold_path=false::Bool,
-  max_t=15::Integer,
-  max_can=10::Integer,
+  max_t=15::Int64,
+  max_can=10::Int64,
   threshold=0.1::AbstractFloat,
   is_tolerant=false::Bool,
   tolerance=(-1000.0)::AbstractFloat,
-  max_tolerance=4::Integer,
-  grams=3::Integer,
+  max_tolerance=4::Int64,
+  grams=3::Int64,
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   keep_sep=false::Bool,
@@ -176,12 +176,12 @@ function learn_paths(
 
   # initialize queues for storing paths
   n_val = size(data_val, 1)
-  # working_q = Array{Queue{Array{Integer,1}},1}(undef, n_val)
-  working_q = Vector{Queue{Tuple{Vector{Integer}, Integer}}}(undef, n_val)
-  # res = Array{Array{Array{Integer}},1}(undef, n_val)
-  res = Vector{Vector{Tuple{Vector{Integer}, Integer}}}(undef, n_val)
+  # working_q = Array{Queue{Array{Int64,1}},1}(undef, n_val)
+  working_q = Vector{Queue{Tuple{Vector{Int64}, Int64}}}(undef, n_val)
+  # res = Array{Array{Array{Int64}},1}(undef, n_val)
+  res = Vector{Vector{Tuple{Vector{Int64}, Int64}}}(undef, n_val)
   for j in 1:n_val
-    res[j] = Tuple{Vector{Integer}, Integer}[]
+    res[j] = Tuple{Vector{Int64}, Int64}[]
   end
 
   # # initialize gold_path_info supports
@@ -245,7 +245,7 @@ function learn_paths(
 
       # for timestep 2 and after 2
       if isassigned(working_q, j)
-        tmp_working_q = Queue{Tuple{Vector{Integer},Integer}}()
+        tmp_working_q = Queue{Tuple{Vector{Int64},Int64}}()
         while !isempty(working_q[j])
           a = dequeue!(working_q[j]) ## a = [11] Al[11,5] == 1 # candidates = [1, 5, 7]
 
@@ -287,11 +287,11 @@ function learn_paths(
         working_q[j] = tmp_working_q
       # for timestep 1
       else
-        working_q[j] = Queue{Tuple{Vector{Integer},Integer}}()
+        working_q[j] = Queue{Tuple{Vector{Int64},Int64}}()
         for c in candidates_t
           # check whether a n-gram is a start n-gram
           if isstart(c, i2f, tokenized=tokenized, sep_token=sep_token)
-            a = Integer[]
+            a = Int64[]
             push!(a, c)
             # check whether this n-gram is both start and complete
             if iscomplete(a, i2f, tokenized=tokenized, sep_token=sep_token)
@@ -306,7 +306,7 @@ function learn_paths(
           for c in candidates_t_tlr
             # check whether a n-gram is a start n-gram
             if isstart(c, i2f, tokenized=tokenized, sep_token=sep_token)
-              a = Integer[]
+              a = Int64[]
               push!(a, c)
               # check whether this n-gram is both start and complete
               if iscomplete(a, i2f, tokenized=tokenized, sep_token=sep_token)
@@ -350,10 +350,10 @@ validation data
 ...
 # Arguments
 - `rC::Union{Nothing, Matrix}=nothing`: correlation Matrix of C and Chat, passing it to save computing time
-- `max_t::Integer=15`: maximum timestep
-- `max_can::Integer=10`: maximum candidates when output
-- `n_neighbors::Integer=10`: find indices only in top n neighbors
-- `grams::Integer=3`: n-grams
+- `max_t::Int64=15`: maximum timestep
+- `max_can::Int64=10`: maximum candidates when output
+- `n_neighbors::Int64=10`: find indices only in top n neighbors
+- `grams::Int64=3`: n-grams
 - `tokenized::Bool=false`: whether tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: seperate token
 - `target_col::Union{String, :Symbol}=:Words`: word column names
@@ -443,10 +443,10 @@ function build_paths(
   i2f::Dict,
   C_train_ind::Array;
   rC=nothing::Union{Nothing, Matrix},
-  max_t=15::Integer,
-  max_can=10::Integer,
-  n_neighbors=10::Integer,
-  grams=3::Integer,
+  max_t=15::Int64,
+  max_can=10::Int64,
+  n_neighbors=10::Int64,
+  grams=3::Int64,
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   target_col=:Words::Union{String, Symbol},
@@ -454,12 +454,12 @@ function build_paths(
   )::Vector{Vector{Result_Path_Info_Struct}}
   # initialize queues for storing paths
   n_val = size(data_val, 1)
-  # working_q = Array{Queue{Array{Integer,1}},1}(undef, n_val)
-  # res = Array{Array{Array{Integer}},1}(undef, n_val)
-  res = Vector{Vector{Tuple{Vector{Integer}, Integer}}}(undef, n_val)
+  # working_q = Array{Queue{Array{Int64,1}},1}(undef, n_val)
+  # res = Array{Array{Array{Int64}},1}(undef, n_val)
+  res = Vector{Vector{Tuple{Vector{Int64}, Int64}}}(undef, n_val)
 
   for j in 1:n_val
-    res[j] = Tuple{Vector{Integer}, Integer}[]
+    res[j] = Tuple{Vector{Int64}, Int64}[]
   end
 
   verbose && println("Finding all top features..")
@@ -483,11 +483,11 @@ function build_paths(
     candidates_t = top_indices[j]
 
     # timestep 1
-    working_q = Queue{Array{Integer, 1}}()
+    working_q = Queue{Array{Int64, 1}}()
     for c in candidates_t
       # check whether a n-gram is a start n-gram
       if isstart(c, i2f, tokenized=tokenized, sep_token=sep_token)
-        a = Integer[]
+        a = Int64[]
         push!(a, c)
         # check whether this n-gram is both start and complete
         if iscomplete(a, i2f, tokenized=tokenized, sep_token=sep_token)
@@ -499,7 +499,7 @@ function build_paths(
     end
 
     for i in 2:max_t
-      tmp_working_q = Queue{Array{Integer, 1}}()
+      tmp_working_q = Queue{Array{Int64, 1}}()
       while !isempty(working_q)
         a = dequeue!(working_q) ## a = [11] Al[11,5] == 1 # candidates = [1, 5, 7]
         for c in candidates_t ## c = 5 # a = [11, 1, 5, 7] # a = [11, 1] [11, 5] [11, 7]
@@ -528,17 +528,17 @@ function build_paths(
 end
 
 """
-  eval_can(::Vector{Vector{Tuple{Vector{Integer}, Integer}}},::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Dict,::Integer,::Bool)
+  eval_can(::Vector{Vector{Tuple{Vector{Int64}, Int64}}},::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Dict,::Int64,::Bool)
 
 at the end of finding path algorithms, each candidates need to be evaluated
 regarding their predicted semantic vectors
 """
 function eval_can(
-  candidates::Vector{Vector{Tuple{Vector{Integer}, Integer}}},
+  candidates::Vector{Vector{Tuple{Vector{Int64}, Int64}}},
   S::Union{SparseMatrixCSC, Matrix},
   F::Union{SparseMatrixCSC, Matrix},
   i2f::Dict,
-  max_can::Integer,
+  max_can::Int64,
   verbose=false::Bool
   )::Array{Array{Result_Path_Info_Struct,1},1}
 
@@ -551,7 +551,7 @@ function eval_can(
     res = Result_Path_Info_Struct[]
     if size(candidates[i], 1) > 0
       for (ci,n) in candidates[i] # ci = [1,3,4]
-        Chat = zeros(Integer, length(i2f))
+        Chat = zeros(Int64, length(i2f))
         Chat[ci] .= 1
         Shat = Chat'*F
         Scor = cor(Shat[1, :], S[i, :])
@@ -575,9 +575,9 @@ function find_top_feature_indices(
   # Chat_val::Union{SparseMatrixCSC, Matrix},
   rC::Matrix,
   C_train_ind::Array;
-  n_neighbors=10::Integer,
+  n_neighbors=10::Int64,
   verbose=false::Bool
-  )::Vector{Vector{Integer}}
+  )::Vector{Vector{Int64}}
 
   # collect num of val data
   n_val = size(rC, 1)
@@ -587,7 +587,7 @@ function find_top_feature_indices(
   # display(rC)
 
   # initialize features list for all candidates
-  features_all = Vector{Vector{Integer}}(undef, n_val)
+  features_all = Vector{Vector{Int64}}(undef, n_val)
 
   # create iter for tqdm
   verbose && println("finding all n_neighbors features...")

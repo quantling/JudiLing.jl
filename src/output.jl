@@ -247,11 +247,11 @@ function write2df(
   target_col=:Words::Union{String, Symbol}
   )::DataFrame
 
-  utterance_vec = Integer[]
+  utterance_vec = Int64[]
   identifier_vec = String[]
   path_vec = String[]
   pred_vec = String[]
-  num_tolerance_vec = Integer[]
+  num_tolerance_vec = Int64[]
   support_vec = AbstractFloat[]
   isbest_vec = Bool[]
   iscorrect_vec = Bool[]

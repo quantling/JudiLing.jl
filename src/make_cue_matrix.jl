@@ -10,7 +10,7 @@ struct Cue_Matrix_Struct
   C::Union{Matrix, SparseMatrixCSC}
   f2i::Dict
   i2f::Dict
-  gold_ind::Vector{Vector{Integer}}
+  gold_ind::Vector{Vector{Int64}}
   A::SparseMatrixCSC
 end
 
@@ -31,7 +31,7 @@ This function makes cue matrix and corresponding indices given dataset as csv fi
 
 ...
 # Arguments
-- `grams::Integer=3`: the number of grams for cues 
+- `grams::Int64=3`: the number of grams for cues 
 - `target_col::Union{String, Symbol}=:Words`: the column name for target
 - `tokenized::Bool=false`: whether the target is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: what is the seperate token
@@ -54,7 +54,7 @@ latin_cue_obj_train = JudiLing.make_cue_matrix(
 """
 function make_cue_matrix(
   data::DataFrame;
-  grams=3::Integer,
+  grams=3::Int64,
   target_col=:Words::Union{String, Symbol},
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
@@ -143,7 +143,7 @@ the same indices.
 
 ...
 # Arguments
-- `grams::Integer=3`: the number of grams for cues 
+- `grams::Int64=3`: the number of grams for cues 
 - `target_col::Union{String, Symbol}=:Words`: the column name for target
 - `tokenized::Bool=false`: whether the word is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: what is the seperate token
@@ -178,7 +178,7 @@ latin_cue_obj_val = JudiLing.make_cue_matrix(
 function make_cue_matrix(
   data::DataFrame,
   cue_obj::Cue_Matrix_Struct;
-  grams=3::Integer,
+  grams=3::Int64,
   target_col="Words"::String,
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
@@ -226,14 +226,14 @@ function make_cue_matrix(
 end
 
 """
-  make_ngrams(::Array,::Integer,::Bool,
+  make_ngrams(::Array,::Int64,::Bool,
   ::Union{Nothing, String, Char},::Union{String, Char}
 
 given a list of tokens, return all ngrams in a list
 """
 function make_ngrams(
   tokens::Array,
-  grams=3::Integer,
+  grams=3::Int64,
   keep_sep=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   start_end_token="#"::Union{String, Char}

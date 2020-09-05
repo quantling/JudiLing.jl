@@ -4,7 +4,7 @@ make Y matrix given timestep t
 function make_Yt_matrix end
 
 """
-  make_Yt_matrix(::Integer, ::DataFrame)
+  make_Yt_matrix(::Int64, ::DataFrame)
 
 Make full adjacency matrix based only on the form of n-grams regardless whether 
 they are seen in the training data. This usually takes hours for large dataset.
@@ -23,9 +23,9 @@ JudiLing.make_Yt_matrix(2, latin)
 ...
 """
 function make_Yt_matrix(
-  t::Integer,
+  t::Int64,
   data::DataFrame;
-  grams=3::Integer,
+  grams=3::Int64,
   target_col="Words"::String,
   tokenized=false::Bool,
   keep_sep=false::Bool,

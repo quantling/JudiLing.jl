@@ -14,7 +14,7 @@ display prediction nicely
 function display_pred(
   preds::Array,
   i2f::Dict,
-  grams::Integer,
+  grams::Int64,
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   start_end_token="#"::Union{String, Char},
@@ -39,7 +39,7 @@ translate indices into words or utterances
 function translate(
   ngrams_ind::Vector,
   i2f::Dict,
-  grams::Integer,
+  grams::Int64,
   tokenized::Bool,
   sep_token::Union{Nothing, String, Char},
   start_end_token::Union{String, Char},
@@ -117,7 +117,7 @@ check a gram is attach to another gram
 """
 function isattachable(
   a::Array,
-  c::Integer,
+  c::Int64,
   Al::SparseMatrixCSC
   )::Bool
 
@@ -149,7 +149,7 @@ end
 check a gram could start a path
 """
 function isstart(
-  c::Integer,
+  c::Int64,
   i2f::Dict;
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char}
@@ -203,7 +203,7 @@ function cal_max_timestep(
   target_col::Union{Symbol, String};
   tokenized=false::Bool,
   sep_token=""::Union{String, Char, Nothing}
-  )::Integer
+  )::Int64
   words_train = data_train[:, target_col]
   words_val = data_val[:, target_col]
 
@@ -226,7 +226,7 @@ function cal_max_timestep(
   target_col::Union{Symbol, String};
   tokenized=false::Bool,
   sep_token=""::Union{String, Char}
-  )::Integer
+  )::Int64
 
   words = data[:, target_col]
 
