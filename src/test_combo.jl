@@ -66,6 +66,8 @@ function test_combo(
     data_prefix="data"::String,
     max_test_data=nothing::Union{Nothing, Int64},
     split_max_ratio=0.2::Float64,
+    issparse=:auto::Symbol,
+    sparse_ratio=0.2::Float64,
     is_full_A=false::Bool,
     n_grams_target_col=:PhonWord::Symbol,
     n_grams_tokenized=false::Bool,
@@ -351,7 +353,8 @@ function test_combo(
       sep_token=n_grams_sep_token,
       keep_sep=n_grams_keep_sep,
       target_col=n_grams_target_col,
-      issparse=:dense,
+      issparse=issparse,
+      sparse_ratio=sparse_ratio,
       verbose=verbose)
 
     res_val, gpi_val = learn_paths(
@@ -377,7 +380,8 @@ function test_combo(
       sep_token=n_grams_sep_token,
       keep_sep=n_grams_keep_sep,
       target_col=n_grams_target_col,
-      issparse=:dense,
+      issparse=issparse,
+      sparse_ratio=sparse_ratio,
       verbose=verbose)
   else
     res_train = build_paths(

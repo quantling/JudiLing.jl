@@ -73,6 +73,7 @@ second part of calculate cholesky decomposition transformation matrix
 ...
 # Arguments
 - `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
+- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if verbose, more information will be printed out
 
 # Examples
@@ -89,11 +90,12 @@ function make_transform_matrix(
   X::Union{SparseMatrixCSC, Matrix},
   Y::Union{SparseMatrixCSC, Matrix};
   output_format=:auto::Symbol,
+  sparse_ratio=0.2::Float64,
   verbose=false::Bool
   )::Union{Matrix, SparseMatrixCSC}
 
   M = fac\(X'Y)
-  format_matrix(M, output_format, verbose)
+  format_matrix(M, output_format, sparse_ratio=sparse_ratio, verbose=verbose)
 end
 
 """
@@ -108,6 +110,7 @@ where X is a sparse matrix and Y is a dense matrix
 - `shift::AbstractFloat=0.02`: shift value
 - `multiplier::AbstractFloat=1.01`: multiplier value
 - `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
+- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if verbose, more information will be printed out
 
 # Examples
@@ -126,6 +129,7 @@ function make_transform_matrix(
   shift=0.02::AbstractFloat,
   multiplier=1.01::AbstractFloat,
   output_format=:auto::Symbol,
+  sparse_ratio=0.2::Float64,
   verbose=false::Bool
   )::Union{SparseMatrixCSC, Matrix}
 
@@ -144,7 +148,7 @@ function make_transform_matrix(
   # M is in sparse format
   # but sometimes it is actually a dense matrix
   M = fac\(X'Y)
-  format_matrix(M, output_format, verbose)
+  format_matrix(M, output_format, sparse_ratio=sparse_ratio, verbose=verbose)
 end
 
 """
@@ -159,6 +163,7 @@ where X is a dense matrix and Y is either a dense matrix or a sparse matrix
 - `shift::AbstractFloat=0.02`: shift value
 - `multiplier::AbstractFloat=1.01`: multiplier value
 - `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
+- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if verbose, more information will be printed out
 
 # Examples
@@ -177,6 +182,7 @@ function make_transform_matrix(
   shift=0.02::AbstractFloat,
   multiplier=1.01::AbstractFloat,
   output_format=:auto::Symbol,
+  sparse_ratio=0.2::Float64,
   verbose=false::Bool
   )::Union{SparseMatrixCSC, Matrix}
 
@@ -194,7 +200,7 @@ function make_transform_matrix(
   # M is in sparse format
   # but sometimes it is actually a dense matrix
   M = fac\(X'Y)
-  format_matrix(M, output_format, verbose)
+  format_matrix(M, output_format, sparse_ratio=sparse_ratio, verbose=verbose)
 end
 
 """
@@ -209,6 +215,7 @@ where X is a sparse matrix and Y is a sparse matrix
 - `shift::AbstractFloat=0.02`: shift value
 - `multiplier::AbstractFloat=1.01`: multiplier value
 - `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
+- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if verbose, more information will be printed out
 
 # Examples
@@ -227,6 +234,7 @@ function make_transform_matrix(
   shift=0.02::AbstractFloat,
   multiplier=1.01::AbstractFloat,
   output_format=:auto::Symbol,
+  sparse_ratio=0.2::Float64,
   verbose=false::Bool
   )::Union{SparseMatrixCSC, Matrix}
 
@@ -247,17 +255,18 @@ function make_transform_matrix(
   # M is in sparse format
   # but sometimes it is actually a dense matrix
   M = fac\(X'Y)
-  format_matrix(M, output_format, verbose)
+  format_matrix(M, output_format, output_format=output_format, verbose=verbose)
 end
 
 """
-  format_matrix(::Union{SparseMatrixCSC, Matrix}, ::Symbol, ::Bool)
+  format_matrix(::Union{SparseMatrixCSC, Matrix}, ::Symbol)
 
 convert ourput matrix to a dense matrix or sparse matrix
 """
 function format_matrix(
   M::Union{SparseMatrixCSC, Matrix},
-  output_format=:auto::Symbol,
+  output_format=:auto::Symbol;
+  sparse_ratio=0.2::Float64,
   verbose=false::Bool
   )::Union{SparseMatrixCSC, Matrix}
 
@@ -268,7 +277,8 @@ function format_matrix(
     verbose && println("Returning a sparse matrix format")
     sparse(M)
   else
-    if is_truly_sparse(M, verbose=verbose)
+    verbose && print("Auto mode: ")
+    if is_truly_sparse(M, threshold=sparse_ratio, verbose=verbose)
       verbose && println("Returning a sparse matrix format")
       return M
     else

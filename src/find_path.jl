@@ -50,6 +50,7 @@ learn_paths function takes each timestep individually and calculate Yt_hat respe
 - `keep_sep::Bool=false`: whether keep seperaters in grams
 - `target_col::Union{String, :Symbol}=:Words`: word column names
 - `issparse::Symbol=:auto`: mt matrix output format mode
+- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if verbose, more information will be printed out
 
 # Examples
@@ -171,6 +172,7 @@ function learn_paths(
   keep_sep=false::Bool,
   target_col="Words"::String,
   issparse=:auto::Symbol,
+  sparse_ratio=0.2::Float64,
   verbose=false::Bool
   )::Union{Tuple{Vector{Vector{Result_Path_Info_Struct}}, Vector{Gold_Path_Info_Struct}}, Vector{Vector{Result_Path_Info_Struct}}}
 
@@ -212,7 +214,8 @@ function learn_paths(
       keep_sep=keep_sep)
 
     verbose && println("Calculating Mt...")
-    Mt_train = make_transform_matrix(fac_C_train, C_train, Yt_train, output_format=issparse, verbose=verbose)
+    Mt_train = make_transform_matrix(fac_C_train, C_train, Yt_train,
+      output_format=issparse, sparse_ratio=sparse_ratio, verbose=verbose)
     # Mt = sparse(Mt)
     # verbose && println("Sparsity of Mt: $(length(Mt.nzval)/Mt.m/Mt.n)")
 

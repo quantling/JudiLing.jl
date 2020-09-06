@@ -13,5 +13,5 @@ CurrentModule = JudiLing
   make_transform_matrix(::SparseMatrixCSC, ::Matrix)
   make_transform_matrix(::Matrix, ::Union{SparseMatrixCSC, Matrix})
   make_transform_matrix(::SparseMatrixCSC, ::SparseMatrixCSC)
-  format_matrix(::Union{SparseMatrixCSC, Matrix}, ::Symbol, ::Bool)
+  format_matrix(::Union{SparseMatrixCSC, Matrix}, ::Symbol)
 ```
