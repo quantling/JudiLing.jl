@@ -392,7 +392,6 @@ vector, and sum up all features to compose the semantic vector.
 
 ...
 # Arguments
-- `base::Vector=["Lexeme"]`: the base features 
 - `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
 - `sd_base_mean::Int64=1`: the sd mean of base features
 - `sd_base::Int64=4`: the sd of base features
