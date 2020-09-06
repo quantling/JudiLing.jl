@@ -33,12 +33,12 @@ end
 
     S_train = JudiLing.make_S_matrix(
       french,
-      base=["Lexeme"])
+      ["Lexeme"])
 
     S_train, S_val = JudiLing.make_S_matrix(
       french,
       french_val,
-      base=["Lexeme"])
+      ["Lexeme"])
     @test true
   catch e
     @test e == false
