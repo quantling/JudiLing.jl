@@ -381,6 +381,35 @@ function make_S_matrix(
   sd_noise=1::Int64
   )::Matrix
 
+  # collect all infl_features
+  base_f = [f for b in base for f in unique(data[:,b])]
+
+  # maps features to indices
+  base_f2i = Dict(v=>i for (i,v) in enumerate(base_f))
+
+  if isdeep # deep mode random means for each feature
+    base_means = rand(Normal(0, sd_base_mean), length(base_f))
+    base_m = [rand(Normal(base_means[i], sd_base), ncol) for i in 1:length(base_f)]
+  else # otherwise use mean=0 for all features
+    base_m = [rand(Normal(0, sd_base), ncol) for i in 1:length(base_f)]
+  end
+
+  # julia is column-wise language
+  # assign St first then do transpose is faster
+  St = Array{AbstractFloat, 2}(undef, ncol, size(data, 1))
+  for i in 1:size(data, 1)
+    s_base = sum([base_m[base_f2i[f]] for f in data[i, base]])
+    s = s_base
+    St[:,i] = s
+  end
+
+  # add random var to S
+  if add_noise
+      noise = rand(Normal(0, sd_noise), size(St, 1), size(St, 2))
+      St += noise
+  end
+
+  St'
 end
 
 """

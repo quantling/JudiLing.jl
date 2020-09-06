@@ -255,7 +255,7 @@ function make_transform_matrix(
   # M is in sparse format
   # but sometimes it is actually a dense matrix
   M = fac\(X'Y)
-  format_matrix(M, output_format, output_format=output_format, verbose=verbose)
+  format_matrix(M, output_format, sparse_ratio=sparse_ratio, verbose=verbose)
 end
 
 """
