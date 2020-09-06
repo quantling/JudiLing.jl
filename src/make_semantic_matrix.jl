@@ -343,7 +343,7 @@ function make_S_matrix(
 end
 
 """
-  make_S_matrix(::DataFrame)
+  make_S_matrix(::DataFrame, ::Vector)
 
 This is a function that create simulated semantic matrix, provided
 for dataset that only have base features. Give each feature a random semantic
@@ -351,7 +351,6 @@ vector, and sum up all features to compose the semantic vector.
 
 ...
 # Arguments
-- `base::Vector=["Lexeme"]`: the base features 
 - `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
 - `sd_base_mean::Int64=1`: the sd mean of base features
 - `sd_base::Int64=4`: the sd of base features
@@ -371,8 +370,8 @@ S_train = JudiLing.make_S_matrix(
 ...
 """
 function make_S_matrix(
-  data::DataFrame;
-  base=["Lexeme"]::Vector,
+  data::DataFrame,
+  base::Vector;
   ncol=200::Int64,
   sd_base_mean=1::Int64,
   sd_base=4::Int64,
@@ -382,39 +381,10 @@ function make_S_matrix(
   sd_noise=1::Int64
   )::Matrix
 
-  # collect all infl_features
-  base_f = [f for b in base for f in unique(data[:,b])]
-
-  # maps features to indices
-  base_f2i = Dict(v=>i for (i,v) in enumerate(base_f))
-
-  if isdeep # deep mode random means for each feature
-    base_means = rand(Normal(0, sd_base_mean), length(base_f))
-    base_m = [rand(Normal(base_means[i], sd_base), ncol) for i in 1:length(base_f)]
-  else # otherwise use mean=0 for all features
-    base_m = [rand(Normal(0, sd_base), ncol) for i in 1:length(base_f)]
-  end
-
-  # julia is column-wise language
-  # assign St first then do transpose is faster
-  St = Array{AbstractFloat, 2}(undef, ncol, size(data, 1))
-  for i in 1:size(data, 1)
-    s_base = sum([base_m[base_f2i[f]] for f in data[i, base]])
-    s = s_base
-    St[:,i] = s
-  end
-
-  # add random var to S
-  if add_noise
-      noise = rand(Normal(0, sd_noise), size(St, 1), size(St, 2))
-      St += noise
-  end
-
-  St'
 end
 
 """
-  make_S_matrix(::DataFrame, ::DataFrame)
+  make_S_matrix(::DataFrame, ::DataFrame, ::Vector)
 
 This is a function that create validation simulated semantic matrix, provided
 for dataset that only have base features. Give each feature a random semantic
@@ -444,8 +414,8 @@ S_train, S_val = JudiLing.make_S_matrix(
 """
 function make_S_matrix(
   data_train::DataFrame,
-  data_val::DataFrame;
-  base=["Lexeme"]::Array,
+  data_val::DataFrame,
+  base::Vector;
   ncol=200::Int64,
   sd_base_mean=1::Int64,
   sd_base=4::Int64,
