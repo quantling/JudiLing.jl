@@ -221,11 +221,16 @@ function eval_acc(
   acc = 0
 
   iter = 1:total
-  verbose && begin iter = tqdm(iter) end
+  if verbose
+    pb = Progress(total)
+  end
 
   for i in iter
     if isassigned(res[i], 1) && iscorrect(gold_inds[i], res[i][1].ngrams_ind)
       acc += 1
+    end
+    if verbose
+      ProgressMeter.next!(pb)
     end
   end
 
@@ -269,7 +274,9 @@ function eval_acc_loose(
   acc = 0
 
   iter = 1:total
-  verbose && begin iter = tqdm(iter) end
+  if verbose
+    pb = Progress(total)
+  end
 
   for i in iter
     is_correct = false
@@ -280,6 +287,9 @@ function eval_acc_loose(
     end
     if is_correct
       acc += 1
+    end
+    if verbose
+      ProgressMeter.next!(pb)
     end
   end
 

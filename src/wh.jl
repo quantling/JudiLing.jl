@@ -33,9 +33,14 @@ function wh_learn(
     rng = MersenneTwister(1234)
     iter = shuffle(rng, iter)
   end
-  verbose && begin iter=tqdm(iter) end
+  if verbose
+    pb = Progress(n_events)
+  end
   for i in iter
     weights = learn_inplace(inputs[i:i,:], outputs[i:i,:], weights, eta)
+    if verbose
+      ProgressMeter.next!(pb)
+    end
   end
   weights
 end

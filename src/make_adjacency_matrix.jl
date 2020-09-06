@@ -44,7 +44,9 @@ function make_adjacency_matrix(
   V = Int64[]
 
   iter = 1:n_ngrams
-  verbose && begin iter = tqdm(iter) end
+  if verbose
+    pb = Progress(n_ngrams)
+  end
 
   for i in iter
     for j in 1:n_ngrams
@@ -53,6 +55,9 @@ function make_adjacency_matrix(
         push!(J, j)
         push!(V, 1)
       end
+    end
+    if verbose
+      ProgressMeter.next!(pb)
     end
   end
 

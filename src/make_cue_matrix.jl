@@ -120,12 +120,17 @@ function make_cue_matrix(
 
   cnt = 0
   iter = enumerate(A)
-  verbose && begin iter = tqdm(iter) end
+  if verbose
+    pb = Progress(length(A))
+  end
   for (i,v) in iter
     for j in v
       cnt += 1
       I[cnt] = i
       J[cnt] = j
+    end
+    if verbose
+      ProgressMeter.next!(pb)
     end
   end
 
@@ -321,12 +326,17 @@ function make_cue_matrix(
 
   cnt = 0
   iter = enumerate(A)
-  verbose && begin iter = tqdm(iter) end
+  if verbose
+    pb = Progress(length(A))
+  end
   for (i,v) in iter
     for j in v
       cnt += 1
       I[cnt] = i
       J[cnt] = j
+    end
+    if verbose
+      ProgressMeter.next!(pb)
     end
   end
 

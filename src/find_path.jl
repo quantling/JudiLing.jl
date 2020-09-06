@@ -237,7 +237,9 @@ function learn_paths(
 
     verbose && println("Finding paths...")
     iter = 1:n_val
-    verbose && begin iter = tqdm(iter) end
+    if verbose
+      pb = Progress(n_val)
+    end
     for j in iter
       # collect all n-grams which has greater support than the threshold
       candidates_t = findall(x->x>threshold, Ythat_val[j,:])
@@ -317,7 +319,9 @@ function learn_paths(
             end
           end
         end
-
+      end
+      if verbose
+        ProgressMeter.next!(pb)
       end
     end
   end
@@ -478,7 +482,9 @@ function build_paths(
 
   verbose && println("Finding paths...")
   iter = 1:n_val
-  verbose && begin iter = tqdm(iter) end
+  if verbose
+    pb = Progress(n_val)
+  end
   for j in iter
     candidates_t = top_indices[j]
 
@@ -521,6 +527,9 @@ function build_paths(
       # refresh queue for the next timestep
       working_q = tmp_working_q
     end
+    if verbose
+      ProgressMeter.next!(pb)
+    end
   end
 
   verbose && println("Evaluating paths...")
@@ -546,7 +555,9 @@ function eval_can(
 
   res_l = Array{Array{Result_Path_Info_Struct,1},1}(undef, size(S, 1))
   iter = 1:size(S, 1)
-  verbose && begin iter = tqdm(iter) end
+  if verbose
+    pb = Progress(size(S, 1))
+  end
   for i in iter
     res = Result_Path_Info_Struct[]
     if size(candidates[i], 1) > 0
@@ -560,6 +571,9 @@ function eval_can(
     end
     # we collect only top x candidates from the top
     res_l[i] = collect(Iterators.take(sort!(res, by=x->x.support, rev=true), max_can))
+    if verbose
+      ProgressMeter.next!(pb)
+    end
   end
 
   res_l
@@ -589,15 +603,20 @@ function find_top_feature_indices(
   # initialize features list for all candidates
   features_all = Vector{Vector{Int64}}(undef, n_val)
 
-  # create iter for tqdm
+  # create iter for progress bar
   verbose && println("finding all n_neighbors features...")
   iter = 1:n_val
-  verbose && begin iter = tqdm(iter) end
+  if verbose
+    pb = Progress(n_val)
+  end
 
   # find all features of n_neighbors
   for i in iter
     features = [C_train_ind[j] for j in sortperm(rC[i,:], rev=true)[1:n_neighbors]]
     features_all[i] = unique(collect(Iterators.flatten(features)))
+    if verbose
+      ProgressMeter.next!(pb)
+    end
   end
 
   features_all

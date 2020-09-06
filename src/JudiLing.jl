@@ -5,7 +5,7 @@ using Random, Distributions
 using SparseArrays, LinearAlgebra, Statistics, SuiteSparse
 using BenchmarkTools
 using DataStructures
-using ProgressBars
+using ProgressMeter
 using CSV
 using GZip
 using PyCall

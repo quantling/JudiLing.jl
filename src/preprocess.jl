@@ -197,7 +197,9 @@ function perform_split(
   )
 
   iter = 1:size(utterances, 1)
-  verbose && begin iter = tqdm(iter) end
+  if verbose
+    pb = Progress(size(utterances, 1))
+  end
   for i in iter
     ngrams = split_features(
       utterances[i,:],
@@ -223,6 +225,9 @@ function perform_split(
       push!(utterances_train, utterances[i,:])
       utterances_train_ngrams = unique(push!(utterances_train_ngrams, ngrams...))
       utterances_train_features = unique(push!(utterances_train_features, features...))
+    end
+    if verbose
+      ProgressMeter.next!(pb)
     end
   end
 end
@@ -251,7 +256,9 @@ function perform_split(
   end
 
   iter = 1:size(utterances, 1)
-  verbose && begin iter = tqdm(iter) end
+  if verbose
+    pb = Progress(size(utterances, 1))
+  end
   for i in iter
     ngrams = make_ngrams(
       tokens[i], grams, n_grams_keep_sep,
@@ -271,6 +278,9 @@ function perform_split(
       push!(utterances_train, utterances[i,:])
       utterances_train_ngrams = unique(push!(utterances_train_ngrams, ngrams...))
       utterances_train_features = unique(push!(utterances_train_features, features...))
+    end
+    if verbose
+      ProgressMeter.next!(pb)
     end
   end
 end
