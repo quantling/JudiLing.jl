@@ -2,17 +2,30 @@
 
 ## Installation
 
-JudiLing can be installed using the Julia package manager via GitHub HTTPS
-Links.
-From the Julia REPL, type `]` to enter the Pkg REPL mode and run
+JudiLing can be installed using the Julia package manager via GitHub web links. In Julia 1.4 REPL, we can run:
+```
+julia> Pkg.add(PackageSpec(url="https://github.com/MegamindHenry/JudiLing.jl.git"))
+```
+and in Julia 1.5 REPL., we can run:
+```
+julia> Pkg.add(url="https://github.com/MegamindHenry/JudiLing.jl.git")
+```
+Or from the Julia REPL, type `]` to enter the Pkg REPL mode and run
 
 ```
 pkg> add https://github.com/MegamindHenry/JudiLing.jl.git
 ```
+## Include packages
+Before we start, we first need to include two packages in julia:
+
+```julia
+using JudiLing # our package
+using CSV # read csv files into dataframes
+```
 
 ## Examples
 ### Latin
-Let's look at our first real dataset example. [latin.csv](https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/data/latin.csv) contains lexemes and inflective features of Latin verbs.
+Let's look at our first real dataset example. [latin.csv](https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/data/latin.csv) contains lexemes and inflectional features of Latin verbs.
 ```
 "","Word","Lexeme","Person","Number","Tense","Voice","Mood"
 "1","vocoo","vocare","p1","sg","present","active","ind"
@@ -22,32 +35,45 @@ Let's look at our first real dataset example. [latin.csv](https://github.com/Meg
 "5","vocaatis","vocare","p2","pl","present","active","ind"
 "6","vocant","vocare","p3","pl","present","active","ind"
 ```
-Before we start, we first need to add two packages in julia:
-
-```julia
-using JudiLing # our package
-using CSV # read csv files into dataframes
-```
 
 Then, we need to read the csv file:
 
 ```julia
-latin_train = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin.csv")))
+latin = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin.csv")));
 ```
 
-and here we simulate our validation csv file, which contains the same lexemes, inflective features and cues.
-
+and we can take a peek at the latin dataframe:
 ```julia
-latin_val = latin_train[101:150,:]
+julia> display(latin)
+672×8 DataFrame. Omitted printing of 2 columns
+│ Row │ Column1 │ Word           │ Lexeme  │ Person │ Number │ Tense      │
+│     │ Int64   │ String         │ String  │ String │ String │ String     │
+├─────┼─────────┼────────────────┼─────────┼────────┼────────┼────────────┤
+│ 1   │ 1       │ vocoo          │ vocare  │ p1     │ sg     │ present    │
+│ 2   │ 2       │ vocaas         │ vocare  │ p2     │ sg     │ present    │
+│ 3   │ 3       │ vocat          │ vocare  │ p3     │ sg     │ present    │
+│ 4   │ 4       │ vocaamus       │ vocare  │ p1     │ pl     │ present    │
+│ 5   │ 5       │ vocaatis       │ vocare  │ p2     │ pl     │ present    │
+│ 6   │ 6       │ vocant         │ vocare  │ p3     │ pl     │ present    │
+│ 7   │ 7       │ clamoo         │ clamare │ p1     │ sg     │ present    │
+│ 8   │ 8       │ clamaas        │ clamare │ p2     │ sg     │ present    │
+⋮
+│ 664 │ 664     │ carpsisseemus  │ carpere │ p1     │ pl     │ pluperfect │
+│ 665 │ 665     │ carpsisseetis  │ carpere │ p2     │ pl     │ pluperfect │
+│ 666 │ 666     │ carpsissent    │ carpere │ p3     │ pl     │ pluperfect │
+│ 667 │ 667     │ cuccurissem    │ currere │ p1     │ sg     │ pluperfect │
+│ 668 │ 668     │ cuccurissees   │ currere │ p2     │ sg     │ pluperfect │
+│ 669 │ 669     │ cuccurisset    │ currere │ p3     │ sg     │ pluperfect │
+│ 670 │ 670     │ cuccurisseemus │ currere │ p1     │ pl     │ pluperfect │
+│ 671 │ 671     │ cuccurisseetis │ currere │ p2     │ pl     │ pluperfect │
+│ 672 │ 672     │ cuccurissent   │ currere │ p3     │ pl     │ pluperfect │
 ```
 
-!!! warning
+For the production model, we want to predict correct forms given their lexemes and inflectional features. For example, giving the lexeme `vocare` and its inflectional features `p1`, `sg`, `present`, `active` and `ind`, the model should produce the form `vocoo`. On the other hand, the comprehension model takes forms as input and tries to predict their lexemes and inflectional features.
 
-    The real validation dataset should NOT contain datarows from the training dataset.
+We use letter trigrams to encode our forms. For word `vocoo`, for example, we use trigrams `#vo`, `voc`, `oco`, `coo` and `oo#`. Here, `#` is used as start/end token to encode the initial trigram and finial trigram of a word. The C matrix specified for each word form in (XXX row?) shows which of the trigrams (in XXX column?) is present.
 
-For the production model, we want to predict correct forms given their lexemes and inflective features. For example, giving the lexeme `vocare` and its inflective features `p1`, `sg`, `present`, `active` and `ind`, the model should be able to produce the form `vocoo`. On the other hand, the comprehension model takes forms as input and try to predict their lexemes and inflective features.
-
-We use letter n-grams to encode our forms. For word `vocoo`, for example, we encode it as `#vo`, `voc`, `oco`, `coo` and `oo#`. Here, `#` is used as start/end token to encode the beginning and ending of a word. To make the C matrix, we use:
+To make the C matrix, we use the make\_cue\_matrix function:
 
 ```julia
 cue_obj_train = JudiLing.make_cue_matrix(
@@ -59,30 +85,16 @@ cue_obj_train = JudiLing.make_cue_matrix(
   )
 ```
 
-In order to maintain the same indices as in the training C matrix, we need to pass cue\_obj\_train when we construct validation C matrix.
-
-```julia
-cue_obj_val = JudiLing.make_cue_matrix(
-  latin_val,
-  cue_obj_train,
-  grams=3,
-  target_col=:Word,
-  tokenized=false,
-  keep_sep=false
-  )
-```
-
-Then, we can simulate our training and validation S matrices by:
+Then, we can simulate semantic matrix S using the make\_S\_matrix function:
 ```julia
 n_features = size(cue_obj_train.C, 2)
-S_train, S_val = JudiLing.make_S_matrix(
+S_train = JudiLing.make_S_matrix(
   latin_train,
-  latin_val,
   ["Lexeme"],
   ["Person","Number","Tense","Voice","Mood"],
   ncol=n_features)
 ```
-For this simulation, random vectors are assigned to every lexeme and inflective feature and we sum up lexemes and features as our semantic vector for each word entry. As shown from our study, similar dimensions between C and S work best. Thus, we retrieve dimension from C matrix and pass it to construct S matrix.
+For this simulation, first random vectors are assigned to every lexeme and inflectional feature, and next the vectors of those features are summed up to obtain the semantic vector. Similar dimensions between C and S works best. Therefore, we retrieve the number of columns from the C matrix and pass it to make\_S\_Matrix when constructing S.
 
 Then, the next step is to calculate a mapping from S to C by solving equation C = SG. We have several mapping modes, but here we use cholesky decomposition mode to solve the equation:
 
