@@ -1,5 +1,5 @@
 """
-a struct that store info about comprehension accuracy
+A structure that stores info about comprehension accuracy.
 """
 struct Comp_Acc_Struct
   dfr::DataFrame
@@ -8,9 +8,9 @@ struct Comp_Acc_Struct
 end
 
 """
-  accuracy_comprehension(::Matrix, ::Matrix)
+  accuracy_comprehension(::Matrix, ::Matrix) -> ::Comp_Acc_Struct
 
-Evaluate the comprehension accuracy
+Evaluate the comprehension accuracy.
 
 ...
 # Arguments
@@ -20,48 +20,6 @@ Evaluate the comprehension accuracy
 
 # Examples
 ```julia
-latin_train = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
-cue_obj_train = JudiLing.make_cue_matrix(
-  latin_train,
-  grams=3,
-  target_col=:Word,
-  tokenized=false,
-  keep_sep=false
-  )
-
-latin_val = latin_train[101:150,:]
-cue_obj_val = JudiLing.make_cue_matrix(
-  latin_val,
-  cue_obj_train,
-  grams=3,
-  target_col=:Word,
-  tokenized=false,
-  keep_sep=false
-  )
-
-n_features = size(cue_obj_train.C, 2)
-
-S_train, S_val = JudiLing.make_S_matrix(
-  latin_train,
-  latin_val,
-  ["Lexeme"],
-  ["Person","Number","Tense","Voice","Mood"],
-  ncol=n_features)
-
-G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
-
-Chat_train = S_train * G_train
-Chat_val = S_val * G_train
-JudiLing.eval_SC(cue_obj_train.C, Chat_train)
-JudiLing.eval_SC(cue_obj_val.C, Chat_val)
-
-F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
-
-Shat_train = cue_obj_train.C * F_train
-Shat_val = cue_obj_val.C * F_train
-JudiLing.eval_SC(S_train, Shat_train)
-JudiLing.eval_SC(S_val, Shat_val)
-
 accuracy_comprehension(
   S_train,
   Shat_train,
@@ -119,9 +77,9 @@ function accuracy_comprehension(
 end
 
 """
-  eval_SC(Union{SparseMatrixCSC, Matrix}, Union{SparseMatrixCSC, Matrix})
+  eval_SC(Union{SparseMatrixCSC, Matrix}, Union{SparseMatrixCSC, Matrix}) -> ::Float64
 
-evaluate S and Shat or C and Chat
+Evaluate the accuracy of S and Shat or C and Chat.
 
 ...
 # Examples
@@ -145,7 +103,9 @@ function eval_SC(
 end
 
 """
-Manually check the results
+  eval_manual(::Array, ::DataFrame, ::Dict) -> ::Nothing
+
+Check the results manually.
 """
 function eval_manual(
   res::Array,
@@ -187,13 +147,13 @@ end
 
 
 """
-  eval_acc(::Array, ::Array)
+  eval_acc(::Array, ::Array) -> ::Float64
 
-Evaluate the outputs from learn_paths function or build_paths function
+Evaluate the accuracy of the results from learn_paths() or build_paths().
 
 ...
 # Arguments
-- `verbose::Bool=false`: if verbose, more information prints out
+- `verbose::Bool=false`: if true, more information will be printed out
 
 # Examples
 ```julia
@@ -238,15 +198,15 @@ function eval_acc(
 end
 
 """
-  eval_acc_loose(::Array, ::Array)
+  eval_acc_loose(::Array, ::Array) -> ::Float64
 
-Evaluate the outputs from learn_paths function or build_paths function, if one of the candidates
-are correct, then we take it correct. This reflects how many paths we could found
-but we could not recogni
+Evaluate the accuracy of the results from learn_paths() or build_paths(), if 
+one of the candidates is correct, then we take it as correct. This reflects how 
+many paths were found but could not be recognised as the best path.
 
 ...
 # Arguments
-- `verbose::Bool=false`: if verbose, more information prints out
+- `verbose::Bool=false`: if true, more information will be printed out
 
 # Examples
 ```julia
@@ -297,13 +257,14 @@ function eval_acc_loose(
 end
 
 """
+  eval_gpi(::Vector{Gold_Path_Info_Struct}, ::Float64, ::Float64) -> ::Array
 Evaluate gold path info
 """
 function eval_gpi(
   gpi::Vector{Gold_Path_Info_Struct},
   threshold=0.1::Float64,
   tolerance=(-1000.0)::Float64
-)
+)::Array
   c = [count(x->threshold>=x>tolerance, g.ngrams_ind_support) for g in gpi]
 
   t_c = length(c)

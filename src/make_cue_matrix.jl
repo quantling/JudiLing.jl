@@ -1,5 +1,5 @@
 """
-a struct that store info after make_cue_matrix
+a structure that store info after make_cue_matrix
 C is the cue matrix
 f2i is the dictionary return indices giving features
 i2f is in another hand return features when giving indices
@@ -25,29 +25,44 @@ Given tokens make n-grams.
 function make_ngrams end
 
 """
-  make_cue_matrix(::DataFrame)
+  make_cue_matrix(::DataFrame) -> ::Cue_Matrix_Struct
 
-This function makes cue matrix and corresponding indices given dataset as csv file.
+Makes the cue matrix and corresponding indices given dataset as csv file.
 
 ...
 # Arguments
 - `grams::Int64=3`: the number of grams for cues 
 - `target_col::Union{String, Symbol}=:Words`: the column name for target
-- `tokenized::Bool=false`: whether the target is tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: what is the seperate token
-- `keep_sep::Bool=false`: whether to keep seperater in cues
+- `tokenized::Bool=false`:if true, the dataset target is assumed tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separate token
+- `keep_sep::Bool=false`: if true, keep separators in cues
 - `start_end_token::Union{String, Char}="#"`: start and end token
-- `verbose::Bool=false`: if verbose, more information prints out
+- `verbose::Bool=false`: if true, more information prints out
 
 # Examples
 ```julia
-latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
-latin_cue_obj_train = JudiLing.make_cue_matrix(
-  latin,
+# make cue matrix with not tokenized dataset
+cue_obj_train = JudiLing.make_cue_matrix(
+  latin_train,
   grams=3,
   target_col=:Word,
   tokenized=false,
-  keep_sep=false
+  sep_token="-",
+  start_end_token="#",
+  keep_sep=false,
+  verbose=false
+  )
+
+# make cue matrix with tokenized dataset
+cue_obj_train = JudiLing.make_cue_matrix(
+  french_train,
+  grams=3,
+  target_col=:Syllables,
+  tokenized=true,
+  sep_token="-",
+  start_end_token="#",
+  keep_sep=true,
+  verbose=false
   )
 ```
 ...
@@ -140,42 +155,48 @@ function make_cue_matrix(
 end
 
 """
-  make_cue_matrix(::DataFrame,::Cue_Matrix_Struct)
+  make_cue_matrix(::DataFrame,::Cue_Matrix_Struct) -> ::Cue_Matrix_Struct
 
-This function make cue matrix and corresponding indices giving dataset as csv file and
+Make the cue matrix and corresponding indices giving dataset as csv file and
 train dataset cue obj. This is often used to construct val_cue_obj, in order to maintain
 the same indices.
 
 ...
 # Arguments
-- `grams::Int64=3`: the number of grams for cues 
+- `grams::Int64=3`: which n-grams for cues 
 - `target_col::Union{String, Symbol}=:Words`: the column name for target
-- `tokenized::Bool=false`: whether the word is tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: what is the seperate token
-- `keep_sep::Bool=false`: whether to keep seperater in cues
+- `tokenized::Bool=false`:if true, the dataset target is assumed tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separate token
+- `keep_sep::Bool=false`: if true, keep separators in cues
 - `start_end_token::Union{String, Char}="#"`: start and end token
-- `verbose::Bool=false`: if verbose, more information prints out
+- `verbose::Bool=false`: if true, more information prints out
 
 # Examples
 ```julia
-latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
-latin_cue_obj_train = JudiLing.make_cue_matrix(
-  latin,
-  grams=3,
-  target_col=:Word,
-  tokenized=false,
-  keep_sep=false
-  )
-# simulate the val dataset. Notice here that latin_val is part of training dataset to make
-# sure all features and n-grams covered by training dataset.
-latin_val = latin[101:150,:]
-latin_cue_obj_val = JudiLing.make_cue_matrix(
+# make cue matrix with not tokenized dataset
+cue_obj_val = JudiLing.make_cue_matrix(
   latin_val,
-  latin_cue_obj_train,
+  cue_obj_train,
   grams=3,
   target_col=:Word,
   tokenized=false,
-  keep_sep=false
+  sep_token="-",
+  keep_sep=false,
+  start_end_token="#",
+  verbose=false
+  )
+
+# make cue matrix with tokenized dataset
+cue_obj_val = JudiLing.make_cue_matrix(
+  french_val,
+  cue_obj_train,
+  grams=3,
+  target_col=:Syllables,
+  tokenized=true,
+  sep_token="-",
+  keep_sep=true,
+  start_end_token="#",
+  verbose=false
   )
 ```
 ...
@@ -231,8 +252,7 @@ function make_cue_matrix(
 end
 
 """
-  make_ngrams(::Array,::Int64,::Bool,
-  ::Union{Nothing, String, Char},::Union{String, Char}
+  make_ngrams(::Array,::Int64,::Bool, ::Union{Nothing, String, Char},::Union{String, Char} -> ::Array
 
 given a list of tokens, return all ngrams in a list
 """
@@ -257,6 +277,11 @@ function make_ngrams(
   ngrams
 end
 
+"""
+  make_cue_matrix(::DataFrame,::Pyndl_Weight_Struct) -> ::Cue_Matrix_Struct
+
+Make the cue matrix for pyndl model
+"""
 function make_cue_matrix(
   data::DataFrame,
   pyndl_weights::Pyndl_Weight_Struct;

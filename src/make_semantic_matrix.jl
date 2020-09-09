@@ -1,5 +1,5 @@
 """
-This a struct that store all information about prelinguistic and their feature
+This a structure that store all information about prelinguistic and their feature
 indices.
 pS is the cue matrix
 f2i is the dictionary return indices giving features
@@ -12,29 +12,31 @@ struct PS_Matrix_Struct
 end
 
 """
-This is the function that make prelinguistic semantic matrix.
+Make prelinguistic semantic matrix.
 """
 function make_pS_matrix end
 
 """
-This is the function that make simulated semantic matrix.
+Make simulated semantic matrix.
 """
 function make_S_matrix end
 
 """
-  make_pS_matrix(::DataFrame)
+  make_pS_matrix(::DataFrame) -> ::PS_Matrix_Struct
 
-This is a function that create prelinguistic matrix giving a csv file.
+Create prelinguistic matrix given a csv file.
 
 ...
 # Arguments
-- `features_col::Symbol=:CommunicativeIntention`: the column name for communicative intention
-- `sep_token::String="_"`: the seperated token in the communicative intention column
+- `features_col::Symbol=:CommunicativeIntention`: the column name for target
+- `sep_token::String="_"`: the seperated token
 
 # Examples
 ```julia
-utterance = CSV.DataFrame!(CSV.File(joinpath("data", "utterance_mini.csv")))
-s_obj_train = JudiLing.make_pS_matrix(utterance)
+s_obj_train = JudiLing.make_pS_matrix(
+  utterance,
+  features_col=:CommunicativeIntention,
+  sep_token="_")
 ```
 ...
 """
@@ -83,21 +85,23 @@ function make_pS_matrix(
 end
 
 """
-  make_pS_matrix(::DataFrame, PS_Matrix_Struct)
+  make_pS_matrix(::DataFrame, PS_Matrix_Struct) -> ::PS_Matrix_Struct
 
-This is a function that construct prelinguistic matrix giving utterances and
-training s_obj. The feature indices should maintain the same as thoes in s_obj.
+Construct prelinguistic matrix giving utterances and training s_obj.
+The feature indices should maintain the same as thoes in s_obj.
 
 ...
 # Arguments
-- `features_col::Symbol=:CommunicativeIntention`: the column name for communicative intention
-- `sep_token::String="_"`: the seperated token in the communicative intention column
+- `features_col::Symbol=:CommunicativeIntention`: the column name for target
+- `sep_token::String="_"`: the seperated token
 
 # Examples
 ```julia
-utterance = CSV.DataFrame!(CSV.File(joinpath("data", "utterance_mini.csv")))
-s_obj_train = JudiLing.make_pS_matrix(utterance)
-s_obj_val = JudiLing.make_pS_matrix(utterance_val, s_obj_train)
+s_obj_val = JudiLing.make_pS_matrix(
+  utterance_val,
+  s_obj_train,
+  features_col=:CommunicativeIntention,
+  sep_token="_")
 ```
 ...
 """
@@ -147,10 +151,10 @@ function make_pS_matrix(
 end
 
 """
-  make_S_matrix(::DataFrame, ::Vector, ::Vector)
+  make_S_matrix(::DataFrame, ::Vector, ::Vector) -> ::Matrix
 
-This is a function that create simulated semantic matrix. Give each feature a
-random semantic vector, and sum up all features to compose the semantic vector.
+Create simulated semantic matrix. Give each feature a random semantic vector, 
+and sum up all features to compose the semantic vector.
 
 ...
 # Arguments
@@ -160,19 +164,27 @@ random semantic vector, and sum up all features to compose the semantic vector.
 - `sd_base::Int64=4`: the sd of base features
 - `sd_inflection::Int64=4`: the sd of inflectional features
 - `seed::Int64=314`: the random seed
-- `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
-- `add_noise::Bool=true`: whether to add noise at the end of construction
+- `isdeep::Bool=true`: if true, mean of each feature is also randomized 
+- `add_noise::Bool=true`: if true, add noise at the end of construction
 - `sd_noise::Int64=1`: the sd of the noise matrix
 - `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may exceeds 1 or -1 depending on the sd
 
 # Examples
 ```julia
 # Examples
-french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
 S_train = JudiLing.make_S_matrix(
   french,
   ["Lexeme"],
-  ["Tense","Aspect","Person","Number","Gender","Class","Mood"])
+  ["Tense","Aspect","Person","Number","Gender","Class","Mood"],
+  ncol=200,
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  isdeep=true,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false)
 ```
 ...
 """
@@ -235,10 +247,10 @@ function make_S_matrix(
 end
 
 """
-  make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector)
+  make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector) -> ::Tuple{Matrix, Matrix}
 
-This is a function that create validation simulated semantic matrix. Give each feature a
-random semantic vector, and sum up all features to compose the semantic vector.
+Create validation simulated semantic matrix. Give each feature a random 
+semantic vector, and sum up all features to compose the semantic vector.
 
 ...
 # Arguments
@@ -248,21 +260,29 @@ random semantic vector, and sum up all features to compose the semantic vector.
 - `sd_base::Int64=4`: the sd of base features
 - `sd_inflection::Int64=4`: the sd of inflectional features
 - `seed::Int64=314`: the random seed
-- `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
-- `add_noise::Bool=true`: whether to add noise at the end of construction
+- `isdeep::Bool=true`: if true, mean of each feature is also randomized 
+- `add_noise::Bool=true`: if true, add noise at the end of construction
 - `sd_noise::Int64=1`: the sd of the noise matrix
-- `normalized::Bool=false`: if normalized, values of matrix maintain close between 1 and -1
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may exceeds 1 or -1 depending on the sd
+
 # Examples
 
 ```julia
 # Examples
-french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
-french_val = french[100:end,:]
 S_train, S_val = JudiLing.make_S_matrix(
-    french,
-    french_val,
-    ["Lexeme"],
-    ["Tense","Aspect","Person","Number","Gender","Class","Mood"])
+  french,
+  french_val,
+  ["Lexeme"],
+  ["Tense","Aspect","Person","Number","Gender","Class","Mood"],
+  ncol=200,
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  isdeep=true,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false)
 ```
 ...
 """
@@ -343,11 +363,11 @@ function make_S_matrix(
 end
 
 """
-  make_S_matrix(::DataFrame, ::Vector)
+  make_S_matrix(::DataFrame, ::Vector) -> ::Matrix
 
-This is a function that create simulated semantic matrix, provided
-for dataset that only have base features. Give each feature a random semantic
-vector, and sum up all features to compose the semantic vector.
+Create simulated semantic matrix, provided for dataset that only have base 
+features. Give each feature a random semantic vector, and sum up all features 
+to compose the semantic vector.
 
 ...
 # Arguments
@@ -355,17 +375,23 @@ vector, and sum up all features to compose the semantic vector.
 - `sd_base_mean::Int64=1`: the sd mean of base features
 - `sd_base::Int64=4`: the sd of base features
 - `seed::Int64=314`: the random seed
-- `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
-- `add_noise::Bool=true`: whether to add noise at the end of construction
+- `isdeep::Bool=true`: if true, mean of each feature is also randomized 
+- `add_noise::Bool=true`: if true, add noise at the end of construction
 - `sd_noise::Int64=1`: the sd of the noise matrix
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may exceeds 1 or -1 depending on the sd
 
 # Examples
 ```julia
-french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
-
 S_train = JudiLing.make_S_matrix(
   french,
-  base=["Lexeme"])=
+  ["Lexeme"],
+  ncol=200,
+  sd_base_mean=1,
+  sd_base=4,
+  isdeep=true,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false)
 ```
 ...
 """
@@ -413,11 +439,11 @@ function make_S_matrix(
 end
 
 """
-  make_S_matrix(::DataFrame, ::DataFrame, ::Vector)
+  make_S_matrix(::DataFrame, ::DataFrame, ::Vector) -> ::Tuple{Matrix, Matrix}
 
-This is a function that create validation simulated semantic matrix, provided
-for dataset that only have base features. Give each feature a random semantic
-vector, and sum up all features to compose the semantic vector.
+Create validation simulated semantic matrix, provided for dataset that only 
+have base features. Give each feature a random semantic vector, and sum up all 
+features to compose the semantic vector.
 
 ...
 # Arguments
@@ -425,18 +451,24 @@ vector, and sum up all features to compose the semantic vector.
 - `sd_base_mean::Int64=1`: the sd mean of base features
 - `sd_base::Int64=4`: the sd of base features
 - `seed::Int64=314`: the random seed
-- `isdeep::Bool=true`: if in deep mode, mean of each feature is also randomized 
-- `add_noise::Bool=true`: whether to add noise at the end of construction
+- `isdeep::Bool=true`: if true, mean of each feature is also randomized 
+- `add_noise::Bool=true`: if true, add noise at the end of construction
 - `sd_noise::Int64=1`: the sd of the noise matrix
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may exceeds 1 or -1 depending on the sd
 
 # Examples
 ```julia
-french = CSV.DataFrame!(CSV.File(joinpath("data", "french_mini.csv")))
-french_val = french[100:end,:]
 S_train, S_val = JudiLing.make_S_matrix(
-    french,
-    french_val,
-    base=["Lexeme"])
+  french,
+  french_val,
+  ["Lexeme"],
+  ncol=200,
+  sd_base_mean=1,
+  sd_base=4,
+  isdeep=true,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false)
 ```
 ...
 """
@@ -499,6 +531,11 @@ function make_S_matrix(
   St_train', St_val'
 end
 
+"""
+  make_S_matrix(::DataFrame, ::DataFrame, ::Pyndl_Weight_Struct, ::Vector{String}) -> ::Tuple{Matrix, Matrix}
+
+Create semantic matrix for pyndl mode
+"""
 function make_S_matrix(
   data_train::DataFrame,
   data_val::DataFrame,

@@ -1,5 +1,5 @@
 """
-store paths information found by learn_paths or build_paths function
+Store path information found by learn_paths() or build_paths()
 """
 struct Result_Path_Info_Struct
   ngrams_ind::Array
@@ -8,8 +8,9 @@ struct Result_Path_Info_Struct
 end
 
 """
-store gold paths information including indices and indices support and total support
-it can be used to evaluate how low the threshold is set in order to find the correct paths
+Store gold path information including indices and indices' support and total 
+support. It can be used to evaluate how low the threshold needs to be set in 
+order to find the correct paths.
 """
 struct Gold_Path_Info_Struct
   ngrams_ind::Array
@@ -18,85 +19,32 @@ struct Gold_Path_Info_Struct
 end
 
 """
-learn_paths function takes each timestep individually and calculate Yt_hat respectively,
-"""
-function learn_paths end
+  learn_paths(::DataFrame,::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict) -> ::::Union{Tuple{Vector{Vector{Result_Path_Info_Struct}}, Vector{Gold_Path_Info_Struct}}, Vector{Vector{Result_Path_Info_Struct}}}
 
-"""
-build_paths function is shortcut algorithms that only takes n-grams that closed to the
-validation data
-"""
-function build_paths end
-
-"""
-  learn_paths(::DataFrame,::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict)
-
-learn_paths function takes each timestep individually and calculate Yt_hat respectively,
+Take individual timestep and calculate its corresponding Yt_hat.
 
 ...
 # Arguments
 - `gold_ind::Union{Nothing, Vector}=nothing`: for in gold_path_info mode
 - `Shat_val::Union{Nothing, Matrix}=nothing`: for gold_path_info mode
-- `check_gold_path::Bool=false`: if turn on gold_path_info mode
+- `check_gold_path::Bool=false`: if true, turn on gold_path_info mode
 - `max_t::Int64=15`: maximum timestep
-- `max_can::Int64=10`: maximum candidates when output
-- `threshold::AbstractFloat=0.1`: for each timestep, only grams greater than threshold will be selected
-- `is_tolerant::Bool=false`: if in tolerant mode, path allows limited nodes under threshold but greater than tolerance
-- `tolerance::AbstractFloat=(-1000.0)`: in tolerant mode, only nodes greater than tolerance and lesser than threshold will be selected
-- `max_tolerance::Int64=4`: maximum numbers of nodes allowed in a path
-- `grams::Int64=3`: n-grams
-- `tokenized::Bool=false`: whether tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: seperate token
-- `keep_sep::Bool=false`: whether keep seperaters in grams
-- `target_col::Union{String, :Symbol}=:Words`: word column names
-- `issparse::Symbol=:auto`: mt matrix output format mode
+- `max_can::Int64=10`: maximum candidates to keep in the results
+- `threshold::AbstractFloat=0.1`:the value set for the support such that if the support of a n-gram is higher than this value, select the n-gram anyway
+- `is_tolerant::Bool=false`: if true, select a specified number of n-grams whose supports are below threshold and above tolerance to be added to the path
+- `tolerance::AbstractFloat=(-1000.0)`: the value set in tolerant mode such that if the support for a n-gram is inbetween this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path
+- `max_tolerance::Int64=4`: maximum number of nodes allowed in a path
+- `grams::Int64=3`: the number of grams for cues
+- `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separate token
+- `keep_sep::Bool=false`:if true, keep separators in results as well
+- `target_col::Union{String, :Symbol}=:Words`: target column names
+- `issparse::Symbol=:auto`: Mt matrix output format mode
 - `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
-- `verbose::Bool=false`: if verbose, more information will be printed out
+- `verbose::Bool=false`: if true, more information will be printed out
 
 # Examples
 ```julia
-latin_train = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
-cue_obj_train = JudiLing.make_cue_matrix(
-  latin_train,
-  grams=3,
-  target_col=:Word,
-  tokenized=false,
-  keep_sep=false
-  )
-
-latin_val = latin_train[101:150,:]
-cue_obj_val = JudiLing.make_cue_matrix(
-  latin_val,
-  cue_obj_train,
-  grams=3,
-  target_col=:Word,
-  tokenized=false,
-  keep_sep=false
-  )
-
-n_features = size(cue_obj_train.C, 2)
-
-S_train, S_val = JudiLing.make_S_matrix(
-  latin_train,
-  latin_val,
-  ["Lexeme"],
-  ["Person","Number","Tense","Voice","Mood"],
-  ncol=n_features)
-
-G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
-
-Chat_train = S_train * G_train
-Chat_val = S_val * G_train
-
-F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
-
-Shat_train = cue_obj_train.C * F_train
-Shat_val = cue_obj_val.C * F_train
-
-A = cue_obj_train.A
-
-max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
-
 res_train, gpi_train = JudiLing.learn_paths(
   latin_train,
   latin_train,
@@ -349,67 +297,25 @@ function learn_paths(
 end
 
 """
-  build_paths(::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict,::Array)
+  build_paths(::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict,::Array) -> ::Vector{Vector{Result_Path_Info_Struct}}
 
-build_paths function is shortcut algorithms that only takes n-grams that closed to the
-validation data
+build_paths function is a shortcut algorithm for finding paths that only takes
+the n-grams of that which are close to the targets.
 
 ...
 # Arguments
-- `rC::Union{Nothing, Matrix}=nothing`: correlation Matrix of C and Chat, passing it to save computing time
+- `rC::Union{Nothing, Matrix}=nothing`: correlation Matrix of C and Chat, pass it to save computing time
 - `max_t::Int64=15`: maximum timestep
-- `max_can::Int64=10`: maximum candidates when output
+- `max_can::Int64=10`: maximum candidates to keep in the results
 - `n_neighbors::Int64=10`: find indices only in top n neighbors
-- `grams::Int64=3`: n-grams
-- `tokenized::Bool=false`: whether tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: seperate token
-- `target_col::Union{String, :Symbol}=:Words`: word column names
-- `verbose::Bool=false`: if verbose, more information will be printed out
+- `grams::Int64=3`: the number of grams for cues
+- `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separate token
+- `target_col::Union{String, :Symbol}=:Words`: target column names
+- `verbose::Bool=false`: if true, more information will be printed out
 
 # Examples
 ```julia
-latin_train = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
-cue_obj_train = JudiLing.make_cue_matrix(
-  latin_train,
-  grams=3,
-  target_col=:Word,
-  tokenized=false,
-  keep_sep=false
-  )
-
-latin_val = latin_train[101:150,:]
-cue_obj_val = JudiLing.make_cue_matrix(
-  latin_val,
-  cue_obj_train,
-  grams=3,
-  target_col=:Word,
-  tokenized=false,
-  keep_sep=false
-  )
-
-n_features = size(cue_obj_train.C, 2)
-
-S_train, S_val = JudiLing.make_S_matrix(
-  latin_train,
-  latin_val,
-  ["Lexeme"],
-  ["Person","Number","Tense","Voice","Mood"],
-  ncol=n_features)
-
-G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
-
-Chat_train = S_train * G_train
-Chat_val = S_val * G_train
-
-F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
-
-Shat_train = cue_obj_train.C * F_train
-Shat_val = cue_obj_val.C * F_train
-
-A = cue_obj_train.A
-
-max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
-
 JudiLing.build_paths(
   latin_train,
   cue_obj_train.C,
@@ -540,10 +446,9 @@ function build_paths(
 end
 
 """
-  eval_can(::Vector{Vector{Tuple{Vector{Int64}, Int64}}},::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Dict,::Int64,::Bool)
+  eval_can(::Vector{Vector{Tuple{Vector{Int64}, Int64}}},::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Dict,::Int64,::Bool) -> ::Array{Array{Result_Path_Info_Struct,1},1}
 
-at the end of finding path algorithms, each candidates need to be evaluated
-regarding their predicted semantic vectors
+Evaluate each candidate with regard to its predicted semantic vector.
 """
 function eval_can(
   candidates::Vector{Vector{Tuple{Vector{Int64}, Int64}}},
@@ -583,9 +488,9 @@ function eval_can(
 end
 
 """
-  find_top_feature_indices(::Matrix, ::Array)
+  find_top_feature_indices(::Matrix, ::Array) -> ::Vector{Vector{Int64}}
 
-find out all indices within the closed top n datarow for a given validation datarow
+Find all indices of the top n closest neighbors for a given target.
 """
 function find_top_feature_indices(
   # C_train::SparseMatrixCSC,
