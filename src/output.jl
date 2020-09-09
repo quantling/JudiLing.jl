@@ -185,7 +185,7 @@ function write2csv(
 end
 
 """
-  write2df(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct, ::String)
+  write2df(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct)
 
 write results into dataframe, support for path results
 
@@ -207,7 +207,6 @@ JudiLing.write2df(
   latin_train,
   cue_obj_train,
   cue_obj_train,
-  "res_latin_train.csv",
   grams=3,
   tokenized=false,
   sep_token=nothing,
@@ -221,7 +220,6 @@ JudiLing.write2df(
   latin_val,
   cue_obj_train,
   cue_obj_val,
-  "res_latin_val.csv",
   grams=3,
   tokenized=false,
   sep_token=nothing,
@@ -236,8 +234,7 @@ function write2df(
   res::Array{Array{Result_Path_Info_Struct,1},1},
   data::DataFrame,
   cue_obj_train::Cue_Matrix_Struct,
-  cue_obj_val::Cue_Matrix_Struct,
-  filename::String;
+  cue_obj_val::Cue_Matrix_Struct;
   grams=3::Int64,
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
@@ -264,13 +261,13 @@ function write2df(
     if length(r) == 0
       utterance = i
       identifier = data[i, target_col]
-      path = "NA"
-      pred = "NA"
-      num_tolerance = "NA"
-      support = "NA"
-      is_correct = "NA"
-      is_novel = "NA"
-      is_best = "NA"
+      path = missing
+      pred = missing
+      num_tolerance = missing
+      support = missing
+      is_correct = missing
+      is_novel = missing
+      is_best = missing
       push!(utterance_vec, utterance)
       push!(identifier_vec, identifier)
       push!(path_vec, path)
