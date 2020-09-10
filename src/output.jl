@@ -78,58 +78,29 @@ function write2csv(
   root_dir="."::String,
   output_dir="."::String
   )::Nothing
-
   output_path = joinpath(root_dir, output_dir)
   # create path if not exist
   mkpath(output_path)
-  # open a file
-  io = open(joinpath(output_path, filename), "w")
 
   if isnothing(output_sep_token)
     output_sep_token = ""
   end
 
-  # write header
-  write(io, "\"utterance\",\"identifier\",\"path\",\"pred\",\"num_tolerance\",\"support\",\"isbest\",\"iscorrect\",\"isnovel\"\n")
+  df = JudiLing.write2df(
+    res,
+    data,
+    cue_obj_train,
+    cue_obj_val,
+    grams=grams,
+    tokenized=tokenized,
+    sep_token=sep_token,
+    start_end_token=start_end_token,
+    output_sep_token=output_sep_token,
+    path_sep_token=path_sep_token,
+    target_col=target_col,)
 
-  i2f = cue_obj_train.i2f
-  for (i,r) in enumerate(res)
-    is_best = true
-    if length(r) == 0
-      utterance = i
-      identifier = data[i, target_col]
-      path = "NA"
-      pred = "NA"
-      num_tolerance = "NA"
-      support = "NA"
-      is_correct = "NA"
-      is_novel = "NA"
-      is_best = "NA"
-      write(io, "\"$utterance\",\"$identifier\",\"$path\",\"$pred\",\"$num_tolerance\",\"$support\",\"$is_best\",\"$is_correct\",\"$is_novel\"\n")
-    end
-
-    for p in r
-      utterance = i
-      identifier = data[i, target_col]
-      path = translate_path(p.ngrams_ind, i2f, sep_token=path_sep_token)
-      pred = translate(p.ngrams_ind,
-        i2f,
-        grams,
-        tokenized,
-        sep_token,
-        start_end_token,
-        output_sep_token)
-      num_tolerance=p.num_tolerance
-      support = p.support
-      is_correct = iscorrect(cue_obj_val.gold_ind[i], p.ngrams_ind)
-      is_novel = isnovel(cue_obj_train.gold_ind, p.ngrams_ind)
-      write(io, "\"$utterance\",\"$identifier\",\"$path\",\"$pred\",\"$num_tolerance\",\"$support\",\"$is_best\",\"$is_correct\",\"$is_novel\"\n")
-      is_best = false
-    end
-  end
-
-  # close file
-  close(io)
+  CSV.write(joinpath(output_path, filename), df, quotestrings=true)
+  nothing
 end
 
 """
@@ -244,15 +215,15 @@ function write2df(
   target_col=:Words::Union{String, Symbol}
   )::DataFrame
 
-  utterance_vec = Int64[]
-  identifier_vec = String[]
-  path_vec = String[]
-  pred_vec = String[]
-  num_tolerance_vec = Int64[]
-  support_vec = AbstractFloat[]
-  isbest_vec = Bool[]
-  iscorrect_vec = Bool[]
-  isnovel_vec = Bool[]
+  utterance_vec = Union{Int64,Missing}[]
+  identifier_vec = Union{String,Missing}[]
+  path_vec = Union{String,Missing}[]
+  pred_vec = Union{String,Missing}[]
+  num_tolerance_vec = Union{Int64,Missing}[]
+  support_vec = Union{AbstractFloat,Missing}[]
+  isbest_vec = Union{Bool,Missing}[]
+  iscorrect_vec = Union{Bool,Missing}[]
+  isnovel_vec = Union{Bool,Missing}[]
 
 
   i2f = cue_obj_train.i2f
