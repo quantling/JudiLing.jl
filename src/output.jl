@@ -72,12 +72,13 @@ function write2csv(
   tokenized=false::Bool,
   sep_token=nothing::Union{Nothing, String, Char},
   start_end_token="#"::Union{String, Char},
-  output_sep_token=""::Union{String, Char, nothing},
+  output_sep_token=""::Union{String, Char, Nothing},
   path_sep_token=":"::Union{String, Char},
   target_col=:Words::Union{String, Symbol},
   root_dir="."::String,
   output_dir="."::String
   )::Nothing
+  
   output_path = joinpath(root_dir, output_dir)
   # create path if not exist
   mkpath(output_path)
