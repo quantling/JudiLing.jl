@@ -281,7 +281,15 @@ function learn_paths(
   res = eval_can(res, S_val, F_train, i2f, max_can, verbose)
 
   # initialize gold_path_infos
-  if check_gold_path && !isnothing(gold_ind)
+  if check_gold_path
+    if isnothing(gold_ind)
+      throw(ErrorException("gold_ind is nothing! Perhaps you forgot to pass gold_ind as an argument."))
+    end
+
+    if isnothing(Shat_val)
+      throw(ErrorException("Shat_val is nothing! Perhaps you forgot to pass Shat_val as an argument."))
+    end
+    
     gold_path_infos = Vector{Gold_Path_Info_Struct}(undef, size(data_val, 1))
 
     # calculate all shat correlation with S
