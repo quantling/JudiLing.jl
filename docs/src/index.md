@@ -6,7 +6,7 @@ JudiLing can be installed using the Julia package manager via GitHub web links. 
 ```
 julia> Pkg.add(PackageSpec(url="https://github.com/MegamindHenry/JudiLing.jl.git"))
 ```
-and in Julia 1.5 REPL., we can run:
+and in Julia 1.5 REPL, we can run:
 ```
 julia> Pkg.add(url="https://github.com/MegamindHenry/JudiLing.jl.git")
 ```
@@ -44,7 +44,9 @@ latin = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin.csv")));
 
 and we can take a peek at the latin dataframe:
 ```julia
-julia> display(latin)
+display(latin)
+```
+```
 672×8 DataFrame. Omitted printing of 2 columns
 │ Row │ Column1 │ Word           │ Lexeme  │ Person │ Number │ Tense      │
 │     │ Int64   │ String         │ String  │ String │ String │ String     │
@@ -71,13 +73,13 @@ julia> display(latin)
 
 For the production model, we want to predict correct forms given their lexemes and inflectional features. For example, giving the lexeme `vocare` and its inflectional features `p1`, `sg`, `present`, `active` and `ind`, the model should produce the form `vocoo`. On the other hand, the comprehension model takes forms as input and tries to predict their lexemes and inflectional features.
 
-We use letter trigrams to encode our forms. For word `vocoo`, for example, we use trigrams `#vo`, `voc`, `oco`, `coo` and `oo#`. Here, `#` is used as start/end token to encode the initial trigram and finial trigram of a word. The C matrix specified for each word form in (XXX row?) shows which of the trigrams (in XXX column?) is present.
+We use letter trigrams to encode our forms. For word `vocoo`, for example, we use trigrams `#vo`, `voc`, `oco`, `coo` and `oo#`. Here, `#` is used as start/end token to encode the initial trigram and finial trigram of a word. The row vectors of the C matrix specify for each word which of the trigrams are realized in that word.
 
 To make the C matrix, we use the make\_cue\_matrix function:
 
 ```julia
-cue_obj_train = JudiLing.make_cue_matrix(
-  latin_train,
+cue_obj = JudiLing.make_cue_matrix(
+  latin,
   grams=3,
   target_col=:Word,
   tokenized=false,
@@ -87,70 +89,72 @@ cue_obj_train = JudiLing.make_cue_matrix(
 
 Then, we can simulate semantic matrix S using the make\_S\_matrix function:
 ```julia
-n_features = size(cue_obj_train.C, 2)
-S_train = JudiLing.make_S_matrix(
-  latin_train,
+n_features = size(cue_obj.C, 2)
+S = JudiLing.make_S_matrix(
+  latin,
   ["Lexeme"],
   ["Person","Number","Tense","Voice","Mood"],
   ncol=n_features)
 ```
 For this simulation, first random vectors are assigned to every lexeme and inflectional feature, and next the vectors of those features are summed up to obtain the semantic vector. Similar dimensions between C and S works best. Therefore, we retrieve the number of columns from the C matrix and pass it to make\_S\_Matrix when constructing S.
 
-Then, the next step is to calculate a mapping from S to C by solving equation C = SG. We have several mapping modes, but here we use cholesky decomposition mode to solve the equation:
+Then, the next step is to calculate a mapping from S to C by solving equation C = SG. We use Cholesky decomposition to solve this equation:
 
 ```julia
-G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
+G = JudiLing.make_transform_matrix(S, cue_obj.C)
 ```
 
 Then, we can make our predicted C matrix Chat:
 ```julia
-Chat_train = S_train * G_train
-Chat_val = S_val * G_train
+Chat = S * G
 ```
 
-and we can evaluate our predictions by:
+and we can evaluate our predictions:
 ```julia
-@show JudiLing.eval_SC(cue_obj_train.C, Chat_train)
-@show JudiLing.eval_SC(cue_obj_val.C, Chat_val)
+@show JudiLing.eval_SC(cue_obj.C, Chat)
+```
+```
+JudiLing.eval_SC(cue_obj.C, Chat) = 1.0
 ```
 
-Similar to G and Chat, we can solve S = CF by:
+Similar to G and Chat, we can solve S = CF:
 ```julia
-F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
+F = JudiLing.make_transform_matrix(cue_obj.C, S)
 ```
-and we can predict Shat matrices and evaluate them:
+and we can predict Shat matrix and evaluate it:
 ```julia
-Shat_train = cue_obj_train.C * F_train
-Shat_val = cue_obj_val.C * F_train
-
-@show JudiLing.eval_SC(S_train, Shat_train)
-@show JudiLing.eval_SC(S_val, Shat_val)
+Shat = cue_obj.C * F
+@show JudiLing.eval_SC(S, Shat)
 ```
-
-We have path finding algorithms to further predict the forms in a sequence. The first step is to construct an adjacency matrix. Here we use adjacency constructed inside make\_cue\_matrix(), but we can also make a full adjacency matrix if we need.
-```julia
-A = cue_obj_train.A
 ```
+JudiLing.eval_SC(S, Shat) = 1.0
+```
+To model speech production, the proper triphones have to be selected and put into the right order. We have two algorithms that accomplish this. Both algorithms construct paths in a triphone space that start with word-initial triphones and end with word-final triphones.
 
-Then, we calculate hthe number of timesteps we need for our learning function.
+The first step is to construct an adjacency matrix that specify which triphone can follow each other. In this example, we use the adjacency matrix constructed by make\_cue\_matrix, but we can also make use of a independently constructed adjacency matrix if required.
+
 ```julia
-max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
+A = cue_obj.A
 ```
 
-Finally, we use our path finding function to predict forms in a sequence.
+For our sequencing algorithms, we calculate the number of timesteps we need for our algorithms. For the Latin dataset, the max timestep is equal to the length of the longest word. The argument :Word specifies the column in the Latin dataset that lists the words' forms.
+
 ```julia
-res_train, gpi_train = JudiLing.learn_paths(
-  latin_train,
-  latin_train,
-  cue_obj_train.C,
-  S_train,
-  F_train,
-  Chat_train,
+max_t = JudiLing.cal_max_timestep(latin, :Word)
+```
+
+One sequence finding algorithm used discrimination learning for the position of triphones. This function returns two lists, one with the triphone paths and one with the learning supports for these paths.
+
+```julia
+res = JudiLing.learn_paths(
+  latin,
+  latin,
+  cue_obj.C,
+  S,
+  F,
+  Chat,
   A,
-  cue_obj_train.i2f,
-  gold_ind=cue_obj_train.gold_ind,
-  Shat_val=Shat_train,
-  check_gold_path=true,
+  cue_obj.i2f,
   max_t=max_t,
   max_can=10,
   grams=3,
@@ -161,60 +165,60 @@ res_train, gpi_train = JudiLing.learn_paths(
   target_col=:Word,
   issparse=:dense,
   verbose=true)
-
-res_val, gpi_val = JudiLing.learn_paths(
-  latin_train,
-  latin_val,
-  cue_obj_train.C,
-  S_val,
-  F_train,
-  Chat_val,
-  A,
-  cue_obj_train.i2f,
-  gold_ind=cue_obj_val.gold_ind,
-  Shat_val=Shat_val,
-  check_gold_path=true,
-  max_t=max_t,
-  max_can=10,
-  grams=3,
-  threshold=0.1,
-  is_tolerant=true,
-  tolerance=-0.1,
-  max_tolerance=2,
-  tokenized=false,
-  sep_token="-",
-  keep_sep=false,
-  target_col=:Word,
-  issparse=:dense,
-  verbose=true)
 ```
-and we evaluate our results:
+
+We evaluate the accuracy on the train data as follows:
+
 ```julia
-acc_train = JudiLing.eval_acc(
-  res_train,
-  cue_obj_train.gold_ind,
-  verbose=false
-)
-acc_val = JudiLing.eval_acc(
-  res_val,
-  cue_obj_val.gold_ind,
+acc = JudiLing.eval_acc(
+  res,
+  cue_obj.gold_ind,
   verbose=false
 )
 
-println("Acc for train: $acc_train")
-println("Acc for val: $acc_val")
+println("Acc for train: $acc")
+```
+```
+Acc for train: 1.0
 ```
 
-After we obtain results from path finding functions like learn\_paths or build\_paths, we can later save the results into a csv file or into a dataframe which can be loaded into R.
-Examples are like these:
+The second sequence finding algorithm is usually faster than the first, but does not
+provide learnability estimates.
+
+```julia
+res_build = JudiLing.build_paths(
+    latin,
+    cue_obj.C,
+    S,
+    F,
+    Chat,
+    A,
+    cue_obj.i2f,
+    cue_obj.gold_ind,
+    max_t=max_t,
+    n_neighbors=3,
+    verbose=true
+    )
+
+acc_build = JudiLing.eval_acc(
+  res_build,
+  cue_obj.gold_ind,
+  verbose=false
+)
+```
+```
+Acc for build: 1.0
+```
+
+After having obtained the results from the sequence functions: learn_paths or build_paths, we can save the results either into a csv or into a dataframe, they can be loaded into R with the rput command of the RCall package.
 
 ```julia
 JudiLing.write2csv(
-  res_train,
-  latin_train,
-  cue_obj_train,
-  cue_obj_train,
-  "latin_train_res.csv",
+  res_learn,
+  latin,
+  cue_obj,
+  cue_obj,
+  "latin_learn_res.csv",
   grams=3,
   tokenized=false,
   sep_token=nothing,
@@ -226,43 +230,11 @@ JudiLing.write2csv(
   output_dir="latin_out"
   )
 
-JudiLing.write2csv(
-  res_val,
-  latin_val,
-  cue_obj_train,
-  cue_obj_val,
-  "latin_val_res.csv",
-  grams=3,
-  tokenized=false,
-  sep_token=nothing,
-  start_end_token="#",
-  output_sep_token="",
-  path_sep_token=":",
-  target_col=:Word,
-  root_dir=@__DIR__,
-  output_dir="latin_out"
-  )
-
-JudiLing.write2csv(
-  gpi_train,
-  "latin_train_gpi.csv",
-  root_dir=@__DIR__,
-  output_dir="latin_out"
-  )
-
-JudiLing.write2csv(
-  gpi_val,
-  "latin_val_gpi.csv",
-  root_dir=@__DIR__,
-  output_dir="latin_out"
-  )
-
-df_train = JudiLing.write2df(
-  res_train,
-  latin_train,
-  cue_obj_train,
-  cue_obj_train,
-  "latin_train_res.csv",
+df_learn = JudiLing.write2df(
+  res_learn,
+  latin,
+  cue_obj,
+  cue_obj,
   grams=3,
   tokenized=false,
   sep_token=nothing,
@@ -272,12 +244,28 @@ df_train = JudiLing.write2df(
   target_col=:Word
   )
 
-df_val = JudiLing.write2df(
-  res_val,
-  latin_val,
-  cue_obj_train,
-  cue_obj_val,
-  "latin_val_res.csv",
+JudiLing.write2csv(
+  res_build,
+  latin,
+  cue_obj,
+  cue_obj,
+  "latin_build_res.csv",
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir="latin_out"
+  )
+
+df_build = JudiLing.write2df(
+  res_build,
+  latin,
+  cue_obj,
+  cue_obj,
   grams=3,
   tokenized=false,
   sep_token=nothing,
@@ -287,12 +275,60 @@ df_val = JudiLing.write2df(
   target_col=:Word
   )
 
-display(df_train)
-display(df_val)
+display(df_learn)
+display(df_build)
+```
+```
+280×9 DataFrame. Omitted printing of 7 columns
+│ Row │ utterance │ identifier │
+│     │ Int64?    │ String?    │
+├─────┼───────────┼────────────┤
+│ 1   │ 1         │ vocoo      │
+│ 2   │ 2         │ vocaas     │
+│ 3   │ 2         │ vocaas     │
+│ 4   │ 2         │ vocaas     │
+│ 5   │ 3         │ vocat      │
+│ 6   │ 4         │ vocaamus   │
+│ 7   │ 4         │ vocaamus   │
+│ 8   │ 5         │ vocaatis   │
+⋮
+│ 272 │ 196       │ vocaamur   │
+│ 273 │ 197       │ vocaaminii │
+│ 274 │ 197       │ vocaaminii │
+│ 275 │ 198       │ vocantur   │
+│ 276 │ 198       │ vocantur   │
+│ 277 │ 199       │ clamor     │
+│ 278 │ 200       │ clamaaris  │
+│ 279 │ 200       │ clamaaris  │
+│ 280 │ 200       │ clamaaris  │
+671×9 DataFrame. Omitted printing of 7 columns
+│ Row │ utterance │ identifier │
+│     │ Int64?    │ String?    │
+├─────┼───────────┼────────────┤
+│ 1   │ 1         │ vocoo      │
+│ 2   │ 1         │ vocoo      │
+│ 3   │ 1         │ vocoo      │
+│ 4   │ 2         │ vocaas     │
+│ 5   │ 2         │ vocaas     │
+│ 6   │ 2         │ vocaas     │
+│ 7   │ 2         │ vocaas     │
+│ 8   │ 3         │ vocat      │
+⋮
+│ 663 │ 198       │ vocantur   │
+│ 664 │ 198       │ vocantur   │
+│ 665 │ 199       │ clamor     │
+│ 666 │ 199       │ clamor     │
+│ 667 │ 199       │ clamor     │
+│ 668 │ 200       │ clamaaris  │
+│ 669 │ 200       │ clamaaris  │
+│ 670 │ 200       │ clamaaris  │
+│ 671 │ 200       │ clamaaris  │
+```
 
-# you may want to delete the temp out folder
+Once you are done, you may want to clean up the workspace:
+```julia
 path = joinpath(@__DIR__, "latin_out")
 rm(path, force=true, recursive=true)
 ```
 
-We can download and try our completed script [here](https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl).
+You can download and try out this script [here](https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl).
