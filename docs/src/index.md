@@ -325,6 +325,23 @@ display(df_build)
 │ 671 │ 200       │ clamaaris  │
 ```
 
+However, we also have a wrapper function containing all above functionalities plus cross-validation we will discuss this in next section into one function:
+```julia
+JudiLing.test_combo(
+  joinpath("data", "latin.csv"),
+  joinpath("latin_out"),
+  ["Lexeme","Person","Number","Tense","Voice","Mood"],
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  n_grams_target_col=:Word,
+  grams=3,
+  path_method=:learn_paths,
+  train_threshold=0.1,
+  val_threshold=0.01,
+  csv_dir="latin_out",
+  verbose=true)
+```
+
 Once you are done, you may want to clean up the workspace:
 ```julia
 path = joinpath(@__DIR__, "latin_out")
