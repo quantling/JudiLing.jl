@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · JudiLing.jl</title><link rel="canonical" href="https://MegamindHenry.github.io/JudiLing.jl/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">JudiLing.jl</span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Home</a><ul class="internal"><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#Include-packages"><span>Include packages</span></a></li><li><a class="tocitem" href="#Examples"><span>Examples</span></a></li><li><a class="tocitem" href="#Citation"><span>Citation</span></a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="man/make_cue_matrix/">Make Cue Matrix</a></li><li><a class="tocitem" href="man/make_semantic_matrix/">Make Semantic Matrix</a></li><li><a class="tocitem" href="man/cholesky/">Cholesky</a></li><li><a class="tocitem" href="man/make_adjacency_matrix/">Make Adjacency Matrix</a></li><li><a class="tocitem" href="man/make_yt_matrix/">Make Yt Matrix</a></li><li><a class="tocitem" href="man/find_path/">Find Paths</a></li><li><a class="tocitem" href="man/eval/">Evaluation</a></li><li><a class="tocitem" href="man/output/">Output</a></li><li><a class="tocitem" href="man/test_combo/">Test Combo</a></li><li><a class="tocitem" href="man/utils/">Utils</a></li></ul></li><li><a class="tocitem" href="man/all_manual/">All Manual index</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Home</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Home</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/docs/src/index.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="JudiLing"><a class="docs-heading-anchor" href="#JudiLing">JudiLing</a><a id="JudiLing-1"></a><a class="docs-heading-anchor-permalink" href="#JudiLing" title="Permalink"></a></h1><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><p>JudiLing can be installed using the Julia package manager via GitHub web links. In Julia 1.4 REPL, we can run:</p><pre><code class="language-none">julia&gt; Pkg.add(PackageSpec(url=&quot;https://github.com/MegamindHenry/JudiLing.jl.git&quot;))</code></pre><p>and in Julia 1.5 REPL, we can run:</p><pre><code class="language-none">julia&gt; Pkg.add(url=&quot;https://github.com/MegamindHenry/JudiLing.jl.git&quot;)</code></pre><p>Or from the Julia REPL, type <code>]</code> to enter the Pkg REPL mode and run</p><pre><code class="language-none">pkg&gt; add https://github.com/MegamindHenry/JudiLing.jl.git</code></pre><h2 id="Include-packages"><a class="docs-heading-anchor" href="#Include-packages">Include packages</a><a id="Include-packages-1"></a><a class="docs-heading-anchor-permalink" href="#Include-packages" title="Permalink"></a></h2><p>Before we start, we first need to include two packages in julia:</p><pre><code class="language-julia">using JudiLing # our package
-using CSV # read csv files into dataframes</code></pre><h2 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h2><h3 id="Latin"><a class="docs-heading-anchor" href="#Latin">Latin</a><a id="Latin-1"></a><a class="docs-heading-anchor-permalink" href="#Latin" title="Permalink"></a></h3><p>Let&#39;s look at our first real dataset example. <a href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/data/latin.csv">latin.csv</a> contains lexemes and inflectional features of Latin verbs.</p><pre><code class="language-none">&quot;&quot;,&quot;Word&quot;,&quot;Lexeme&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;
+using CSV # read csv files into dataframes</code></pre><h2 id="Examples"><a class="docs-heading-anchor" href="#Examples">Examples</a><a id="Examples-1"></a><a class="docs-heading-anchor-permalink" href="#Examples" title="Permalink"></a></h2><h3 id="Latin"><a class="docs-heading-anchor" href="#Latin">Latin</a><a id="Latin-1"></a><a class="docs-heading-anchor-permalink" href="#Latin" title="Permalink"></a></h3><p>Let&#39;s look at our first real dataset example. <a href=".">latin.csv</a> contains lexemes and inflectional features of Latin verbs.</p><pre><code class="language-none">&quot;&quot;,&quot;Word&quot;,&quot;Lexeme&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;
 &quot;1&quot;,&quot;vocoo&quot;,&quot;vocare&quot;,&quot;p1&quot;,&quot;sg&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
 &quot;2&quot;,&quot;vocaas&quot;,&quot;vocare&quot;,&quot;p2&quot;,&quot;sg&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
 &quot;3&quot;,&quot;vocat&quot;,&quot;vocare&quot;,&quot;p3&quot;,&quot;sg&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
@@ -53,10 +53,8 @@ S = JudiLing.make_S_matrix(
   grams=3,
   threshold=0.1,
   tokenized=false,
-  sep_token=&quot;_&quot;,
   keep_sep=false,
   target_col=:Word,
-  issparse=:dense,
   verbose=true)</code></pre><p>We evaluate the accuracy on the train data as follows:</p><pre><code class="language-julia">acc = JudiLing.eval_acc(
   res,
   cue_obj.gold_ind,
@@ -200,4 +198,254 @@ display(df_build)</code></pre><pre><code class="language-none">280×9 DataFrame.
   val_threshold=0.01,
   csv_dir=&quot;latin_out&quot;,
   verbose=true)</code></pre><p>Once you are done, you may want to clean up the workspace:</p><pre><code class="language-julia">path = joinpath(@__DIR__, &quot;latin_out&quot;)
-rm(path, force=true, recursive=true)</code></pre><p>You can download and try out this script <a href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl">here</a>.</p><h2 id="Citation"><a class="docs-heading-anchor" href="#Citation">Citation</a><a id="Citation-1"></a><a class="docs-heading-anchor-permalink" href="#Citation" title="Permalink"></a></h2><p>If you find our work helpful, please cite these following papers:</p><ul><li><p>Baayen, R. H., Chuang, Y. Y., Shafaei-Bajestan, E., and Blevins, J. P. (2019). The discriminative lexicon: A unified computational model for the lexicon and lexical processing in comprehension and production grounded not in (de)composition but in linear discriminative learning. Complexity, 2019, 1-39.</p></li><li><p>Baayen, R. H., Chuang, Y. Y., and Blevins, J. P. (2018). Inflectional morphology with linear mappings. The Mental Lexicon, 13 (2), 232-270.</p></li><li><p>Chuang, Y.-Y., Lõo, K., Blevins, J. P., and Baayen, R. H. (in press). Estonian case inflection made simple. A case study in Word and Paradigm morphology with Linear Discriminative Learning. In Körtvélyessy, L., and Štekauer, P. (Eds.) Complex Words: Advances in Morphology, 1-19.</p></li><li><p>Chuang, Y-Y., Bell, M. J., Banke, I., and Baayen, R. H. (accepted). Bilingual and multilingual mental lexicon: a modeling study with Linear Discriminative Learning. Language Learning, 1-55.</p></li></ul></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="man/make_cue_matrix/">Make Cue Matrix »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 13 September 2020 14:20">Sunday 13 September 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+rm(path, force=true, recursive=true)</code></pre><p>You can download and try out this script <a href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl">here</a>.</p><h3 id="Estonian"><a class="docs-heading-anchor" href="#Estonian">Estonian</a><a id="Estonian-1"></a><a class="docs-heading-anchor-permalink" href="#Estonian" title="Permalink"></a></h3><p>This package also provides functionality for cross-validation. In this section, we demonstrate another example with Estonian dataset. In order to perform cross-validation, we provide training dataset <a href=".">estonian_train.csv</a> and hold-out dataset <a href=".">estonian_val.csv</a>. Similar to Latin dataset, Estonian dataset also has target word forms, lexemes and inflectional features.</p><pre><code class="language-none"></code></pre><p>First, we read both datasets using CSV package:</p><pre><code class="language-julia">estonian_train = CSV.DataFrame!(CSV.File(
+  joinpath(@__DIR__, &quot;data&quot;, &quot;estonian_train.csv&quot;)))
+estonian_val = CSV.DataFrame!(CSV.File(
+  joinpath(@__DIR__, &quot;data&quot;, &quot;estonian_val.csv&quot;)))</code></pre><p>Then, we construct both training and validation C matrices. To maintain the same trigrams&#39; indices, we pass cue_obj_train as an argument.</p><pre><code class="language-julia">cue_obj_train = JudiLing.make_cue_matrix(
+  estonian_train,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+
+cue_obj_val = JudiLing.make_cue_matrix(
+  estonian_val,
+  cue_obj_train,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )</code></pre><p>After that, we construct simulate S matrices.</p><pre><code class="language-julia">n_features = size(cue_obj.C, 2)
+S_train, S_val = JudiLing.make_S_matrix(
+  latin,
+  [&quot;Lexeme&quot;],
+  [&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;],
+  ncol=n_features)</code></pre><p>Here, we construct the G matrix only use training data</p><pre><code class="language-julia">G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)</code></pre><p>and we predict and evaluate C matrices for both training and validation data.</p><pre><code class="language-julia">Chat_train = S_train * G_train
+Chat_val = S_val * G_train
+
+@show JudiLing.eval_SC(cue_obj_train.C, Chat_train)
+@show JudiLing.eval_SC(cue_obj_val.C, Chat_val)</code></pre><pre><code class="language-none">JudiLing.eval_SC(cue_obj_train.C, Chat_train) = 0.99875
+JudiLing.eval_SC(cue_obj_val.C, Chat_val) = 0.93</code></pre><p>We follow similar processes to predict and evaluate S matrices for both training and validation data as well.</p><pre><code class="language-julia">F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
+
+Shat_train = C_train * F_train
+Shat_val = C_val * F_train
+
+@show JudiLing.eval_SC(S_train, Shat_train)
+@show JudiLing.eval_SC(S_val Shat_val)</code></pre><pre><code class="language-none">JudiLing.eval_SC(S_train, Shat_train) = 0.99875
+JudiLing.eval_SC(S_val, Shat_val) = 0.99</code></pre><p>Again, we use the adjacency matrix constructed in make_cue_matrix</p><pre><code class="language-julia">A = cue_obj_train.A</code></pre><p>and we calculate the maximum timestep which is equal to the maximum value between training and validation data.</p><pre><code class="language-julia">max_t = JudiLing.cal_max_timestep(estonian_train, estonian_val, :Word)</code></pre><p>Now we are ready for learn_paths:</p><pre><code class="language-julia">res_learn_train = JudiLing.learn_paths(
+  estonian_train,
+  estonian_train,
+  cue_obj_train.C,
+  S_train,
+  F_train,
+  Chat_train,
+  A,
+  cue_obj_train.i2f,
+  max_t=max_t,
+  max_can=10,
+  grams=3,
+  threshold=0.1,
+  tokenized=false,
+  keep_sep=false,
+  target_col=:Word,
+  verbose=true)
+
+res_learn_val = JudiLing.learn_paths(
+  estonian_train,
+  estonian_val,
+  cue_obj_train.C,
+  S_val,
+  F_train,
+  Chat_val,
+  A,
+  cue_obj_train.i2f,
+  max_t=max_t,
+  max_can=10,
+  grams=3,
+  threshold=0.01,
+  tokenized=false,
+  keep_sep=false,
+  target_col=:Word,
+  verbose=true)
+
+acc_learn_train = JudiLing.eval_acc(
+  res_learn_train,
+  cue_obj_train.gold_ind,
+  verbose=false
+)
+
+acc_learn_val = JudiLing.eval_acc(
+  res_learn_val,
+  cue_obj_val.gold_ind,
+  verbose=false
+)
+
+println(&quot;Acc for learn train: $acc_learn_train&quot;)
+println(&quot;Acc for learn val: $acc_learn_val&quot;)</code></pre><pre><code class="language-none">Acc for learn train: 1.0
+Acc for learn val: 0.31</code></pre><p>and for the build_paths:</p><pre><code class="language-julia">res_build_train = JudiLing.build_paths(
+  estonian_train,
+  cue_obj_train.C,
+  S_train,
+  F_train,
+  Chat_train,
+  A,
+  cue_obj_train.i2f,
+  cue_obj_train.gold_ind,
+  max_t=max_t,
+  n_neighbors=3,
+  verbose=true
+  )
+
+res_build_val = JudiLing.build_paths(
+  estonian_val,
+  cue_obj_train.C,
+  S_val,
+  F_train,
+  Chat_val,
+  A,
+  cue_obj_train.i2f,
+  cue_obj_train.gold_ind,
+  max_t=max_t,
+  n_neighbors=8,
+  verbose=true
+  )
+
+acc_build_train = JudiLing.eval_acc(
+  res_build_train,
+  cue_obj_train.gold_ind,
+  verbose=false
+)
+
+acc_build_val = JudiLing.eval_acc(
+  res_build_val,
+  cue_obj_val.gold_ind,
+  verbose=false
+)
+
+println(&quot;Acc for build train: $acc_build_train&quot;)
+println(&quot;Acc for build val: $acc_build_val&quot;)</code></pre><pre><code class="language-none">Acc for build train: 1.0
+Acc for build val: 0.385</code></pre><p>Finally, we can save our results into csv file or dataframes:</p><pre><code class="language-julia">JudiLing.write2csv(
+  res_learn_train,
+  estonian_train,
+  cue_obj_train,
+  cue_obj_train,
+  &quot;estonian_learn_res_train.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir=&quot;estonian_out&quot;
+  )
+
+JudiLing.write2csv(
+  res_learn_val,
+  estonian_val,
+  cue_obj_train,
+  cue_obj_val,
+  &quot;estonian_learn_res_val.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir=&quot;estonian_out&quot;
+  )
+
+JudiLing.write2csv(
+  res_build_train,
+  estonian_train,
+  cue_obj_train,
+  cue_obj_train,
+  &quot;estonian_build_res_train.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir=&quot;estonian_out&quot;
+  )
+
+JudiLing.write2csv(
+  res_build_val,
+  estonian_val,
+  cue_obj_train,
+  cue_obj_val,
+  &quot;estonian_build_res_val.csv&quot;,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir=&quot;estonian_out&quot;
+  )
+
+df_learn_train = JudiLing.write2df(
+  res_learn_train,
+  estonian_train,
+  cue_obj_train,
+  cue_obj_train,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word
+  )
+
+df_learn_val = JudiLing.write2df(
+  res_learn_val,
+  estonian_val,
+  cue_obj_train,
+  cue_obj_val,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word
+  )
+
+df_build_train = JudiLing.write2df(
+  res_build_train,
+  estonian_train,
+  cue_obj_train,
+  cue_obj_train,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word
+  )
+
+df_build_val = JudiLing.write2df(
+  res_build_val,
+  estonian_val,
+  cue_obj_train,
+  cue_obj_val,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token=&quot;#&quot;,
+  output_sep_token=&quot;&quot;,
+  path_sep_token=&quot;:&quot;,
+  target_col=:Word
+  )</code></pre><p>Once you are done, you may want to clean up the workspace:</p><pre><code class="language-julia">path = joinpath(@__DIR__, &quot;estonian_out&quot;)
+rm(path, force=true, recursive=true)</code></pre><h2 id="Citation"><a class="docs-heading-anchor" href="#Citation">Citation</a><a id="Citation-1"></a><a class="docs-heading-anchor-permalink" href="#Citation" title="Permalink"></a></h2><p>If you find our work helpful, please cite these following papers:</p><ul><li><p>Baayen, R. H., Chuang, Y. Y., Shafaei-Bajestan, E., and Blevins, J. P. (2019). The discriminative lexicon: A unified computational model for the lexicon and lexical processing in comprehension and production grounded not in (de)composition but in linear discriminative learning. Complexity, 2019, 1-39.</p></li><li><p>Baayen, R. H., Chuang, Y. Y., and Blevins, J. P. (2018). Inflectional morphology with linear mappings. The Mental Lexicon, 13 (2), 232-270.</p></li><li><p>Chuang, Y.-Y., Lõo, K., Blevins, J. P., and Baayen, R. H. (in press). Estonian case inflection made simple. A case study in Word and Paradigm morphology with Linear Discriminative Learning. In Körtvélyessy, L., and Štekauer, P. (Eds.) Complex Words: Advances in Morphology, 1-19.</p></li><li><p>Chuang, Y-Y., Bell, M. J., Banke, I., and Baayen, R. H. (accepted). Bilingual and multilingual mental lexicon: a modeling study with Linear Discriminative Learning. Language Learning, 1-55.</p></li></ul></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="man/make_cue_matrix/">Make Cue Matrix »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Sunday 13 September 2020 18:22">Sunday 13 September 2020</span>. Using Julia version 1.5.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
