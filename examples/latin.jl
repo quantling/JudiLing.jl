@@ -5,7 +5,7 @@ using CSV # read csv files into dataframes
 latin = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin.csv")))
 display(latin)
 
-# create C matrixes for training and validation datasets
+# create C matrixes for training datasets
 cue_obj = JudiLing.make_cue_matrix(
   latin,
   grams=3,
@@ -60,10 +60,8 @@ res_learn = JudiLing.learn_paths(
   grams=3,
   threshold=0.1,
   tokenized=false,
-  sep_token="_",
   keep_sep=false,
   target_col=:Word,
-  issparse=:dense,
   verbose=true)
 
 acc_learn = JudiLing.eval_acc(

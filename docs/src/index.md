@@ -25,7 +25,7 @@ using CSV # read csv files into dataframes
 
 ## Examples
 ### Latin
-Let's look at our first real dataset example. [latin.csv](https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/data/latin.csv) contains lexemes and inflectional features of Latin verbs.
+Let's look at our first real dataset example. [latin.csv]() contains lexemes and inflectional features of Latin verbs.
 ```
 "","Word","Lexeme","Person","Number","Tense","Voice","Mood"
 "1","vocoo","vocare","p1","sg","present","active","ind"
@@ -160,10 +160,8 @@ res = JudiLing.learn_paths(
   grams=3,
   threshold=0.1,
   tokenized=false,
-  sep_token="_",
   keep_sep=false,
   target_col=:Word,
-  issparse=:dense,
   verbose=true)
 ```
 
@@ -349,6 +347,338 @@ rm(path, force=true, recursive=true)
 ```
 
 You can download and try out this script [here](https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl).
+
+### Estonian
+This package also provides functionality for cross-validation. In this section, we demonstrate another example with Estonian dataset. In order to perform cross-validation, we provide training dataset [estonian_train.csv]() and hold-out dataset [estonian_val.csv](). Similar to Latin dataset, Estonian dataset also has target word forms, lexemes and inflectional features.
+
+```
+```
+
+First, we read both datasets using CSV package:
+```julia
+estonian_train = CSV.DataFrame!(CSV.File(
+  joinpath(@__DIR__, "data", "estonian_train.csv")))
+estonian_val = CSV.DataFrame!(CSV.File(
+  joinpath(@__DIR__, "data", "estonian_val.csv")))
+```
+
+Then, we construct both training and validation C matrices. To maintain the same trigrams' indices, we pass cue\_obj\_train as an argument.
+```julia
+cue_obj_train = JudiLing.make_cue_matrix(
+  estonian_train,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+
+cue_obj_val = JudiLing.make_cue_matrix(
+  estonian_val,
+  cue_obj_train,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+```
+
+After that, we construct simulate S matrices.
+```julia
+n_features = size(cue_obj.C, 2)
+S_train, S_val = JudiLing.make_S_matrix(
+  latin,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  ncol=n_features)
+```
+
+Here, we construct the G matrix only use training data
+```julia
+G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
+```
+
+and we predict and evaluate C matrices for both training and validation data.
+```julia
+Chat_train = S_train * G_train
+Chat_val = S_val * G_train
+
+@show JudiLing.eval_SC(cue_obj_train.C, Chat_train)
+@show JudiLing.eval_SC(cue_obj_val.C, Chat_val)
+```
+
+```
+JudiLing.eval_SC(cue_obj_train.C, Chat_train) = 0.99875
+JudiLing.eval_SC(cue_obj_val.C, Chat_val) = 0.93
+```
+
+We follow similar processes to predict and evaluate S matrices for both training and validation data as well.
+```julia
+F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
+
+Shat_train = C_train * F_train
+Shat_val = C_val * F_train
+
+@show JudiLing.eval_SC(S_train, Shat_train)
+@show JudiLing.eval_SC(S_val Shat_val)
+```
+
+```
+JudiLing.eval_SC(S_train, Shat_train) = 0.99875
+JudiLing.eval_SC(S_val, Shat_val) = 0.99
+```
+
+Again, we use the adjacency matrix constructed in make\_cue\_matrix
+```julia
+A = cue_obj_train.A
+```
+
+and we calculate the maximum timestep which is equal to the maximum value between training and validation data.
+```julia
+max_t = JudiLing.cal_max_timestep(estonian_train, estonian_val, :Word)
+```
+
+Now we are ready for learn\_paths:
+```julia
+res_learn_train = JudiLing.learn_paths(
+  estonian_train,
+  estonian_train,
+  cue_obj_train.C,
+  S_train,
+  F_train,
+  Chat_train,
+  A,
+  cue_obj_train.i2f,
+  max_t=max_t,
+  max_can=10,
+  grams=3,
+  threshold=0.1,
+  tokenized=false,
+  keep_sep=false,
+  target_col=:Word,
+  verbose=true)
+
+res_learn_val = JudiLing.learn_paths(
+  estonian_train,
+  estonian_val,
+  cue_obj_train.C,
+  S_val,
+  F_train,
+  Chat_val,
+  A,
+  cue_obj_train.i2f,
+  max_t=max_t,
+  max_can=10,
+  grams=3,
+  threshold=0.01,
+  tokenized=false,
+  keep_sep=false,
+  target_col=:Word,
+  verbose=true)
+
+acc_learn_train = JudiLing.eval_acc(
+  res_learn_train,
+  cue_obj_train.gold_ind,
+  verbose=false
+)
+
+acc_learn_val = JudiLing.eval_acc(
+  res_learn_val,
+  cue_obj_val.gold_ind,
+  verbose=false
+)
+
+println("Acc for learn train: $acc_learn_train")
+println("Acc for learn val: $acc_learn_val")
+```
+
+```
+Acc for learn train: 1.0
+Acc for learn val: 0.31
+```
+
+and for the build\_paths:
+```julia
+res_build_train = JudiLing.build_paths(
+  estonian_train,
+  cue_obj_train.C,
+  S_train,
+  F_train,
+  Chat_train,
+  A,
+  cue_obj_train.i2f,
+  cue_obj_train.gold_ind,
+  max_t=max_t,
+  n_neighbors=3,
+  verbose=true
+  )
+
+res_build_val = JudiLing.build_paths(
+  estonian_val,
+  cue_obj_train.C,
+  S_val,
+  F_train,
+  Chat_val,
+  A,
+  cue_obj_train.i2f,
+  cue_obj_train.gold_ind,
+  max_t=max_t,
+  n_neighbors=8,
+  verbose=true
+  )
+
+acc_build_train = JudiLing.eval_acc(
+  res_build_train,
+  cue_obj_train.gold_ind,
+  verbose=false
+)
+
+acc_build_val = JudiLing.eval_acc(
+  res_build_val,
+  cue_obj_val.gold_ind,
+  verbose=false
+)
+
+println("Acc for build train: $acc_build_train")
+println("Acc for build val: $acc_build_val")
+```
+```
+Acc for build train: 1.0
+Acc for build val: 0.385
+```
+
+Finally, we can save our results into csv file or dataframes:
+```julia
+JudiLing.write2csv(
+  res_learn_train,
+  estonian_train,
+  cue_obj_train,
+  cue_obj_train,
+  "estonian_learn_res_train.csv",
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir="estonian_out"
+  )
+
+JudiLing.write2csv(
+  res_learn_val,
+  estonian_val,
+  cue_obj_train,
+  cue_obj_val,
+  "estonian_learn_res_val.csv",
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir="estonian_out"
+  )
+
+JudiLing.write2csv(
+  res_build_train,
+  estonian_train,
+  cue_obj_train,
+  cue_obj_train,
+  "estonian_build_res_train.csv",
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir="estonian_out"
+  )
+
+JudiLing.write2csv(
+  res_build_val,
+  estonian_val,
+  cue_obj_train,
+  cue_obj_val,
+  "estonian_build_res_val.csv",
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word,
+  root_dir=@__DIR__,
+  output_dir="estonian_out"
+  )
+
+df_learn_train = JudiLing.write2df(
+  res_learn_train,
+  estonian_train,
+  cue_obj_train,
+  cue_obj_train,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word
+  )
+
+df_learn_val = JudiLing.write2df(
+  res_learn_val,
+  estonian_val,
+  cue_obj_train,
+  cue_obj_val,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word
+  )
+
+df_build_train = JudiLing.write2df(
+  res_build_train,
+  estonian_train,
+  cue_obj_train,
+  cue_obj_train,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word
+  )
+
+df_build_val = JudiLing.write2df(
+  res_build_val,
+  estonian_val,
+  cue_obj_train,
+  cue_obj_val,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Word
+  )
+```
+
+Once you are done, you may want to clean up the workspace:
+```julia
+path = joinpath(@__DIR__, "estonian_out")
+rm(path, force=true, recursive=true)
+```
+
 
 ## Citation
 
