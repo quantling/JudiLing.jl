@@ -11,47 +11,76 @@ test entire dataset in one function
 ...
 # Examples
 ```julia
-mkpath(joinpath("french_out"))
-test_io = open(joinpath("french_out", "out.log"), "w")
-
+# basic usage
 JudiLing.test_combo(
-  joinpath("data", "french_mini.csv"),
-  joinpath("french_out"),
-  ["Lexeme","Tense","Aspect","Person","Number","Gender","Class","Mood"],
+  joinpath("data", "latin.csv"),
+  joinpath("latin_out"),
+  ["Lexeme","Person","Number","Tense","Voice","Mood"],
   ["Lexeme"],
-  ["Tense","Aspect","Person","Number","Gender","Class","Mood"],
-  data_prefix="french",
-  max_test_data=nothing,
-  split_max_ratio=0.1,
-  is_full_A=false,
-  n_grams_target_col=:Syllables,
+  ["Person","Number","Tense","Voice","Mood"],
+  n_grams_target_col=:Word,
+  grams=3,
+  ...)
+
+# tokenized target
+JudiLing.test_combo(
+  ...
+  n_grams_target_col=:PhonWord,
   n_grams_tokenized=true,
   n_grams_sep_token="-",
   n_grams_keep_sep=true,
   grams=3,
+  ...)
+
+# controls of all tokens
+JudiLing.test_combo(
+  ...
   start_end_token="#",
   path_sep_token=":",
-  learning_mode=:cholesky,
-  alpha=0.1,
-  betas=(0.1,0.1),
-  eta=0.1,
-  n_epochs=nothing,
+  ...)
+
+# learn_paths mode
+JudiLing.test_combo(
+  ...
   path_method=:learn_paths,
-  max_t=nothing,
-  max_can=10,
   train_threshold=0.1,
-  val_is_tolerant=false,
-  val_threshold=(-100.0),
-  val_tolerance=(-1000.0),
+  val_threshold=0.01,
+  ...)
+
+# learn_paths mode with tolerance mode
+JudiLing.test_combo(
+  ...
+  path_method=:learn_paths,
+  train_threshold=0.1,
+  val_is_tolerant=true,
+  val_threshold=0.01,
+  val_tolerance=-0.1,
   val_max_tolerance=4,
+  ...)
+
+# build_paths mode
+JudiLing.test_combo(
+  ...
+  path_method=:build_paths,
   train_n_neighbors=2,
   val_n_neighbors=10,
-  root_dir=@__DIR__,
-  csv_dir="french_out",
-  csv_prefix="french",
-  random_seed=314,
+  ...)
+
+# control sparse matrix format
+JudiLing.test_combo(
+  ...
+  issparse=:auto,
+  sparse_ratio=0.2,
+  ...)
+
+# write output log into a File
+mkpath(joinpath("french_out"))
+test_io = open(joinpath("french_out", "out.log"), "w")
+
+JudiLing.test_combo(
+  ...
   log_io=test_io,
-  verbose=false)
+  ...)
 
 close(test_io)
 ```

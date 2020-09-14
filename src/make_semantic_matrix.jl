@@ -171,20 +171,43 @@ and sum up all features to compose the semantic vector.
 
 # Examples
 ```julia
-# Examples
+# basic usage
 S_train = JudiLing.make_S_matrix(
   french,
   ["Lexeme"],
   ["Tense","Aspect","Person","Number","Gender","Class","Mood"],
-  ncol=200,
+  ncol=200)
+
+# deep mode
+S_train = JudiLing.make_S_matrix(
+  ...
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  isdeep=true,
+  ...)
+
+# non-deep mode
+S_train = JudiLing.make_S_matrix(
+  ...
+  isdeep=false,
+  ...)
+
+# add noise mode
+S_train = JudiLing.make_S_matrix(
+  ...
+  add_noise=true,
+  sd_noise=1,
+  ...)
+
+# controls of means and standard deviations
+S_train = JudiLing.make_S_matrix(
+  ...
   sd_base_mean=1,
   sd_inflection_mean=1,
   sd_base=4,
   sd_inflection=4,
-  isdeep=true,
-  add_noise=true,
   sd_noise=1,
-  normalized=false)
+  ...)
 ```
 ...
 """
@@ -268,21 +291,44 @@ semantic vector, and sum up all features to compose the semantic vector.
 # Examples
 
 ```julia
-# Examples
+# basic usage
 S_train, S_val = JudiLing.make_S_matrix(
   french,
   french_val,
   ["Lexeme"],
   ["Tense","Aspect","Person","Number","Gender","Class","Mood"],
-  ncol=200,
+  ncol=200)
+
+# deep mode
+S_train, S_val = JudiLing.make_S_matrix(
+  ...
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  isdeep=true,
+  ...)
+
+# non-deep mode
+S_train, S_val = JudiLing.make_S_matrix(
+  ...
+  isdeep=false,
+  ...)
+
+# add noise mode
+S_train, S_val = JudiLing.make_S_matrix(
+  ...
+  add_noise=true,
+  sd_noise=1,
+  ...)
+
+# controls of means and standard deviations
+S_train, S_val = JudiLing.make_S_matrix(
+  ...
   sd_base_mean=1,
   sd_inflection_mean=1,
   sd_base=4,
   sd_inflection=4,
-  isdeep=true,
-  add_noise=true,
   sd_noise=1,
-  normalized=false)
+  ...)
 ```
 ...
 """
@@ -382,16 +428,42 @@ to compose the semantic vector.
 
 # Examples
 ```julia
+# basic usage
 S_train = JudiLing.make_S_matrix(
   french,
   ["Lexeme"],
-  ncol=200,
+  ncol=200)
+
+# deep mode
+S_train = JudiLing.make_S_matrix(
+  ...
   sd_base_mean=1,
-  sd_base=4,
+  sd_inflection_mean=1,
   isdeep=true,
+  ...)
+
+# non-deep mode
+S_train = JudiLing.make_S_matrix(
+  ...
+  isdeep=false,
+  ...)
+
+# add noise mode
+S_train = JudiLing.make_S_matrix(
+  ...
   add_noise=true,
   sd_noise=1,
-  normalized=false)
+  ...)
+
+# controls of means and standard deviations
+S_train = JudiLing.make_S_matrix(
+  ...
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  sd_noise=1,
+  ...)
 ```
 ...
 """
@@ -458,17 +530,43 @@ features to compose the semantic vector.
 
 # Examples
 ```julia
+# basic usage
 S_train, S_val = JudiLing.make_S_matrix(
   french,
   french_val,
   ["Lexeme"],
-  ncol=200,
+  ncol=200)
+
+# deep mode
+S_train, S_val = JudiLing.make_S_matrix(
+  ...
   sd_base_mean=1,
-  sd_base=4,
+  sd_inflection_mean=1,
   isdeep=true,
+  ...)
+
+# non-deep mode
+S_train, S_val = JudiLing.make_S_matrix(
+  ...
+  isdeep=false,
+  ...)
+
+# add noise mode
+S_train, S_val = JudiLing.make_S_matrix(
+  ...
   add_noise=true,
   sd_noise=1,
-  normalized=false)
+  ...)
+
+# controls of means and standard deviations
+S_train, S_val = JudiLing.make_S_matrix(
+  ...
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  sd_noise=1,
+  ...)
 ```
 ...
 """

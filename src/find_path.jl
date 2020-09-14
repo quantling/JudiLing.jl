@@ -45,30 +45,47 @@ Take individual timestep and calculate its corresponding Yt_hat.
 
 # Examples
 ```julia
-res_train, gpi_train = JudiLing.learn_paths(
-  latin_train,
-  latin_train,
-  cue_obj_train.C,
-  S_train,
-  F_train,
-  Chat_train,
+# basic usage with non-tokenized data
+res = JudiLing.learn_paths(
+  latin,
+  latin,
+  cue_obj.C,
+  S,
+  F,
+  Chat,
   A,
-  cue_obj_train.i2f,
-  gold_ind=cue_obj_train.gold_ind,
-  Shat_val=Shat_train,
-  check_gold_path=true,
+  cue_obj.i2f,
   max_t=max_t,
   max_can=10,
   grams=3,
   threshold=0.1,
   tokenized=false,
-  sep_token="_",
   keep_sep=false,
   target_col=:Word,
-  issparse=:dense,
-  verbose=false)
+  verbose=true)
 
-res_val, gpi_val = JudiLing.learn_paths(
+# basic usage with tokenized data
+res = JudiLing.learn_paths(
+  french,
+  french,
+  cue_obj.C,
+  S,
+  F,
+  Chat,
+  A,
+  cue_obj.i2f,
+  max_t=max_t,
+  max_can=10,
+  grams=3,
+  threshold=0.1,
+  tokenized=true,
+  sep_token="-",
+  keep_sep=true,
+  target_col=:Syllables,
+  verbose=true)
+
+# basic usage for val data
+res_val = JudiLing.learn_paths(
   latin_train,
   latin_val,
   cue_obj_train.C,
@@ -77,22 +94,31 @@ res_val, gpi_val = JudiLing.learn_paths(
   Chat_val,
   A,
   cue_obj_train.i2f,
-  gold_ind=cue_obj_val.gold_ind,
-  Shat_val=Shat_val,
-  check_gold_path=true,
   max_t=max_t,
   max_can=10,
   grams=3,
   threshold=0.1,
-  is_tolerant=true,
-  tolerance=0.1,
-  max_tolerance=0,
   tokenized=false,
-  sep_token="-",
   keep_sep=false,
   target_col=:Word,
-  issparse=:dense,
-  verbose=false)
+  verbose=true)
+
+# turn on tolerance mode
+res_val = JudiLing.learn_paths(
+  ...
+  threshold=0.1,
+  is_tolerant=true,
+  tolerance=-0.1,
+  max_tolerance=4,
+  ...)
+
+# control over Sparsity
+res_val = JudiLing.learn_paths(
+  ...
+  issparse=:auto,
+  sparse_ratio=0.2,
+  ...)
+
 ```
 ...
 """
