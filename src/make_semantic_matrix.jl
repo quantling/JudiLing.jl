@@ -1,9 +1,8 @@
 """
-This a structure that store all information about prelinguistic and their feature
-indices.
-pS is the cue matrix
-f2i is the dictionary return indices giving features
-i2f is in another hand return features when giving indices
+A structure that stores the discrete semantic vectors:
+pS is the discrete semantic matrix;
+f2i is a dictionary returning the indices for features;
+i2f is a dictionary returning the features for indices.
 """
 struct PS_Matrix_Struct
   pS::Union{Matrix, SparseMatrixCSC}
@@ -12,7 +11,7 @@ struct PS_Matrix_Struct
 end
 
 """
-Make prelinguistic semantic matrix.
+Make discrete semantic matrix.
 """
 function make_pS_matrix end
 
@@ -22,14 +21,17 @@ Make simulated semantic matrix.
 function make_S_matrix end
 
 """
-  make_pS_matrix(::DataFrame) -> ::PS_Matrix_Struct
+    make_pS_matrix(::DataFrame) -> ::PS_Matrix_Struct
 
-Create prelinguistic matrix given a csv file.
+Create a discrete semantic matrix given a dataframe.
 
 ...
-# Arguments
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+
+# Optional Arguments
 - `features_col::Symbol=:CommunicativeIntention`: the column name for target
-- `sep_token::String="_"`: the seperated token
+- `sep_token::String="_"`: separator
 
 # Examples
 ```julia
@@ -85,15 +87,19 @@ function make_pS_matrix(
 end
 
 """
-  make_pS_matrix(::DataFrame, PS_Matrix_Struct) -> ::PS_Matrix_Struct
+    make_pS_matrix(::DataFrame, ::PS_Matrix_Struct) -> ::PS_Matrix_Struct
 
-Construct prelinguistic matrix giving utterances and training s_obj.
-The feature indices should maintain the same as thoes in s_obj.
+Construct discrete semantic matrix for the validation datasets given by the 
+exemplar in the dataframe, and given the S matrix for the training datasets.
 
 ...
-# Arguments
+# Obligatory Arguments
+- `utterances::DataFrame`: the dataset
+- `utterances_train::PS_Matrix_Struct`: training PS object
+
+# Optional Arguments
 - `features_col::Symbol=:CommunicativeIntention`: the column name for target
-- `sep_token::String="_"`: the seperated token
+- `sep_token::String="_"`: separator
 
 # Examples
 ```julia
@@ -151,23 +157,30 @@ function make_pS_matrix(
 end
 
 """
-  make_S_matrix(::DataFrame, ::Vector, ::Vector) -> ::Matrix
+    make_S_matrix(::DataFrame, ::Vector, ::Vector) -> ::Matrix
 
-Create simulated semantic matrix. Give each feature a random semantic vector, 
-and sum up all features to compose the semantic vector.
+Create simulated semantic matrix for the training datasets, given the input
+data of a vector specified contex lexemes and a vector specified gramatic 
+lexemes. The semantic vector of a word form is constructed summing semantic 
+vectors of content and gramatic lexemes.
 
 ...
-# Arguments
-- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+- `base::Vector`: context lexemes
+- `inflections::Vector`: grammatic lexemes
+
+# Optional Arguments
+- `ncol::Int64=200`: dimension of semantic vectors, usually the same as that of cue vectors
 - `sd_base_mean::Int64=1`: the sd mean of base features
 - `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
 - `sd_base::Int64=4`: the sd of base features
 - `sd_inflection::Int64=4`: the sd of inflectional features
 - `seed::Int64=314`: the random seed
 - `isdeep::Bool=true`: if true, mean of each feature is also randomized 
-- `add_noise::Bool=true`: if true, add noise at the end of construction
-- `sd_noise::Int64=1`: the sd of the noise matrix
-- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may exceeds 1 or -1 depending on the sd
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
 
 # Examples
 ```julia
@@ -192,14 +205,14 @@ S_train = JudiLing.make_S_matrix(
   isdeep=false,
   ...)
 
-# add noise mode
+# add additional Gaussian noise
 S_train = JudiLing.make_S_matrix(
   ...
   add_noise=true,
   sd_noise=1,
   ...)
 
-# controls of means and standard deviations
+# further control of means and standard deviations
 S_train = JudiLing.make_S_matrix(
   ...
   sd_base_mean=1,
@@ -213,8 +226,8 @@ S_train = JudiLing.make_S_matrix(
 """
 function make_S_matrix(
   data::DataFrame,
-  base=["Lexeme"]::Vector,
-  inflections=["Person", "Number", "Tense", "Voice", "Mood"]::Vector;
+  base::Vector,
+  inflections::Vector;
   ncol=200::Int64,
   sd_base_mean=1::Int64,
   sd_inflection_mean=1::Int64,
@@ -270,26 +283,33 @@ function make_S_matrix(
 end
 
 """
-  make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector) -> ::Tuple{Matrix, Matrix}
+    make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector) -> ::Tuple{Matrix, Matrix}
 
-Create validation simulated semantic matrix. Give each feature a random 
-semantic vector, and sum up all features to compose the semantic vector.
+Create simulated semantic matrix for the validation datasets, given the input
+data of a vector specified contex lexemes and a vector specified gramatic 
+lexemes. The semantic vector of a word form is constructed summing semantic 
+vectors of content and gramatic lexemes.
 
 ...
-# Arguments
-- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `base::Vector`: context lexemes
+- `inflections::Vector`: grammatic lexemes
+
+# Optional Arguments
+- `ncol::Int64=200`: dimension of semantic vectors, usually the same as that of cue vectors
 - `sd_base_mean::Int64=1`: the sd mean of base features
 - `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
 - `sd_base::Int64=4`: the sd of base features
 - `sd_inflection::Int64=4`: the sd of inflectional features
 - `seed::Int64=314`: the random seed
 - `isdeep::Bool=true`: if true, mean of each feature is also randomized 
-- `add_noise::Bool=true`: if true, add noise at the end of construction
-- `sd_noise::Int64=1`: the sd of the noise matrix
-- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may exceeds 1 or -1 depending on the sd
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
 
 # Examples
-
 ```julia
 # basic usage
 S_train, S_val = JudiLing.make_S_matrix(
@@ -313,14 +333,14 @@ S_train, S_val = JudiLing.make_S_matrix(
   isdeep=false,
   ...)
 
-# add noise mode
+# add additional Gaussian noise
 S_train, S_val = JudiLing.make_S_matrix(
   ...
   add_noise=true,
   sd_noise=1,
   ...)
 
-# controls of means and standard deviations
+# further control of means and standard deviations
 S_train, S_val = JudiLing.make_S_matrix(
   ...
   sd_base_mean=1,
@@ -335,8 +355,8 @@ S_train, S_val = JudiLing.make_S_matrix(
 function make_S_matrix(
   data_train::DataFrame,
   data_val::DataFrame,
-  base=["Lexeme"]::Vector,
-  inflections=["Person", "Number", "Tense", "Voice", "Mood"]::Vector;
+  base::Vector,
+  inflections::Vector;
   ncol=200::Int64,
   sd_base_mean=1::Int64,
   sd_inflection_mean=1::Int64,
@@ -409,22 +429,28 @@ function make_S_matrix(
 end
 
 """
-  make_S_matrix(::DataFrame, ::Vector) -> ::Matrix
+    make_S_matrix(::DataFrame, ::Vector) -> ::Matrix
 
-Create simulated semantic matrix, provided for dataset that only have base 
-features. Give each feature a random semantic vector, and sum up all features 
-to compose the semantic vector.
+Create simulated semantic matrix for the training datasets with only base 
+features, given the input data of a vector specified contex lexemes and a 
+vector specified gramatic lexemes. The semantic vector of a word form is 
+constructed summing semantic vectors of content and gramatic lexemes.
 
 ...
-# Arguments
-- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+- `base::Vector`: context lexemes
+
+# Optional Arguments
+- `ncol::Int64=200`: dimension of semantic vectors, usually the same as that of cue vectors
 - `sd_base_mean::Int64=1`: the sd mean of base features
 - `sd_base::Int64=4`: the sd of base features
 - `seed::Int64=314`: the random seed
 - `isdeep::Bool=true`: if true, mean of each feature is also randomized 
-- `add_noise::Bool=true`: if true, add noise at the end of construction
-- `sd_noise::Int64=1`: the sd of the noise matrix
-- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may exceeds 1 or -1 depending on the sd
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
+
 
 # Examples
 ```julia
@@ -448,14 +474,14 @@ S_train = JudiLing.make_S_matrix(
   isdeep=false,
   ...)
 
-# add noise mode
+# add additional Gaussian noise
 S_train = JudiLing.make_S_matrix(
   ...
   add_noise=true,
   sd_noise=1,
   ...)
 
-# controls of means and standard deviations
+# further control of means and standard deviations
 S_train = JudiLing.make_S_matrix(
   ...
   sd_base_mean=1,
@@ -511,22 +537,28 @@ function make_S_matrix(
 end
 
 """
-  make_S_matrix(::DataFrame, ::DataFrame, ::Vector) -> ::Tuple{Matrix, Matrix}
+    make_S_matrix(::DataFrame, ::DataFrame, ::Vector) -> ::Tuple{Matrix, Matrix}
 
-Create validation simulated semantic matrix, provided for dataset that only 
-have base features. Give each feature a random semantic vector, and sum up all 
-features to compose the semantic vector.
+Create simulated semantic matrix for the validation datasets with only base 
+features, given the input data of a vector specified contex lexemes and a 
+vector specified gramatic lexemes. The semantic vector of a word form is 
+constructed summing semantic vectors of content and gramatic lexemes.
 
 ...
-# Arguments
-- `ncol::Int64=200`: the dimension size of vectors, usually the same as cue vectors
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `base::Vector`: context lexemes
+
+# Optional Arguments
+- `ncol::Int64=200`: dimension of semantic vectors, usually the same as that of cue vectors
 - `sd_base_mean::Int64=1`: the sd mean of base features
 - `sd_base::Int64=4`: the sd of base features
 - `seed::Int64=314`: the random seed
 - `isdeep::Bool=true`: if true, mean of each feature is also randomized 
-- `add_noise::Bool=true`: if true, add noise at the end of construction
-- `sd_noise::Int64=1`: the sd of the noise matrix
-- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may exceeds 1 or -1 depending on the sd
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
 
 # Examples
 ```julia
@@ -551,14 +583,14 @@ S_train, S_val = JudiLing.make_S_matrix(
   isdeep=false,
   ...)
 
-# add noise mode
+# add additional Gaussian noise
 S_train, S_val = JudiLing.make_S_matrix(
   ...
   add_noise=true,
   sd_noise=1,
   ...)
 
-# controls of means and standard deviations
+# further control of means and standard deviations
 S_train, S_val = JudiLing.make_S_matrix(
   ...
   sd_base_mean=1,
@@ -630,7 +662,7 @@ function make_S_matrix(
 end
 
 """
-  make_S_matrix(::DataFrame, ::DataFrame, ::Pyndl_Weight_Struct, ::Vector{String}) -> ::Tuple{Matrix, Matrix}
+    make_S_matrix(::DataFrame, ::DataFrame, ::Pyndl_Weight_Struct, ::Vector{String}) -> ::Tuple{Matrix, Matrix}
 
 Create semantic matrix for pyndl mode
 """
@@ -638,7 +670,7 @@ function make_S_matrix(
   data_train::DataFrame,
   data_val::DataFrame,
   pyndl_weights::Pyndl_Weight_Struct,
-  n_features_columns=["Lexeme", "Person", "Number", "Tense", "Voice", "Mood"]::Vector{String}
+  n_features_columns::Vector{String}
   )::Tuple{Matrix, Matrix}
   
   f2i = Dict(v => i for (i, v) in enumerate(pyndl_weights.outcomes))

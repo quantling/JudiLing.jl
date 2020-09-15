@@ -1,10 +1,10 @@
 """
-a structure that store info after make_cue_matrix
-C is the cue matrix
-f2i is the dictionary return indices giving features
-i2f is in another hand return features when giving indices
-gold_ind stores gold paths within a list of indices
-A is the adjacency matrix
+A structure that stores information created by make_cue_matrix:
+C is the cue matrix;
+f2i is a dictionary returning the indices for features;
+i2f is a dictionary returning the features for indices;
+gold_ind is a list of indices of gold paths;
+A is the adjacency matrix.
 """
 struct Cue_Matrix_Struct
   C::Union{Matrix, SparseMatrixCSC}
@@ -20,28 +20,32 @@ Construct cue matrix.
 function make_cue_matrix end
 
 """
-Given tokens make n-grams.
+Given a list of string tokens, extract their n-grams.
 """
 function make_ngrams end
 
 """
-  make_cue_matrix(::DataFrame) -> ::Cue_Matrix_Struct
+    make_cue_matrix(::DataFrame) -> ::Cue_Matrix_Struct
 
-Makes the cue matrix and corresponding indices given dataset as csv file.
+Make the cue matrix for training datasets and corresponding indices as well as the adjacency matrix 
+and gold paths given a dataset in a form of dataframe.
 
 ...
-# Arguments
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+
+# Optional Arguments
 - `grams::Int64=3`: the number of grams for cues 
-- `target_col::Union{String, Symbol}=:Words`: the column name for target
-- `tokenized::Bool=false`:if true, the dataset target is assumed tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: separate token
+- `target_col::Union{String, Symbol}=:Words`: the column name for target strings
+- `tokenized::Bool=false`:if true, the dataset target is assumed to be tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator
 - `keep_sep::Bool=false`: if true, keep separators in cues
-- `start_end_token::Union{String, Char}="#"`: start and end token
-- `verbose::Bool=false`: if true, more information prints out
+- `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
+- `verbose::Bool=false`: if true, more information is printed
 
 # Examples
 ```julia
-# make cue matrix with not tokenized dataset
+# make cue matrix without tokenization
 cue_obj_train = JudiLing.make_cue_matrix(
   latin_train,
   grams=3,
@@ -53,7 +57,7 @@ cue_obj_train = JudiLing.make_cue_matrix(
   verbose=false
   )
 
-# make cue matrix with tokenized dataset
+# make cue matrix with tokenization
 cue_obj_train = JudiLing.make_cue_matrix(
   french_train,
   grams=3,
@@ -155,25 +159,28 @@ function make_cue_matrix(
 end
 
 """
-  make_cue_matrix(::DataFrame,::Cue_Matrix_Struct) -> ::Cue_Matrix_Struct
+    make_cue_matrix(::DataFrame, ::Cue_Matrix_Struct) -> ::Cue_Matrix_Struct
 
-Make the cue matrix and corresponding indices giving dataset as csv file and
-train dataset cue obj. This is often used to construct val_cue_obj, in order to maintain
-the same indices.
+Make the cue matrix for validation datasets and corresponding indices as well as the adjacency matrix 
+and gold paths given a dataset in a form of dataframe.
 
 ...
-# Arguments
-- `grams::Int64=3`: which n-grams for cues 
-- `target_col::Union{String, Symbol}=:Words`: the column name for target
-- `tokenized::Bool=false`:if true, the dataset target is assumed tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: separate token
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+- `cue_obj::Cue_Matrix_Struct`: training cue object
+
+# Optional Arguments
+- `grams::Int64=3`: the number of grams for cues 
+- `target_col::Union{String, Symbol}=:Words`: the column name for target strings
+- `tokenized::Bool=false`:if true, the dataset target is assumed to be tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator
 - `keep_sep::Bool=false`: if true, keep separators in cues
-- `start_end_token::Union{String, Char}="#"`: start and end token
-- `verbose::Bool=false`: if true, more information prints out
+- `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
+- `verbose::Bool=false`: if true, more information is printed
 
 # Examples
 ```julia
-# make cue matrix with not tokenized dataset
+# make cue matrix without tokenization
 cue_obj_val = JudiLing.make_cue_matrix(
   latin_val,
   cue_obj_train,
@@ -186,7 +193,7 @@ cue_obj_val = JudiLing.make_cue_matrix(
   verbose=false
   )
 
-# make cue matrix with tokenized dataset
+# make cue matrix with tokenization
 cue_obj_val = JudiLing.make_cue_matrix(
   french_val,
   cue_obj_train,
@@ -252,9 +259,9 @@ function make_cue_matrix(
 end
 
 """
-  make_ngrams(::Array,::Int64,::Bool, ::Union{Nothing, String, Char},::Union{String, Char} -> ::Array
+  make_ngrams(::Array, ::Int64, ::Bool, ::Union{Nothing, String, Char},::Union{String, Char} -> ::Array
 
-given a list of tokens, return all ngrams in a list
+Given a list of string tokens return a list of all n-grams for these tokens.
 """
 function make_ngrams(
   tokens::Array,
@@ -278,9 +285,9 @@ function make_ngrams(
 end
 
 """
-  make_cue_matrix(::DataFrame,::Pyndl_Weight_Struct) -> ::Cue_Matrix_Struct
+  make_cue_matrix(::DataFrame, ::Pyndl_Weight_Struct) -> ::Cue_Matrix_Struct
 
-Make the cue matrix for pyndl model
+Make the cue matrix for pyndl mode.
 """
 function make_cue_matrix(
   data::DataFrame,
