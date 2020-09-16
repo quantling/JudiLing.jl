@@ -5,7 +5,7 @@ same time and computing resources.
 function make_transform_fac end
 
 """
-Using cholesky decomposition to calculate transformation matrix from S to C or
+Using Cholesky decomposition to calculate transformation matrix from S to C or
 from C to S.
 """
 function make_transform_matrix end
@@ -13,7 +13,7 @@ function make_transform_matrix end
 """
     make_transform_fac(::SparseMatrixCSC) -> ::SuiteSparse.CHOLMOD.Factor
 
-Calculate first part of cholesky decomposition for sparse matrix.
+Calculate first part of Cholesky decomposition for sparse matrix.
 """
 function make_transform_fac(
   X::SparseMatrixCSC;
@@ -42,7 +42,7 @@ end
 """
     make_transform_fac(::Matrix) -> ::LinearAlgebra.Cholesky
 
-Calculate first part of cholesky decomposition for dense matrix.
+Calculate first part of Cholesky decomposition for dense matrix.
 """
 function make_transform_fac(
   X::Matrix;
@@ -68,7 +68,7 @@ end
 """
     make_transform_matrix(::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor}, ::Union{SparseMatrixCSC, Matrix}, ::Union{SparseMatrixCSC, Matrix}) -> ::Union{Matrix, SparseMatrixCSC}
 
-Second part of calculate cholesky decomposition transformation matrix.
+Second part of calculate Cholesky decomposition transformation matrix.
 """
 function make_transform_matrix(
   fac::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor},
@@ -84,9 +84,9 @@ function make_transform_matrix(
 end
 
 """
-  make_transform_matrix(::SparseMatrixCSC, ::Matrix) -> ::Union{SparseMatrixCSC, Matrix}
+    make_transform_matrix(::SparseMatrixCSC, ::Matrix) -> ::Union{SparseMatrixCSC, Matrix}
 
-Using cholesky decomposition to calculate transformation matrix from X to Y,
+Using Cholesky decomposition to calculate transformation matrix from X to Y,
 where X is a sparse matrix and Y is a dense matrix.
 
 ...
@@ -110,20 +110,23 @@ JudiLing.make_transform_matrxi(
   S,
   method=:additive,
   shift=0.02,
-  output_format=:auto,
-  sparse_ratio=0.2,
   verbose=false)
 
-# mltiplicative mode
+# multiplicative mode
 JudiLing.make_transform_matrix(
   C,
   S,
   method=:multiplicative,
   multiplier=1.01,
-  output_format=:auto,
-  sparse_ratio=0.2,
   verbose=false)
 ```
+
+# further control of sparsity ratio
+JudiLing.make_transform_matrix(
+  ...
+  output_format=:auto,
+  sparse_ratio=0.2,
+  ...)
 ...
 """
 function make_transform_matrix(
@@ -156,13 +159,17 @@ function make_transform_matrix(
 end
 
 """
-  make_transform_matrix(::Matrix, ::Union{SparseMatrixCSC, Matrix}) -> ::Union{SparseMatrixCSC, Matrix}
+    make_transform_matrix(::Matrix, ::Union{SparseMatrixCSC, Matrix}) -> ::Union{SparseMatrixCSC, Matrix}
 
-Using cholesky decomposition to calculate transformation matrix from X to Y,
+Using Cholesky decomposition to calculate transformation matrix from X to Y,
 where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
 
 ...
-# Arguments
+# Obligatory Arguments
+- `X::Matrix`: the X matrix, where X is a dense matrix
+- `Y::Union{SparseMatrixCSC, Matrix}`: the Y matrix, where Y is either a sparse or a dense matrix
+
+# Optional Arguments
 - `method::Symbol=:additive`: shift mode whether :additive or :multiplicative
 - `shift::AbstractFloat=0.02`: shift value
 - `multiplier::AbstractFloat=1.01`: multiplier value
@@ -172,23 +179,28 @@ where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
 
 # Examples
 ```julia
+# additive mode
 JudiLing.make_transform_matrix(
   C,
   S,
   method=:additive,
   shift=0.02,
-  output_format=:auto,
-  sparse_ratio=0.2,
   verbose=false)
 
+# multiplicative mode
 JudiLing.make_transform_matrix(
   C,
   S,
   method=:multiplicative,
   multiplier=1.01,
+  verbose=false)
+
+# further control of sparsity ratio
+JudiLing.make_transform_matrix(
+  ...
   output_format=:auto,
   sparse_ratio=0.2,
-  verbose=false)
+  ...)
 ```
 ...
 """
@@ -221,13 +233,17 @@ function make_transform_matrix(
 end
 
 """
-  make_transform_matrix(::SparseMatrixCSC, ::SparseMatrixCSC) -> ::Union{SparseMatrixCSC, Matrix}
+    make_transform_matrix(::SparseMatrixCSC, ::SparseMatrixCSC) -> ::Union{SparseMatrixCSC, Matrix}
 
-Using cholesky decomposition to calculate transformation matrix from X to Y,
+Using Cholesky decomposition to calculate transformation matrix from X to Y,
 where X is a sparse matrix and Y is a sparse matrix.
 
 ...
-# Arguments
+# Obligatory Arguments
+- `X::SparseMatrixCSC`: the X matrix, where X is a sparse matrix
+- `Y::SparseMatrixCSC`: the Y matrix, where Y is a sparse matrix
+
+# Optional Arguments
 - `method::Symbol=:additive`: shift mode whether :additive or :multiplicative
 - `shift::AbstractFloat=0.02`: shift value
 - `multiplier::AbstractFloat=1.01`: multiplier value
@@ -237,23 +253,28 @@ where X is a sparse matrix and Y is a sparse matrix.
 
 # Examples
 ```julia
+# additive mode
 JudiLing.make_transform_matrix(
   C,
   S,
   method=:additive,
   shift=0.02,
-  output_format=:auto,
-  sparse_ratio=0.2,
   verbose=false)
 
+# multiplicative mode
 JudiLing.make_transform_matrix(
   C,
   S,
   method=:multiplicative,
   multiplier=1.01,
+  verbose=false)
+
+# further control of sparsity ratio
+JudiLing.make_transform_matrix(
+  ...
   output_format=:auto,
   sparse_ratio=0.2,
-  verbose=false)
+  ...)
 ```
 ...
 """
@@ -289,7 +310,7 @@ function make_transform_matrix(
 end
 
 """
-  format_matrix(::Union{SparseMatrixCSC, Matrix}, ::Symbol) -> ::Union{SparseMatrixCSC, Matrix}
+    format_matrix(::Union{SparseMatrixCSC, Matrix}, ::Symbol) -> ::Union{SparseMatrixCSC, Matrix}
 
 Convert output matrix format to either a dense matrix or a sparse matrix.
 """

@@ -1,12 +1,55 @@
 """
-test entire dataset in one function
+A wrapper function that test a dataset in only one function.
 """
 function test_combo end
 
 """
-  test_combo
+    function test_combo(::String, ::String, ::Vector, ::Vector, ::Vector) -> ::Nothing
 
-test entire dataset in one function
+A wrapper function that test a dataset in only one function.
+
+# Obligatory Arguments
+- `data_path::String`: the path for the dataset
+- `output_dir_path::String`: the path for training and validation datasets splitted by `test_combo`
+- `n_features_columns::Vector`: the list of all features
+- `n_features_base::Vector`: the list of all base features
+- `n_features_inflections::Vector`: the list of all inflectional features
+
+# Optional Arguments
+- `data_prefix="data"::String`: the prefix for training and validation datasets
+- `max_test_data=nothing::Union{Nothing, Int64}`: the maximum number of data in current testing
+- `split_max_ratio=0.2::Float64`: the maximum ratio of the validation dataset when splitting
+- `issparse::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
+- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
+- `is_full_A=false::Bool`: if true, a full size adjacency matrix is constructed otherwise the test takes a adjacency matrix constructed by `make_cue_matrix`
+- `n_grams_target_col=:PhonWord::Symbol`: the column name for target strings
+- `n_grams_tokenized=false::Bool`: if true, the dataset target is assumed to be tokenized
+- `n_grams_sep_token=""::Union{String, Char}`: separator
+- `n_grams_keep_sep=false::Bool`: if true, keep separators in cues
+- `grams::Int64=3`: the number of grams for cues
+- `start_end_token="#"::Union{String, Char}`: start and end token in boundary cues
+- `path_sep_token=":"::Union{String, Char}`: path separator
+- `learning_mode=:cholesky::Symbol`: the mode for transformation matrix, currently supporting :cholesky, :pyndl and :wh
+- `alpha=0.1::Float64`: the alpha value for pyndl learning mode
+- `betas=(0.1,0.1)::Tuple{Float64,Float64}`: the beta values for pyndl learning mode
+- `eta=0.1::Float64`: the eta learning rate for wh learning mode
+- `n_epochs=nothing::Union{Int64, Nothing}`: the number of epochs for wh learning
+- `path_method=:build_paths::Symbol`: the mode for constructing paths
+- `max_t::Int64=15`: maximum timestep
+- `max_can::Int64=10`: maximum candidates to keep in the results
+- `train_threshold=0.1::Float64`: the
+- `val_is_tolerant=false::Bool`: the
+- `val_threshold=(-100.0)::Float64`: the
+- `val_tolerance=(-1000.0)::Float64`: the
+- `val_max_tolerance=4::Int64`: the
+- `train_n_neighbors=2::Int64`: find indices only in top n neighbors for training datasets
+- `val_n_neighbors=10::Int64`: find indices only in top n neighbors for training datasets
+- `root_dir::String="."`: dir path for project root dir
+- `csv_dir="out"::String`: the csv output dir inside root dir
+- `csv_prefix="french"::String`: the csv name prefix
+- `seed::Int64=314`: the random seed
+- `log_io=stdout::IO`: the log IO
+- `verbose::Bool=false`: if true, more information is printed
 
 ...
 # Examples

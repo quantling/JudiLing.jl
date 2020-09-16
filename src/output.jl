@@ -1,28 +1,35 @@
 """
-write results into csv file, support for path results and gold path information
+Write results into csv file, support for both results and gold paths' information.
 """
 function write2csv end
 
 """
-create a datafrate with results
+Create a datafrate for results
 """
 function write2df end
 
 """
-  write2csv(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct, ::String)
+    write2csv(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct, ::String) -> ::Nothing
 
-write results into csv file, support for path results
+Write results into csv file.
 
 ...
-# Arguments
+# Obligatory Arguments
+- `res::Array{Array{Result_Path_Info_Struct,1},1}`: the results from `learn_paths` or `build_paths`
+- `data::DataFrame`: the dataset
+- `cue_obj_train::Cue_Matrix_Struct`: the cue object for training dataset
+- `cue_obj_val::Cue_Matrix_Struct`: the cue object for validation dataset
+- `filename::String`: the filename
+
+# Optional Arguments
 - `grams::Int64=3`: the number of grams for cues 
-- `tokenized::Bool=false`: whether the target is tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: what is the separate token
-- `start_end_token::Union{String, Char}="#"`: token at beginning and ending token
-- `output_sep_token::Union{String, Char}=""`: output separate token
-- `path_sep_token::Union{String, Char}=":"`: token glued path nodes together
-- `target_col::Union{String, Symbol}=:Words`: the column name for target
-- `root_dir::String="."`: dir path for package root dir
+- `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator
+- `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
+- `output_sep_token::Union{String, Char}=""`: output separator
+- `path_sep_token::Union{String, Char}=":"`: path separator
+- `target_col::Union{String, Symbol}=:Words`: the column name for target strings
+- `root_dir::String="."`: dir path for project root dir
 - `output_dir::String="."`: output dir inside root dir
 
 # Examples
@@ -105,13 +112,17 @@ function write2csv(
 end
 
 """
-  write2csv(::Vector{Gold_Path_Info_Struct}, ::String)
+    write2csv(::Vector{Gold_Path_Info_Struct}, ::String) -> ::Nothing
 
-write gold path information into csv file
+Write gold paths' information into csv file.
 
 ...
-# Arguments
-- `root_dir::String="."`: dir path for package root dir
+# Obligatory Arguments
+- `gpi::Vector{Gold_Path_Info_Struct}`: the gold paths' information
+- `filename::String`: the filename
+
+# Optional Arguments
+- `root_dir::String="."`: dir path for project root dir
 - `output_dir::String="."`: output dir inside root dir
 
 # Examples
@@ -138,7 +149,7 @@ function write2csv(
   filename::String;
   root_dir="."::String,
   output_dir="."::String
-  )
+  )::Nothing
   output_path = joinpath(root_dir, output_dir)
   # create path if not exist
   mkpath(output_path)
@@ -157,19 +168,22 @@ function write2csv(
 end
 
 """
-  write2df(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct)
+    write2df(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct) -> ::DataFrame
 
-write results into dataframe, support for path results
+Write results into dataframe.
 
 ...
-# Arguments
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+
+# Optional Arguments
 - `grams::Int64=3`: the number of grams for cues 
-- `tokenized::Bool=false`: whether the target is tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: what is the separate token
-- `start_end_token::Union{String, Char}="#"`: token at beginning and ending token
-- `output_sep_token::Union{String, Char}=""`: output separate token
-- `path_sep_token::Union{String, Char}=":"`: token glued path nodes together
-- `target_col::Union{String, Symbol}=:Words`: the column name for target
+- `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator
+- `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
+- `output_sep_token::Union{String, Char}=""`: output separator
+- `path_sep_token::Union{String, Char}=":"`: path separator
+- `target_col::Union{String, Symbol}=:Words`: the column name for target strings
 
 # Examples
 ```julia

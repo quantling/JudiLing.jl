@@ -1,16 +1,20 @@
 """
-make Y matrix given timestep t
+Make Yt matrix given timestep t.
 """
 function make_Yt_matrix end
 
 """
-  make_Yt_matrix(::Int64, ::DataFrame)
+    make_Yt_matrix(::Int64, ::DataFrame) -> ::SparseMatrixCSC
 
-Make full adjacency matrix based only on the form of n-grams regardless whether 
-they are seen in the training data. This usually takes hours for large dataset.
+Make Yt matrix given timestep t. Each row of Yt matrix indicates the supports 
+of each n-gram predicted in timestep t.
 
 ...
-# Arguments
+# Obligatory Arguments
+- `t::Int64`: the timestep t
+- `data::DataFrame`: the dataset
+
+# Optional Arguments
 - `tokenized::Bool=false`: whether n-grams are tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: what is the sepertate token
 - `verbose::Bool=false`: if verbose, more information prints out

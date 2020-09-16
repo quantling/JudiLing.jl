@@ -1,5 +1,5 @@
 """
-A structure that stores info about comprehension accuracy.
+A structure that stores information about comprehension accuracy.
 """
 struct Comp_Acc_Struct
   dfr::DataFrame
@@ -8,15 +8,20 @@ struct Comp_Acc_Struct
 end
 
 """
-  accuracy_comprehension(::Matrix, ::Matrix) -> ::Comp_Acc_Struct
+    accuracy_comprehension(::Matrix, ::Matrix) -> ::Comp_Acc_Struct
 
 Evaluate the comprehension accuracy.
 
 ...
-# Arguments
-- `target_col::Union{String, Symbol}=:Words`: target column name
+# Obligatory Arguments
+- `S::Matrix`: the S matrix
+- `Shat::Matrix`: the Shat matrix
+- `data::DataFrame`: the dataset
+
+# Optional Arguments
+- `target_col::Union{String, Symbol}=:Words`: the column name for target strings
 - `base::Vector=["Lexeme"]`: base features
-- `inflections::Union{Nothing, Vector}=nothing`: inflective features
+- `inflections::Union{Nothing, Vector}=nothing`: inflectional features
 
 # Examples
 ```julia
@@ -77,12 +82,16 @@ function accuracy_comprehension(
 end
 
 """
-  eval_SC(Union{SparseMatrixCSC, Matrix}, Union{SparseMatrixCSC, Matrix}) -> ::Float64
+    eval_SC(Union{SparseMatrixCSC, Matrix}, Union{SparseMatrixCSC, Matrix}) -> ::Float64
 
-Evaluate the accuracy of S and Shat or C and Chat.
+Quickly evaluate Shat and Chat matrices.
 
 ...
-# Examples
+# Obligatory Arguments
+- `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
+- `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
+
+# Optional Arguments
 ```julia
 #after you had Shat and Chat
 eval_SC(cue_obj_train.C, Chat_train)
@@ -103,9 +112,9 @@ function eval_SC(
 end
 
 """
-  eval_manual(::Array, ::DataFrame, ::Dict) -> ::Nothing
+    eval_manual(::Array, ::DataFrame, ::Dict) -> ::Nothing
 
-Check the results manually.
+Evaluate the results from `build_paths` and `learn_paths` manually.
 """
 function eval_manual(
   res::Array,
@@ -147,13 +156,17 @@ end
 
 
 """
-  eval_acc(::Array, ::Array) -> ::Float64
+    eval_acc(::Array, ::Array) -> ::Float64
 
-Evaluate the accuracy of the results from learn_paths() or build_paths().
+Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
 
 ...
-# Arguments
-- `verbose::Bool=false`: if true, more information will be printed out
+# Obligatory Arguments
+- `res::Array`: the results from `learn_paths` or `build_paths`
+- `gold_inds::Array`: the gold paths' indices
+
+# Optional Arguments
+- `verbose::Bool=false`: if true, more information is printed
 
 # Examples
 ```julia
@@ -198,15 +211,19 @@ function eval_acc(
 end
 
 """
-  eval_acc_loose(::Array, ::Array) -> ::Float64
+    eval_acc_loose(::Array, ::Array) -> ::Float64
 
-Evaluate the accuracy of the results from learn_paths() or build_paths(), if 
+Evaluate the accuracy of the results from `learn_paths` or `build_paths`, if 
 one of the candidates is correct, then we take it as correct. This reflects how 
-many paths were found but could not be recognised as the best path.
+many paths were found but could not be recognized as the best path.
 
 ...
-# Arguments
-- `verbose::Bool=false`: if true, more information will be printed out
+# Obligatory Arguments
+- `res::Array`: the results from `learn_paths` or `build_paths`
+- `gold_inds::Array`: the gold paths' indices
+
+# Optional Arguments
+- `verbose::Bool=false`: if true, more information is printed
 
 # Examples
 ```julia
@@ -257,8 +274,10 @@ function eval_acc_loose(
 end
 
 """
-  eval_gpi(::Vector{Gold_Path_Info_Struct}, ::Float64, ::Float64) -> ::Array
-Evaluate gold path info
+    eval_gpi(::Vector{Gold_Path_Info_Struct}, ::Float64, ::Float64) -> ::Array
+
+Evaluate gold paths' information. It summarizes how many n-grams for a gold 
+path is below threshold but above tolerance.
 """
 function eval_gpi(
   gpi::Vector{Gold_Path_Info_Struct},

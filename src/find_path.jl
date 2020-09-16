@@ -1,5 +1,5 @@
 """
-Store path information found by learn_paths() or build_paths()
+Store path information build by learn_paths() or build_paths()
 """
 struct Result_Path_Info_Struct
   ngrams_ind::Array
@@ -19,15 +19,25 @@ struct Gold_Path_Info_Struct
 end
 
 """
-  learn_paths(::DataFrame,::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict) -> ::::Union{Tuple{Vector{Vector{Result_Path_Info_Struct}}, Vector{Gold_Path_Info_Struct}}, Vector{Vector{Result_Path_Info_Struct}}}
+    learn_paths(::DataFrame, ::DataFrame, ::SparseMatrixCSC, ::Union{SparseMatrixCSC, Matrix}, ::Union{SparseMatrixCSC, Matrix}, ::Matrix, ::SparseMatrixCSC, ::Dict) -> ::Union{Tuple{Vector{Vector{Result_Path_Info_Struct}}, Vector{Gold_Path_Info_Struct}}, Vector{Vector{Result_Path_Info_Struct}}}
 
-Take individual timestep and calculate its corresponding Yt_hat.
+One sequence finding algorithm used discrimination learning for the position of triphones.
 
 ...
-# Arguments
-- `gold_ind::Union{Nothing, Vector}=nothing`: for in gold_path_info mode
-- `Shat_val::Union{Nothing, Matrix}=nothing`: for gold_path_info mode
-- `check_gold_path::Bool=false`: if true, turn on gold_path_info mode
+# Obligatory Arguments
+- `data::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `C_train::SparseMatrixCSC`: the C matrix for training dataset
+- `S_val::Union{SparseMatrixCSC, Matrix}`: the S matrix for validation dataset
+- `F_train::Union{SparseMatrixCSC, Matrix}`: the F matrix for training dataset
+- `Chat_val::Matrix`: the Chat matrix for validation dataset
+- `A::SparseMatrixCSC`: the adjacency matrix
+- `i2f::Dict`: the dictionary return features given indices
+
+# Optional Arguments
+- `gold_ind::Union{Nothing, Vector}=nothing`: gold paths' indices
+- `Shat_val::Union{Nothing, Matrix}=nothing`: the Shat matrix for validation dataset
+- `check_gold_path::Bool=false`: if true, return a list of gold paths' information as second output
 - `max_t::Int64=15`: maximum timestep
 - `max_can::Int64=10`: maximum candidates to keep in the results
 - `threshold::AbstractFloat=0.1`:the value set for the support such that if the support of a n-gram is higher than this value, select the n-gram anyway
@@ -36,12 +46,12 @@ Take individual timestep and calculate its corresponding Yt_hat.
 - `max_tolerance::Int64=4`: maximum number of nodes allowed in a path
 - `grams::Int64=3`: the number of grams for cues
 - `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: separate token
-- `keep_sep::Bool=false`:if true, keep separators in results as well
-- `target_col::Union{String, :Symbol}=:Words`: target column names
-- `issparse::Symbol=:auto`: Mt matrix output format mode
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator
+- `keep_sep::Bool=false`:if true, keep separators in cues
+- `target_col::Union{String, :Symbol}=:Words`: the column name for target strings
+- `issparse::Symbol=:auto`: control of whether output of Mt matrix is a dense matrix or a sparse matrix
 - `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
-- `verbose::Bool=false`: if true, more information will be printed out
+- `verbose::Bool=false`: if true, more information is printed
 
 # Examples
 ```julia
@@ -129,7 +139,7 @@ function learn_paths(
   S_val::Union{SparseMatrixCSC, Matrix},
   F_train::Union{SparseMatrixCSC, Matrix},
   Chat_val::Matrix,
-  Al::SparseMatrixCSC,
+  A::SparseMatrixCSC,
   i2f::Dict;
   gold_ind=nothing::Union{Nothing, Vector},
   Shat_val=nothing::Union{Nothing, Matrix},
@@ -226,11 +236,11 @@ function learn_paths(
       if isassigned(working_q, j)
         tmp_working_q = Queue{Tuple{Vector{Int64},Int64}}()
         while !isempty(working_q[j])
-          a = dequeue!(working_q[j]) ## a = [11] Al[11,5] == 1 # candidates = [1, 5, 7]
+          a = dequeue!(working_q[j]) ## a = [11] A[11,5] == 1 # candidates = [1, 5, 7]
 
           for c in candidates_t ## c = 5 # a = [11, 1, 5, 7] # a = [11, 1] [11, 5] [11, 7]
             # if a n-grams is attachable then append it
-            if isattachable(a[1], c, Al)
+            if isattachable(a[1], c, A)
               a_copy = deepcopy(a[1])
               push!(a_copy, c)
               # if the path is complete then move it to result list
@@ -246,7 +256,7 @@ function learn_paths(
           if is_tolerant && a[2] < max_tolerance
             for c in candidates_t_tlr ## c = 5 # a = [11, 1, 5, 7] # a = [11, 1] [11, 5] [11, 7]
               # if a n-grams is attachable then append it
-              if isattachable(a[1], c, Al)
+              if isattachable(a[1], c, A)
                 a_copy = deepcopy(a[1])
                 push!(a_copy, c)
                 # if the path is complete then move it to result list
@@ -331,25 +341,37 @@ function learn_paths(
 end
 
 """
-  build_paths(::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict,::Array) -> ::Vector{Vector{Result_Path_Info_Struct}}
+    build_paths(::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict,::Array) -> ::Vector{Vector{Result_Path_Info_Struct}}
 
 build_paths function is a shortcut algorithm for finding paths that only takes
 the n-grams of that which are close to the targets.
 
 ...
-# Arguments
+# Obligatory Arguments
+- `data::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `C_train::SparseMatrixCSC`: the C matrix for training dataset
+- `S_val::Union{SparseMatrixCSC, Matrix}`: the S matrix for validation dataset
+- `F_train::Union{SparseMatrixCSC, Matrix}`: the F matrix for training dataset
+- `Chat_val::Matrix`: the Chat matrix for validation dataset
+- `A::SparseMatrixCSC`: the adjacency matrix
+- `i2f::Dict`: the dictionary return features given indices
+- `C_train_ind::Array`: the gold paths' indices for training dataset
+
+# Optional Arguments
 - `rC::Union{Nothing, Matrix}=nothing`: correlation Matrix of C and Chat, pass it to save computing time
 - `max_t::Int64=15`: maximum timestep
 - `max_can::Int64=10`: maximum candidates to keep in the results
 - `n_neighbors::Int64=10`: find indices only in top n neighbors
 - `grams::Int64=3`: the number of grams for cues
 - `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: separate token
-- `target_col::Union{String, :Symbol}=:Words`: target column names
-- `verbose::Bool=false`: if true, more information will be printed out
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator
+- `target_col::Union{String, :Symbol}=:Words`: the column name for target strings
+- `verbose::Bool=false`: if true, more information is printed
 
 # Examples
 ```julia
+# training dataset
 JudiLing.build_paths(
   latin_train,
   cue_obj_train.C,
@@ -364,6 +386,7 @@ JudiLing.build_paths(
   verbose=false
   )
 
+# validation dataset
 JudiLing.build_paths(
   latin_val,
   cue_obj_train.C,
@@ -386,7 +409,7 @@ function build_paths(
   S_val::Union{SparseMatrixCSC, Matrix},
   F_train::Union{SparseMatrixCSC, Matrix},
   Chat_val::Matrix,
-  Al::SparseMatrixCSC,
+  A::SparseMatrixCSC,
   i2f::Dict,
   C_train_ind::Array;
   rC=nothing::Union{Nothing, Matrix},
@@ -450,10 +473,10 @@ function build_paths(
     for i in 2:max_t
       tmp_working_q = Queue{Array{Int64, 1}}()
       while !isempty(working_q)
-        a = dequeue!(working_q) ## a = [11] Al[11,5] == 1 # candidates = [1, 5, 7]
+        a = dequeue!(working_q) ## a = [11] A[11,5] == 1 # candidates = [1, 5, 7]
         for c in candidates_t ## c = 5 # a = [11, 1, 5, 7] # a = [11, 1] [11, 5] [11, 7]
           # if a n-grams is attachable then append it
-          if isattachable(a, c, Al)
+          if isattachable(a, c, A)
             a_copy = deepcopy(a)
             push!(a_copy, c)
             # if the path is complete then move it to result list
@@ -480,9 +503,10 @@ function build_paths(
 end
 
 """
-  eval_can(::Vector{Vector{Tuple{Vector{Int64}, Int64}}},::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Dict,::Int64,::Bool) -> ::Array{Array{Result_Path_Info_Struct,1},1}
+    eval_can(::Vector{Vector{Tuple{Vector{Int64}, Int64}}},::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Dict,::Int64,::Bool) -> ::Array{Array{Result_Path_Info_Struct,1},1}
 
-Evaluate each candidate with regard to its predicted semantic vector.
+Evaluate each candidate regarding the correlation between predicted semantic 
+vector and original semantic vector.
 """
 function eval_can(
   candidates::Vector{Vector{Tuple{Vector{Int64}, Int64}}},
@@ -522,7 +546,7 @@ function eval_can(
 end
 
 """
-  find_top_feature_indices(::Matrix, ::Array) -> ::Vector{Vector{Int64}}
+    find_top_feature_indices(::Matrix, ::Array) -> ::Vector{Vector{Int64}}
 
 Find all indices of the top n closest neighbors for a given target.
 """

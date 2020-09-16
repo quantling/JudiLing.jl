@@ -1,5 +1,5 @@
 """
-check whether the prediction is correct
+Check whether the prediction is correct.
 """
 function iscorrect(
   gold_ind::Vector,
@@ -9,7 +9,7 @@ function iscorrect(
 end
 
 """
-display prediction nicely
+Display prediction nicely.
 """
 function display_pred(
   preds::Array,
@@ -34,7 +34,7 @@ function display_pred(
 end
 
 """
-translate indices into words or utterances
+Translate indices into words or utterances.
 """
 function translate(
   ngrams_ind::Vector,
@@ -65,7 +65,7 @@ function translate(
 end
 
 """
-just append indices together
+Append indices together to form a path.
 """
 function translate_path(
   ngrams_ind,
@@ -77,7 +77,7 @@ function translate_path(
 end
 
 """
-check whether a matrix is truly sparse regardless its format
+Check whether a matrix is truly sparse regardless its format, where M is originally a sparse matrix format.
 """
 function is_truly_sparse(
   M::SparseMatrixCSC;
@@ -89,7 +89,7 @@ function is_truly_sparse(
 end
 
 """
-check whether a matrix is truly sparse regardless its format
+Check whether a matrix is truly sparse regardless its format, where M is originally a dense matrix format.
 """
 function is_truly_sparse(
   M::Matrix;
@@ -102,18 +102,7 @@ function is_truly_sparse(
 end
 
 """
-check a gram is attach to another gram
-"""
-function isattachable(
-  a::Array,
-  b::Array
-  )::Bool
-
-  a[2:end] == b[1:end-1]
-end
-
-"""
-check a gram is attach to another gram
+Check whether a gram can attach to another gram.
 """
 function isattachable(
   a::Array,
@@ -125,7 +114,7 @@ function isattachable(
 end
 
 """
-check a gram could complete a path
+Check whether a path is complete.
 """
 function iscomplete(
   a::Array,
@@ -146,7 +135,7 @@ function iscomplete(
 end
 
 """
-check a gram could start a path
+Check whether a gram can start a path.
 """
 function isstart(
   c::Int64,
@@ -167,7 +156,7 @@ function isstart(
 end
 
 """
-check wheter a path is in training data or nor
+Check whether a predicted path is in training data.
 """
 function isnovel(
   gold_ind::Vector,
@@ -178,7 +167,7 @@ function isnovel(
 end
 
 """
-check whether there are token used in dataset
+Check whether there are tokens already used in dataset as n-gram components. 
 """
 function check_used_token(
   data::DataFrame,
@@ -195,7 +184,7 @@ function check_used_token(
 end
 
 """
-calculate max timestep given training and validation datasets
+Calculate the max timestep given training and validation datasets.
 """
 function cal_max_timestep(
   data_train::DataFrame,
@@ -219,7 +208,7 @@ function cal_max_timestep(
 end
 
 """
-calculate max timestep given training dataset
+Calculate the max timestep given training datasets only.
 """
 function cal_max_timestep(
   data::DataFrame,

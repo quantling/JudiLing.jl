@@ -1,25 +1,30 @@
 """
-Make fulladjacency matrix
+Make full adjacency matrix.
 """
 function make_adjacency_matrix end
 
 """
-  make_adjacency_matrix(::Dict) -> ::SparseMatrixCSC
+    make_adjacency_matrix(::Dict) -> ::SparseMatrixCSC
 
 Make full adjacency matrix based only on the form of n-grams regardless whether 
-they are seen in the training data. This usually takes hours for large dataset.
+they are seen in the training data. This usually takes hours for large datasets.
 
 ...
-# Arguments
+# Obligatory Arguments
+- `i2f::Dict`: the dictionary return features given indices
+
+# Optional Arguments
 - `tokenized::Bool=false`:if true, the dataset target is assumed tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: separate token
 - `verbose::Bool=false`: if true, more information prints out
 
 # Examples
 ```julia
+# without tokenization
 i2f = Dict([(1, "#ab"), (2, "abc"), (3, "bc#"), (4, "#bc"), (5, "ab#")])
 JudiLing.make_adjacency_matrix(i2f)
 
+# with tokenization
 i2f = Dict([(1, "#-a-b"), (2, "a-b-c"), (3, "b-c-#"), (4, "#-b-c"), (5, "a-b-#")])
 JudiLing.make_adjacency_matrix(
   i2f,
