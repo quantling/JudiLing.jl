@@ -81,7 +81,7 @@ Check whether a matrix is truly sparse regardless its format, where M is origina
 """
 function is_truly_sparse(
   M::SparseMatrixCSC;
-  threshold=0.2::AbstractFloat,
+  threshold=0.2::Float64,
   verbose=false::Bool
   )::Bool
   verbose && println("Sparsity: $(length(M.nzval)/M.m/M.n)")
@@ -93,7 +93,7 @@ Check whether a matrix is truly sparse regardless its format, where M is origina
 """
 function is_truly_sparse(
   M::Matrix;
-  threshold=0.2::AbstractFloat,
+  threshold=0.2::Float64,
   verbose=false::Bool
   )::Bool
   M = sparse(M)

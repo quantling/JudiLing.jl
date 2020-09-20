@@ -18,8 +18,8 @@ Calculate first part of Cholesky decomposition for sparse matrix.
 function make_transform_fac(
   X::SparseMatrixCSC;
   method=:additive::Symbol,
-  shift=0.02::AbstractFloat,
-  multiplier=1.01::AbstractFloat
+  shift=0.02::Float64,
+  multiplier=1.01::Float64
   )::SuiteSparse.CHOLMOD.Factor
 
   XtX = X'X
@@ -27,9 +27,9 @@ function make_transform_fac(
   if method == :additive
     fac = cholesky(XtX, shift=shift)
   else
-    # convert value to AbstractFloat
+    # convert value to Float64
     # otherwise multiplier would raise error
-    XtX = convert(SparseMatrixCSC{AbstractFloat,Int64}, XtX)
+    XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
     for i in 1:size(XtX,2)
       XtX[i,i] *= multiplier
     end
@@ -47,8 +47,8 @@ Calculate first part of Cholesky decomposition for dense matrix.
 function make_transform_fac(
   X::Matrix;
   method=:additive::Symbol,
-  shift=0.02::AbstractFloat,
-  multiplier=1.01::AbstractFloat
+  shift=0.02::Float64,
+  multiplier=1.01::Float64
   )::LinearAlgebra.Cholesky
 
   XtX = X'X
@@ -96,8 +96,8 @@ where X is a sparse matrix and Y is a dense matrix.
 
 # Optional Arguments
 - `method::Symbol=:additive`: shift mode whether :additive or :multiplicative
-- `shift::AbstractFloat=0.02`: shift value
-- `multiplier::AbstractFloat=1.01`: multiplier value
+- `shift::Float64=0.02`: shift value
+- `multiplier::Float64=1.01`: multiplier value
 - `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
 - `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if true, more information will be printed out
@@ -133,8 +133,8 @@ function make_transform_matrix(
   X::SparseMatrixCSC,
   Y::Matrix;
   method=:additive::Symbol,
-  shift=0.02::AbstractFloat,
-  multiplier=1.01::AbstractFloat,
+  shift=0.02::Float64,
+  multiplier=1.01::Float64,
   output_format=:auto::Symbol,
   sparse_ratio=0.2::Float64,
   verbose=false::Bool
@@ -145,7 +145,7 @@ function make_transform_matrix(
   if method == :additive
     fac = cholesky(XtX, shift=shift)
   else
-    XtX = convert(SparseMatrixCSC{AbstractFloat,Int64}, XtX)
+    XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
     for i in 1:size(XtX,2)
       XtX[i,i] *= multiplier
     end
@@ -171,8 +171,8 @@ where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
 
 # Optional Arguments
 - `method::Symbol=:additive`: shift mode whether :additive or :multiplicative
-- `shift::AbstractFloat=0.02`: shift value
-- `multiplier::AbstractFloat=1.01`: multiplier value
+- `shift::Float64=0.02`: shift value
+- `multiplier::Float64=1.01`: multiplier value
 - `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
 - `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if true, more information will be printed out
@@ -208,8 +208,8 @@ function make_transform_matrix(
   X::Matrix,
   Y::Union{SparseMatrixCSC, Matrix};
   method=:additive::Symbol,
-  shift=0.02::AbstractFloat,
-  multiplier=1.01::AbstractFloat,
+  shift=0.02::Float64,
+  multiplier=1.01::Float64,
   output_format=:auto::Symbol,
   sparse_ratio=0.2::Float64,
   verbose=false::Bool
@@ -245,8 +245,8 @@ where X is a sparse matrix and Y is a sparse matrix.
 
 # Optional Arguments
 - `method::Symbol=:additive`: shift mode whether :additive or :multiplicative
-- `shift::AbstractFloat=0.02`: shift value
-- `multiplier::AbstractFloat=1.01`: multiplier value
+- `shift::Float64=0.02`: shift value
+- `multiplier::Float64=1.01`: multiplier value
 - `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
 - `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if true, more information will be printed out
@@ -282,8 +282,8 @@ function make_transform_matrix(
   X::SparseMatrixCSC,
   Y::SparseMatrixCSC;
   method=:additive::Symbol,
-  shift=0.02::AbstractFloat,
-  multiplier=1.01::AbstractFloat,
+  shift=0.02::Float64,
+  multiplier=1.01::Float64,
   output_format=:auto::Symbol,
   sparse_ratio=0.2::Float64,
   verbose=false::Bool
@@ -294,9 +294,9 @@ function make_transform_matrix(
   if method == :additive
     fac = cholesky(XtX, shift=shift)
   else
-    # convert value to AbstractFloat
+    # convert value to Float64
     # otherwise multiplier would raise error
-    XtX = convert(SparseMatrixCSC{AbstractFloat,Int64}, XtX)
+    XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
     for i in 1:size(XtX,2)
       XtX[i,i] *= multiplier
     end

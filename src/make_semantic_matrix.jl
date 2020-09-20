@@ -262,7 +262,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St = Array{AbstractFloat, 2}(undef, ncol, size(data, 1))
+  St = Array{Float64, 2}(undef, ncol, size(data, 1))
   for i in 1:size(data, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data[i, base]])
     s_infl = sum([infl_m[infl_f2i[f]] for f in data[i, inflections]])
@@ -391,7 +391,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St_train = Array{AbstractFloat, 2}(undef, ncol, size(data_train, 1))
+  St_train = Array{Float64, 2}(undef, ncol, size(data_train, 1))
   for i in 1:size(data_train, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data_train[i, base]])
     s_infl = sum([infl_m[infl_f2i[f]] for f in data_train[i, inflections]])
@@ -407,7 +407,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St_val = Array{AbstractFloat, 2}(undef, ncol, size(data_val, 1))
+  St_val = Array{Float64, 2}(undef, ncol, size(data_val, 1))
   for i in 1:size(data_val, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data_val[i, base]])
     s_infl = sum([infl_m[infl_f2i[f]] for f in data_val[i, inflections]])
@@ -520,7 +520,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St = Array{AbstractFloat, 2}(undef, ncol, size(data, 1))
+  St = Array{Float64, 2}(undef, ncol, size(data, 1))
   for i in 1:size(data, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data[i, base]])
     s = s_base
@@ -630,7 +630,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St_train = Array{AbstractFloat, 2}(undef, ncol, size(data_train, 1))
+  St_train = Array{Float64, 2}(undef, ncol, size(data_train, 1))
   for i in 1:size(data_train, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data_train[i, base]])
     s = s_base
@@ -645,7 +645,7 @@ function make_S_matrix(
 
   # julia is column-wise language
   # assign St first then do transpose is faster
-  St_val = Array{AbstractFloat, 2}(undef, ncol, size(data_val, 1))
+  St_val = Array{Float64, 2}(undef, ncol, size(data_val, 1))
   for i in 1:size(data_val, 1)
     s_base = sum([base_m[base_f2i[f]] for f in data_val[i, base]])
     s = s_base

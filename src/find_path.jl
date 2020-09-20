@@ -4,7 +4,7 @@ Store path information build by learn_paths() or build_paths()
 struct Result_Path_Info_Struct
   ngrams_ind::Array
   num_tolerance::Int64
-  support::AbstractFloat
+  support::Float64
 end
 
 """
@@ -15,7 +15,7 @@ order to find the correct paths.
 struct Gold_Path_Info_Struct
   ngrams_ind::Array
   ngrams_ind_support::Array
-  support::AbstractFloat
+  support::Float64
 end
 
 """
@@ -40,9 +40,9 @@ One sequence finding algorithm used discrimination learning for the position of 
 - `check_gold_path::Bool=false`: if true, return a list of gold paths' information as second output
 - `max_t::Int64=15`: maximum timestep
 - `max_can::Int64=10`: maximum candidates to keep in the results
-- `threshold::AbstractFloat=0.1`:the value set for the support such that if the support of a n-gram is higher than this value, select the n-gram anyway
+- `threshold::Float64=0.1`:the value set for the support such that if the support of a n-gram is higher than this value, select the n-gram anyway
 - `is_tolerant::Bool=false`: if true, select a specified number of n-grams whose supports are below threshold and above tolerance to be added to the path
-- `tolerance::AbstractFloat=(-1000.0)`: the value set in tolerant mode such that if the support for a n-gram is inbetween this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path
+- `tolerance::Float64=(-1000.0)`: the value set in tolerant mode such that if the support for a n-gram is inbetween this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path
 - `max_tolerance::Int64=4`: maximum number of nodes allowed in a path
 - `grams::Int64=3`: the number of grams for cues
 - `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
@@ -146,9 +146,9 @@ function learn_paths(
   check_gold_path=false::Bool,
   max_t=15::Int64,
   max_can=10::Int64,
-  threshold=0.1::AbstractFloat,
+  threshold=0.1::Float64,
   is_tolerant=false::Bool,
-  tolerance=(-1000.0)::AbstractFloat,
+  tolerance=(-1000.0)::Float64,
   max_tolerance=4::Int64,
   grams=3::Int64,
   tokenized=false::Bool,
@@ -172,10 +172,10 @@ function learn_paths(
 
   # # initialize gold_path_info supports
   if check_gold_path && !isnothing(gold_ind)
-    gold_path_info_supports = Vector{Vector{AbstractFloat}}(undef, size(data_val, 1))
+    gold_path_info_supports = Vector{Vector{Float64}}(undef, size(data_val, 1))
     for i in 1:n_val
       gi = gold_ind[i]
-      gold_path_info_supports[i] = Vector{AbstractFloat}(undef, length(gi))
+      gold_path_info_supports[i] = Vector{Float64}(undef, length(gi))
     end
   end
 

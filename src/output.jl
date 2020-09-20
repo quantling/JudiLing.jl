@@ -235,7 +235,7 @@ function write2df(
   path_vec = Union{String,Missing}[]
   pred_vec = Union{String,Missing}[]
   num_tolerance_vec = Union{Int64,Missing}[]
-  support_vec = Union{AbstractFloat,Missing}[]
+  support_vec = Union{Float64,Missing}[]
   isbest_vec = Union{Bool,Missing}[]
   iscorrect_vec = Union{Bool,Missing}[]
   isnovel_vec = Union{Bool,Missing}[]
