@@ -106,6 +106,17 @@ Check whether a gram can attach to another gram.
 """
 function isattachable(
   a::Array,
+  b::Array
+  )::Bool
+
+  a[2:end] == b[1:end-1]
+end
+
+"""
+Check whether a gram can attach to another gram.
+"""
+function isattachable(
+  a::Array,
   c::Int64,
   Al::SparseMatrixCSC
   )::Bool
