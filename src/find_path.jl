@@ -524,14 +524,16 @@ function eval_can(
   if verbose
     pb = Progress(size(S, 1))
   end
-  for i in iter
+
+  @Threads.threads for i in iter
+    tid = Threads.threadid()
     res = Result_Path_Info_Struct[]
     if size(candidates[i], 1) > 0
       for (ci,n) in candidates[i] # ci = [1,3,4]
         Chat = zeros(Int64, length(i2f))
         Chat[ci] .= 1
         Shat = Chat'*F
-        Scor = cor(Shat[1, :], S[i, :])
+        Scor = cor(Shat[1,:],S[i,:])
         push!(res, Result_Path_Info_Struct(ci, n, Scor))
       end
     end
