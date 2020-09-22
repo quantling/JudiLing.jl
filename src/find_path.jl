@@ -1,5 +1,5 @@
 """
-Store path information build by learn_paths() or build_paths()
+Store paths' information built by `learn_paths` or `build_paths`
 """
 struct Result_Path_Info_Struct
   ngrams_ind::Array
@@ -8,9 +8,9 @@ struct Result_Path_Info_Struct
 end
 
 """
-Store gold path information including indices and indices' support and total 
+Store gold paths' information including indices and indices' support and total 
 support. It can be used to evaluate how low the threshold needs to be set in 
-order to find the correct paths.
+order to find most of the correct paths or if set very low, all of the correct paths.
 """
 struct Gold_Path_Info_Struct
   ngrams_ind::Array
@@ -21,7 +21,8 @@ end
 """
     learn_paths(::DataFrame, ::DataFrame, ::SparseMatrixCSC, ::Union{SparseMatrixCSC, Matrix}, ::Union{SparseMatrixCSC, Matrix}, ::Matrix, ::SparseMatrixCSC, ::Dict) -> ::Union{Tuple{Vector{Vector{Result_Path_Info_Struct}}, Vector{Gold_Path_Info_Struct}}, Vector{Vector{Result_Path_Info_Struct}}}
 
-One sequence finding algorithm used discrimination learning for the position of triphones.
+A sequence finding algorithm using discrimination learning to predict, for a given 
+word, which n-grams are best supported for a given position in the sequence of n-grams.
 
 ...
 # Obligatory Arguments
@@ -32,21 +33,21 @@ One sequence finding algorithm used discrimination learning for the position of 
 - `F_train::Union{SparseMatrixCSC, Matrix}`: the F matrix for training dataset
 - `Chat_val::Matrix`: the Chat matrix for validation dataset
 - `A::SparseMatrixCSC`: the adjacency matrix
-- `i2f::Dict`: the dictionary return features given indices
+- `i2f::Dict`: the dictionary returning features given indices
 
 # Optional Arguments
 - `gold_ind::Union{Nothing, Vector}=nothing`: gold paths' indices
-- `Shat_val::Union{Nothing, Matrix}=nothing`: the Shat matrix for validation dataset
-- `check_gold_path::Bool=false`: if true, return a list of gold paths' information as second output
+- `Shat_val::Union{Nothing, Matrix}=nothing`: the Shat matrix for the validation dataset
+- `check_gold_path::Bool=false`: if true, return a list of support values for the gold path; this information is returned as second output value
 - `max_t::Int64=15`: maximum timestep
-- `max_can::Int64=10`: maximum candidates to keep in the results
-- `threshold::Float64=0.1`:the value set for the support such that if the support of a n-gram is higher than this value, select the n-gram anyway
-- `is_tolerant::Bool=false`: if true, select a specified number of n-grams whose supports are below threshold and above tolerance to be added to the path
-- `tolerance::Float64=(-1000.0)`: the value set in tolerant mode such that if the support for a n-gram is inbetween this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path
-- `max_tolerance::Int64=4`: maximum number of nodes allowed in a path
-- `grams::Int64=3`: the number of grams for cues
-- `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: separator
+- `max_can::Int64=10`: maximum number of candidates to consider
+- `threshold::Float64=0.1`:the value set for the support such that if the support of an n-gram is higher than this value, the n-gram will be taking into consideration
+- `is_tolerant::Bool=false`: if true, select a specified number (given by `max_tolerance`) of n-grams whose supports are below threshold but above a second tolerance threshold to be added to the path
+- `tolerance::Float64=(-1000.0)`: the value set for the second threshold (in tolerant mode) such that if the support for an n-gram is in between this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path
+- `max_tolerance::Int64=4`: maximum number of n-grams allowed in a path
+- `grams::Int64=3`: the number n of grams that make up an n-gram
+- `tokenized::Bool=false`: if true, the dataset target is tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator token
 - `keep_sep::Bool=false`:if true, keep separators in cues
 - `target_col::Union{String, :Symbol}=:Words`: the column name for target strings
 - `issparse::Symbol=:auto`: control of whether output of Mt matrix is a dense matrix or a sparse matrix
@@ -55,7 +56,7 @@ One sequence finding algorithm used discrimination learning for the position of 
 
 # Examples
 ```julia
-# basic usage with non-tokenized data
+# basic usage without tokenization
 res = JudiLing.learn_paths(
   latin,
   latin,
@@ -74,7 +75,7 @@ res = JudiLing.learn_paths(
   target_col=:Word,
   verbose=true)
 
-# basic usage with tokenized data
+# basic usage with tokenization
 res = JudiLing.learn_paths(
   french,
   french,
@@ -94,7 +95,7 @@ res = JudiLing.learn_paths(
   target_col=:Syllables,
   verbose=true)
 
-# basic usage for val data
+# basic usage for validation data
 res_val = JudiLing.learn_paths(
   latin_train,
   latin_val,
@@ -122,7 +123,7 @@ res_val = JudiLing.learn_paths(
   max_tolerance=4,
   ...)
 
-# control over Sparsity
+# control over sparsity
 res_val = JudiLing.learn_paths(
   ...
   issparse=:auto,
@@ -343,31 +344,34 @@ end
 """
     build_paths(::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict,::Array) -> ::Vector{Vector{Result_Path_Info_Struct}}
 
-build_paths function is a shortcut algorithm for finding paths that only takes
-the n-grams of that which are close to the targets.
+the build_paths function constructs paths by only considering those n-grams that are 
+close to the target. It first takes the predicted c-hat vector and finds the 
+closest n neighbors in the C matrix. Then it selects all n-grams of these neighbors, 
+and constructs all valid paths with those n-grams. The path producing the best 
+correlation with the target semantic vector (through synthesis by analysis) is selected.
 
 ...
 # Obligatory Arguments
 - `data::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
-- `C_train::SparseMatrixCSC`: the C matrix for training dataset
-- `S_val::Union{SparseMatrixCSC, Matrix}`: the S matrix for validation dataset
-- `F_train::Union{SparseMatrixCSC, Matrix}`: the F matrix for training dataset
-- `Chat_val::Matrix`: the Chat matrix for validation dataset
+- `C_train::SparseMatrixCSC`: the C matrix for the training dataset
+- `S_val::Union{SparseMatrixCSC, Matrix}`: the S matrix for the validation dataset
+- `F_train::Union{SparseMatrixCSC, Matrix}`: the F matrix for the training dataset
+- `Chat_val::Matrix`: the Chat matrix for the validation dataset
 - `A::SparseMatrixCSC`: the adjacency matrix
-- `i2f::Dict`: the dictionary return features given indices
-- `C_train_ind::Array`: the gold paths' indices for training dataset
+- `i2f::Dict`: the dictionary returning features given indices
+- `C_train_ind::Array`: the gold paths' indices for the training dataset
 
 # Optional Arguments
-- `rC::Union{Nothing, Matrix}=nothing`: correlation Matrix of C and Chat, pass it to save computing time
-- `max_t::Int64=15`: maximum timestep
-- `max_can::Int64=10`: maximum candidates to keep in the results
-- `n_neighbors::Int64=10`: find indices only in top n neighbors
-- `grams::Int64=3`: the number of grams for cues
-- `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
+- `rC::Union{Nothing, Matrix}=nothing`: correlation Matrix of C and Chat, specify to save computing time
+- `max_t::Int64=15`: maximum number of timesteps
+- `max_can::Int64=10`: maximum number of candidates to consider
+- `n_neighbors::Int64=10`: the top n form neighbors to be considered
+- `grams::Int64=3`: the number n of grams that make up n-grams
+- `tokenized::Bool=false`: if true, the dataset target is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: separator
 - `target_col::Union{String, :Symbol}=:Words`: the column name for target strings
-- `verbose::Bool=false`: if true, more information is printed
+- `verbose::Bool=false`: if true, more information will be printed
 
 # Examples
 ```julia

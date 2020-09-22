@@ -1,19 +1,19 @@
 """
-The first part of make transform matrix, usually in the learn_paths function to 
-same time and computing resources.
+The first part of make transform matrix, usually used by the `learn_paths` function to 
+save time and computing resources.
 """
 function make_transform_fac end
 
 """
-Using Cholesky decomposition to calculate transformation matrix from S to C or
-from C to S.
+Using Cholesky decomposition to calculate the transformation matrix from S to C 
+or from C to S.
 """
 function make_transform_matrix end
 
 """
     make_transform_fac(::SparseMatrixCSC) -> ::SuiteSparse.CHOLMOD.Factor
 
-Calculate first part of Cholesky decomposition for sparse matrix.
+Calculate the first step of Cholesky decomposition for sparse matrices.
 """
 function make_transform_fac(
   X::SparseMatrixCSC;
@@ -42,7 +42,7 @@ end
 """
     make_transform_fac(::Matrix) -> ::LinearAlgebra.Cholesky
 
-Calculate first part of Cholesky decomposition for dense matrix.
+Calculate the first step of Cholesky decomposition for dense matrices.
 """
 function make_transform_fac(
   X::Matrix;
@@ -68,7 +68,7 @@ end
 """
     make_transform_matrix(::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor}, ::Union{SparseMatrixCSC, Matrix}, ::Union{SparseMatrixCSC, Matrix}) -> ::Union{Matrix, SparseMatrixCSC}
 
-Second part of calculate Cholesky decomposition transformation matrix.
+Second step in calculating the Cholesky decomposition for the transformation matrix.
 """
 function make_transform_matrix(
   fac::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor},
@@ -86,7 +86,7 @@ end
 """
     make_transform_matrix(::SparseMatrixCSC, ::Matrix) -> ::Union{SparseMatrixCSC, Matrix}
 
-Using Cholesky decomposition to calculate transformation matrix from X to Y,
+Use Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a dense matrix.
 
 ...
@@ -95,9 +95,9 @@ where X is a sparse matrix and Y is a dense matrix.
 - `Y::Matrix`: the Y matrix, where Y is a dense matrix
 
 # Optional Arguments
-- `method::Symbol=:additive`: shift mode whether :additive or :multiplicative
-- `shift::Float64=0.02`: shift value
-- `multiplier::Float64=1.01`: multiplier value
+- `method::Symbol=:additive`: whether :additive or :multiplicative decomposition is required
+- `shift::Float64=0.02`: shift value for :additive decomposition
+- `multiplier::Float64=1.01`: multiplier value for :multiplicative decomposition
 - `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
 - `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if true, more information will be printed out
@@ -105,7 +105,7 @@ where X is a sparse matrix and Y is a dense matrix.
 # Examples
 ```julia
 # additive mode
-JudiLing.make_transform_matrxi(
+JudiLing.make_transform_matrix(
   C,
   S,
   method=:additive,
@@ -161,7 +161,7 @@ end
 """
     make_transform_matrix(::Matrix, ::Union{SparseMatrixCSC, Matrix}) -> ::Union{SparseMatrixCSC, Matrix}
 
-Using Cholesky decomposition to calculate transformation matrix from X to Y,
+Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
 
 ...
@@ -170,9 +170,9 @@ where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
 - `Y::Union{SparseMatrixCSC, Matrix}`: the Y matrix, where Y is either a sparse or a dense matrix
 
 # Optional Arguments
-- `method::Symbol=:additive`: shift mode whether :additive or :multiplicative
-- `shift::Float64=0.02`: shift value
-- `multiplier::Float64=1.01`: multiplier value
+- `method::Symbol=:additive`: whether :additive or :multiplicative decomposition is required
+- `shift::Float64=0.02`: shift value for :additive decomposition
+- `multiplier::Float64=1.01`: multiplier value for :multiplicative decomposition
 - `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
 - `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if true, more information will be printed out
@@ -235,7 +235,7 @@ end
 """
     make_transform_matrix(::SparseMatrixCSC, ::SparseMatrixCSC) -> ::Union{SparseMatrixCSC, Matrix}
 
-Using Cholesky decomposition to calculate transformation matrix from X to Y,
+Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a sparse matrix.
 
 ...
@@ -244,9 +244,9 @@ where X is a sparse matrix and Y is a sparse matrix.
 - `Y::SparseMatrixCSC`: the Y matrix, where Y is a sparse matrix
 
 # Optional Arguments
-- `method::Symbol=:additive`: shift mode whether :additive or :multiplicative
-- `shift::Float64=0.02`: shift value
-- `multiplier::Float64=1.01`: multiplier value
+- `method::Symbol=:additive`: whether :additive or :multiplicative decomposition is required
+- `shift::Float64=0.02`: shift value for :additive decomposition
+- `multiplier::Float64=1.01`: multiplier value for :multiplicative decomposition
 - `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
 - `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool=false`: if true, more information will be printed out
