@@ -31,7 +31,7 @@ using Test
         alpha=0.1,
         betas=(0.1,0.1),
         eta=0.1,
-        n_epochs=nothing,
+        n_epochs=1,
         path_method=pm,
         max_t=nothing,
         max_can=10,
@@ -46,7 +46,7 @@ using Test
         csv_dir="latin_out",
         csv_prefix="latin",
         random_seed=314,
-        log_io=test_io,
+        # log_io=test_io,
         verbose=false)
     end
 
@@ -56,10 +56,8 @@ using Test
   catch e
     @test e == false
   finally
-    # there is an error
-    # ERROR: LoadError: IOError: unlink: resource busy or locked (EBUSY)
-    # path = joinpath(".", "latin_out")
-    # rm(path, force=true, recursive=true)
+    path = joinpath(".", "latin_out")
+    rm(path, force=true, recursive=true)
   end
 end
 
@@ -93,7 +91,7 @@ end
         alpha=0.1,
         betas=(0.1,0.1),
         eta=0.1,
-        n_epochs=nothing,
+        n_epochs=1,
         path_method=pm,
         max_t=nothing,
         max_can=10,
@@ -118,9 +116,7 @@ end
   catch e
     @test e == false
   finally
-    # there is an error
-    # ERROR: LoadError: IOError: unlink: resource busy or locked (EBUSY)
-    # path = joinpath(".", "french_out")
-    # rm(path, force=true, recursive=true)
+    path = joinpath(".", "french_out")
+    rm(path, force=true, recursive=true)
   end
 end
