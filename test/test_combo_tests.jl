@@ -56,8 +56,10 @@ using Test
   catch e
     @test e == false
   finally
-    path = joinpath(".", "latin_out")
-    rm(path, force=true, recursive=true)
+    # there is an error
+    # ERROR: LoadError: IOError: unlink: resource busy or locked (EBUSY)
+    # path = joinpath(".", "latin_out")
+    # rm(path, force=true, recursive=true)
   end
 end
 
@@ -116,7 +118,9 @@ end
   catch e
     @test e == false
   finally
-    path = joinpath(".", "french_out")
-    rm(path, force=true, recursive=true)
+    # there is an error
+    # ERROR: LoadError: IOError: unlink: resource busy or locked (EBUSY)
+    # path = joinpath(".", "french_out")
+    # rm(path, force=true, recursive=true)
   end
 end

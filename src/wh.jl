@@ -2,7 +2,7 @@ function wh_learn(
   X::Union{Matrix, SparseMatrixCSC},
   Y::Union{Matrix, SparseMatrixCSC};
   eta=0.01::Float64,
-  epochs=1::Int64,
+  n_epochs=1::Int64,
   weights=nothing::Union{Matrix{Float64},Nothing},
   verbose=false::Bool
   )::Matrix{Float64}
@@ -18,8 +18,8 @@ function wh_learn(
   inputT = Matrix{Float64}(undef, (size(X,2), 1))
   pred = Matrix{Float64}(undef, (1, size(Y,2)))
   deltaW = Matrix{Float64}(undef, (size(X,2), size(Y,2)))
-  verbose && begin pb = Progress(size(X,1)*epochs) end
-  for j in 1:epochs # 100 epochs
+  verbose && begin pb = Progress(size(X,1)*n_epochs) end
+  for j in 1:n_epochs # 100 epochs
     for i in 1:size(X,1) # for each events
       # pred = X[i:i, :]*W
       mul!(pred, X[i:i, :], W)
