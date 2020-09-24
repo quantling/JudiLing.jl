@@ -10,6 +10,6 @@ CurrentModule = JudiLing
   eval_SC
   eval_acc(::Array, ::Array)
   eval_acc_loose(::Array, ::Array)
-  eval_gpi
+  extract_gpi
   eval_manual
 ```

@@ -274,12 +274,12 @@ function eval_acc_loose(
 end
 
 """
-    eval_gpi(::Vector{Gold_Path_Info_Struct}, ::Float64, ::Float64) -> ::Array
+    extract_gpi(::Vector{Gold_Path_Info_Struct}, ::Float64, ::Float64) -> ::Array
 
-Evaluate gold paths' information. It summarizes how many n-grams for a gold 
-path is below threshold but above tolerance.
+Extract, using gold paths' information, how many n-grams for a gold 
+path are below the threshold but above the tolerance.
 """
-function eval_gpi(
+function extract_gpi(
   gpi::Vector{Gold_Path_Info_Struct},
   threshold=0.1::Float64,
   tolerance=(-1000.0)::Float64
