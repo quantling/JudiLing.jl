@@ -47,7 +47,7 @@ using Test
         csv_dir="latin_out",
         csv_prefix="latin",
         random_seed=314,
-        # log_io=test_io,
+        log_io=test_io,
         verbose=false)
     end
 
