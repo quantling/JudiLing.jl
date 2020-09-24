@@ -107,7 +107,7 @@ function eval_SC(
   )::Float64
 
   rSC = cor(convert(Matrix{Float64}, SChat), convert(Matrix{Float64}, SC), dims=2)
-  v = [i[1]==i[2] ? 1 : 0 for i in argmax(rSC, dims=2)]
+  v = [(i[1]==i[2] || rSC[i[1],i[1]]==rSC[i]) ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)/length(v)
 end
 
