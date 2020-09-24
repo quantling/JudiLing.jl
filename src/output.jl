@@ -306,3 +306,55 @@ function write2df(
 
   df
 end
+
+"""
+    write2df(::gpi::Vector{Gold_Path_Info_Struct}) -> ::DataFrame
+
+Write results into a dataframe for the gold paths' information optionally returned by 
+`learn_paths` and `build_paths`.
+
+...
+# Obligatory Arguments
+- `gpi::Vector{Gold_Path_Info_Struct}`: the gold paths' information
+
+# Examples
+```julia
+# write gold standard paths to df for training data
+JudiLing.write2csv(gpi_train)
+
+# write gold standard paths to df for validation data
+JudiLing.write2csv(gpi_val)
+```
+...
+"""
+function write2df(
+  gpi::Vector{Gold_Path_Info_Struct}
+  )::DataFrame
+  
+  utterance_vec = Union{Int64,Missing}[]
+  weakest_support_vec = Union{Float64,Missing}[]
+  weakest_support_timestep_vec = Union{Int64,Missing}[]
+  support_vec = Union{Float64,Missing}[]
+  gold_path_vec = Union{Vector,Missing}[]
+  timestep_support_vec = Union{Vector,Missing}[]
+
+  for (i,g) in enumerate(gpi)
+    ws, wst = findmin(g.ngrams_ind_support)
+    push!(utterance_vec, i)
+    push!(weakest_support_vec, ws)
+    push!(weakest_support_timestep_vec, wst)
+    push!(support_vec, g.support)
+    push!(gold_path_vec, g.ngrams_ind)
+    push!(timestep_support_vec, g.ngrams_ind_support)
+  end
+
+  df = DataFrame()
+  df.utterance = utterance_vec
+  df.weakest_support = weakest_support_vec
+  df.weakest_support_timestep = weakest_support_timestep_vec
+  df.support = support_vec
+  df.gold_path = gold_path_vec
+  df.timestep_support = timestep_support_vec
+
+  df
+end

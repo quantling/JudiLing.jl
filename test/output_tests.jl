@@ -167,6 +167,10 @@ using Test
       path_sep_token=":",
       target_col=:Word)
 
+    JudiLing.write2df(gpi_train)
+
+    JudiLing.write2df(gpi_val)
+
     @test true
   catch e
     @test e == false
