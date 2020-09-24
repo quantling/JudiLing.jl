@@ -12,10 +12,11 @@ using Test
     for (lm, pm) in Iterators.product(learning_modes, path_methods)
       JudiLing.test_combo(
         joinpath("data", "latin_mini.csv"),
-        joinpath("latin_out"),
+        # joinpath("latin_out"), # revised as optional argument
         ["Lexeme","Person","Number","Tense","Voice","Mood"],
         ["Lexeme"],
         ["Person","Number","Tense","Voice","Mood"],
+        output_dir_path="latin_out", # here
         data_prefix="latin",
         max_test_data=nothing,
         split_max_ratio=0.1,
@@ -72,10 +73,11 @@ end
     for (lm, pm) in Iterators.product(learning_modes, path_methods)
       JudiLing.test_combo(
         joinpath("data", "french_mini.csv"),
-        joinpath("french_out"),
+        # joinpath("french_out"), # revised as optional argument
         ["Lexeme","Tense","Aspect","Person","Number","Gender","Class","Mood"],
         ["Lexeme"],
         ["Tense","Aspect","Person","Number","Gender","Class","Mood"],
+        output_dir_path="french_out", # here
         data_prefix="french",
         max_test_data=nothing,
         split_max_ratio=0.1,

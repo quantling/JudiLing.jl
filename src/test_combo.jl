@@ -10,12 +10,12 @@ A wrapper function that test a dataset in only one function.
 
 # Obligatory Arguments
 - `data_path::String`: the path for the dataset
-- `output_dir_path::String`: the path for training and validation datasets splitted by `test_combo`
 - `n_features_columns::Vector`: the list of all features
 - `n_features_base::Vector`: the list of all base features
 - `n_features_inflections::Vector`: the list of all inflectional features
 
 # Optional Arguments
+- `output_dir_path="data"::String`: the path for storing training and validation datasets
 - `data_prefix="data"::String`: the prefix for training and validation datasets
 - `max_test_data=nothing::Union{Nothing, Int64}`: the maximum number of data in current testing
 - `split_max_ratio=0.2::Float64`: the maximum ratio of the validation dataset when splitting
@@ -57,7 +57,6 @@ A wrapper function that test a dataset in only one function.
 # basic usage
 JudiLing.test_combo(
   joinpath("data", "latin.csv"),
-  joinpath("latin_out"),
   ["Lexeme","Person","Number","Tense","Voice","Mood"],
   ["Lexeme"],
   ["Person","Number","Tense","Voice","Mood"],
@@ -131,10 +130,10 @@ close(test_io)
 """
 function test_combo(
     data_path::String,
-    output_dir_path::String,
     n_features_columns::Vector,
     n_features_base::Vector,
     n_features_inflections::Vector;
+    output_dir_path="data"::String,
     data_prefix="data"::String,
     max_test_data=nothing::Union{Nothing, Int64},
     split_max_ratio=0.2::Float64,
