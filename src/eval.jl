@@ -10,18 +10,18 @@ end
 """
     accuracy_comprehension(::Matrix, ::Matrix) -> ::Comp_Acc_Struct
 
-Evaluate the comprehension accuracy.
+Evaluate comprehension accuracy.
 
 ...
 # Obligatory Arguments
-- `S::Matrix`: the S matrix
-- `Shat::Matrix`: the Shat matrix
+- `S::Matrix`: the (gold standard) S matrix
+- `Shat::Matrix`: the (predicted) Shat matrix
 - `data::DataFrame`: the dataset
 
 # Optional Arguments
 - `target_col::Union{String, Symbol}=:Words`: the column name for target strings
-- `base::Vector=["Lexeme"]`: base features
-- `inflections::Union{Nothing, Vector}=nothing`: inflectional features
+- `base::Vector=["Lexeme"]`: base features (typically a lexeme)
+- `inflections::Union{Nothing, Vector}=nothing`: other features (typically in inflectional features)
 
 # Examples
 ```julia
@@ -84,16 +84,16 @@ end
 """
     eval_SC(Union{SparseMatrixCSC, Matrix}, Union{SparseMatrixCSC, Matrix}) -> ::Float64
 
-Quickly evaluate Shat and Chat matrices.
+Assess model accuracy on the basis of the correlations of row vectors of Chat and 
+C or Shat and S. Ideally the target words have highest correlations on the diagonal 
+of the pertinent correlation matrices.
 
 ...
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
 
-# Optional Arguments
 ```julia
-#after you had Shat and Chat
 eval_SC(cue_obj_train.C, Chat_train)
 eval_SC(cue_obj_val.C, Chat_val)
 eval_SC(S_train, Shat_train)
@@ -114,7 +114,7 @@ end
 """
     eval_manual(::Array, ::DataFrame, ::Dict) -> ::Nothing
 
-Evaluate the results from `build_paths` and `learn_paths` manually.
+Create extensive reports for the outputs from `build_paths` and `learn_paths`.
 """
 function eval_manual(
   res::Array,
@@ -170,12 +170,14 @@ Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
 
 # Examples
 ```julia
-#after you had results from learn_paths or build_paths
+# evaluation on training data
 acc_train = JudiLing.eval_acc(
   res_train,
   cue_obj_train.gold_ind,
   verbose=false
 )
+
+# evaluation on validation data
 acc_val = JudiLing.eval_acc(
   res_val,
   cue_obj_val.gold_ind,
@@ -213,9 +215,10 @@ end
 """
     eval_acc_loose(::Array, ::Array) -> ::Float64
 
-Evaluate the accuracy of the results from `learn_paths` or `build_paths`, if 
-one of the candidates is correct, then we take it as correct. This reflects how 
-many paths were found but could not be recognized as the best path.
+Lenient evaluation of the accuracy of the results from `learn_paths` or `build_paths`, 
+counting a prediction as correct when the correlation of the predicted and gold 
+standard semantic vectors is among the n top correlations, where n is equal to 
+`max_can` in the 'learn_paths' or `build_paths` function.
 
 ...
 # Obligatory Arguments
@@ -227,12 +230,14 @@ many paths were found but could not be recognized as the best path.
 
 # Examples
 ```julia
-#after you had results from learn_paths or build_paths
+# evaluation on training data
 acc_train_loose = JudiLing.eval_acc_loose(
   res_train,
   cue_obj_train.gold_ind,
   verbose=false
 )
+
+# evaluation on validation data
 acc_val_loose = JudiLing.eval_acc_loose(
   res_val,
   cue_obj_val.gold_ind,

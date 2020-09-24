@@ -1,52 +1,52 @@
 """
-A wrapper function that test a dataset in only one function.
+A wrapper function for a full model for a specific combination of parameters.
 """
 function test_combo end
 
 """
     function test_combo(::String, ::String, ::Vector, ::Vector, ::Vector) -> ::Nothing
 
-A wrapper function that test a dataset in only one function.
+A wrapper function for a full model for a specific combination of parameters.
 
 # Obligatory Arguments
 - `data_path::String`: the path for the dataset
 - `output_dir_path::String`: the path for training and validation datasets splitted by `test_combo`
 - `n_features_columns::Vector`: the list of all features
 - `n_features_base::Vector`: the list of all base features
-- `n_features_inflections::Vector`: the list of all inflectional features
+- `n_features_inflections::Vector`: the list of all other features
 
 # Optional Arguments
 - `data_prefix="data"::String`: the prefix for training and validation datasets
 - `max_test_data=nothing::Union{Nothing, Int64}`: the maximum number of data in current testing
-- `split_max_ratio=0.2::Float64`: the maximum ratio of the validation dataset when splitting
-- `issparse::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
-- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
-- `is_full_A=false::Bool`: if true, a full size adjacency matrix is constructed otherwise the test takes a adjacency matrix constructed by `make_cue_matrix`
+- `split_max_ratio=0.2::Float64`: proportion of the dataset to be held out for validation
+- `issparse::Symbol=:auto`: force output format to dense(:dense), sparse(:sparse), or let the program decide (:auto)
+- `sparse_ratio::Float64=0.2`: a matrix is considered sparse when the proportion of 0 cells is lower than `sparse_ratio`
+- `is_full_A=false::Bool`: if true, a completed adjacency matrix is constructed using `make_adjacency_matrix` otherwise the adjacency matrix is constructed by `make_cue_matrix`
 - `n_grams_target_col=:PhonWord::Symbol`: the column name for target strings
-- `n_grams_tokenized=false::Bool`: if true, the dataset target is assumed to be tokenized
+- `n_grams_tokenized=false::Bool`: if true, the dataset target is tokenized
 - `n_grams_sep_token=""::Union{String, Char}`: separator
 - `n_grams_keep_sep=false::Bool`: if true, keep separators in cues
-- `grams::Int64=3`: the number of grams for cues
+- `grams::Int64=3`: the number n in n-gram cues
 - `start_end_token="#"::Union{String, Char}`: start and end token in boundary cues
 - `path_sep_token=":"::Union{String, Char}`: path separator
-- `learning_mode=:cholesky::Symbol`: the mode for transformation matrix, currently supporting :cholesky, :pyndl and :wh
+- `learning_mode=:cholesky::Symbol`: the mode for learning, currently supporting :cholesky, :pyndl and :wh
 - `alpha=0.1::Float64`: the alpha value for pyndl learning mode
 - `betas=(0.1,0.1)::Tuple{Float64,Float64}`: the beta values for pyndl learning mode
 - `eta=0.1::Float64`: the eta learning rate for wh learning mode
 - `n_epochs=nothing::Union{Int64, Nothing}`: the number of epochs for wh learning
-- `path_method=:build_paths::Symbol`: the mode for constructing paths
-- `max_t::Int64=15`: maximum timestep
-- `max_can::Int64=10`: maximum candidates to keep in the results
-- `train_threshold=0.1::Float64`: the
-- `val_is_tolerant=false::Bool`: the
-- `val_threshold=(-100.0)::Float64`: the
-- `val_tolerance=(-1000.0)::Float64`: the
-- `val_max_tolerance=4::Int64`: the
+- `path_method=:build_paths::Symbol`: the mode for constructing paths, :build_paths or :learn_paths
+- `max_t::Int64=15`: maximum number of timesteps
+- `max_can::Int64=10`: maximum number of candidates to include in the results
+- `train_threshold=0.1::Float64`: the value set for the support such that if the support of a n-gram is higher than this value, select the n-gram anyway for training data
+- `val_is_tolerant=false::Bool`: if true, select a specified number of n-grams whose supports are below threshold and above tolerance to be added to the path for validation data
+- `val_threshold=(-100.0)::Float64`: the value set for the support such that if the support of a n-gram is higher than this value, select the n-gram anyway for validation data
+- `val_tolerance=(-1000.0)::Float64`: the value set in tolerant mode such that if the support for a n-gram is inbetween this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path for validation data
+- `val_max_tolerance=4::Int64`: maximum number of nodes allowed in a path for validation data
 - `train_n_neighbors=2::Int64`: find indices only in top n neighbors for training datasets
-- `val_n_neighbors=10::Int64`: find indices only in top n neighbors for training datasets
+- `val_n_neighbors=10::Int64`: find indices only in top n neighbors for validation datasets
 - `root_dir::String="."`: dir path for project root dir
-- `csv_dir="out"::String`: the csv output dir inside root dir
-- `csv_prefix="french"::String`: the csv name prefix
+- `csv_dir="out"::String`: csv output dir inside root dir
+- `csv_prefix="french"::String`: csv file prefix
 - `seed::Int64=314`: the random seed
 - `log_io=stdout::IO`: the log IO
 - `verbose::Bool=false`: if true, more information is printed

@@ -509,8 +509,9 @@ end
 """
     eval_can(::Vector{Vector{Tuple{Vector{Int64}, Int64}}},::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Dict,::Int64,::Bool) -> ::Array{Array{Result_Path_Info_Struct,1},1}
 
-Evaluate each candidate regarding the correlation between predicted semantic 
-vector and original semantic vector.
+Calculate for each candidate path the correlation between predicted semantic 
+vector and the gold standard semantic vector, and select as target for production 
+the path with the highest correlation.
 """
 function eval_can(
   candidates::Vector{Vector{Tuple{Vector{Int64}, Int64}}},
@@ -552,7 +553,8 @@ end
 """
     find_top_feature_indices(::Matrix, ::Array) -> ::Vector{Vector{Int64}}
 
-Find all indices of the top n closest neighbors for a given target.
+Find all indices for the n-grams of the top n closest neighbors of 
+a given target.
 """
 function find_top_feature_indices(
   # C_train::SparseMatrixCSC,

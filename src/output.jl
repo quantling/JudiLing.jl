@@ -1,17 +1,21 @@
 """
-Write results into csv file, support for both results and gold paths' information.
+Write results into a csv file. This function takes as input the results from the 
+`learn_paths` and `build_paths` functions, including the information on gold paths 
+that is optionally returned as second output result.
 """
 function write2csv end
 
 """
-Create a datafrate for results
+Reformat results into a dataframe. This function takes as input the results from the 
+`learn_paths` and `build_paths` functions, including the information on gold paths 
+that is optionally returned as second output result.
 """
 function write2df end
 
 """
     write2csv(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct, ::String) -> ::Nothing
 
-Write results into csv file.
+Write results into csv file for the results from `learn_paths` and `build_paths`.
 
 ...
 # Obligatory Arguments
@@ -22,8 +26,8 @@ Write results into csv file.
 - `filename::String`: the filename
 
 # Optional Arguments
-- `grams::Int64=3`: the number of grams for cues 
-- `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
+- `grams::Int64=3`: the number n in n-gram cues
+- `tokenized::Bool=false`: if true, the dataset target is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: separator
 - `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
 - `output_sep_token::Union{String, Char}=""`: output separator
@@ -34,7 +38,7 @@ Write results into csv file.
 
 # Examples
 ```julia
-#after you had results from learn_paths or build_paths
+# writing results for training data
 JudiLing.write2csv(
   res_train,
   latin_train,
@@ -51,6 +55,7 @@ JudiLing.write2csv(
   root_dir=".",
   output_dir="test_out")
 
+# writing results for validation data
 JudiLing.write2csv(
   res_val,
   latin_val,
@@ -114,7 +119,8 @@ end
 """
     write2csv(::Vector{Gold_Path_Info_Struct}, ::String) -> ::Nothing
 
-Write gold paths' information into csv file.
+Write results into csv file for the gold paths' information optionally returned by 
+`learn_paths` and `build_paths`.
 
 ...
 # Obligatory Arguments
@@ -127,7 +133,7 @@ Write gold paths' information into csv file.
 
 # Examples
 ```julia
-#after you had results from learn_paths or build_paths
+# write gold standard paths to csv for training data
 JudiLing.write2csv(
   gpi_train,
   "gpi_latin_train.csv",
@@ -135,6 +141,7 @@ JudiLing.write2csv(
   output_dir="test_out"
   )
 
+# write gold standard paths to csv for validation data
 JudiLing.write2csv(
   gpi_val,
   "gpi_latin_val.csv",
@@ -170,15 +177,16 @@ end
 """
     write2df(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct) -> ::DataFrame
 
-Write results into dataframe.
+Reformat results into a dataframe for the results form `learn_paths` and `build_paths`
+functions.
 
 ...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 
 # Optional Arguments
-- `grams::Int64=3`: the number of grams for cues 
-- `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
+- `grams::Int64=3`: the number n in n-gram cues
+- `tokenized::Bool=false`: if true, the dataset target is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: separator
 - `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
 - `output_sep_token::Union{String, Char}=""`: output separator
@@ -187,7 +195,7 @@ Write results into dataframe.
 
 # Examples
 ```julia
-#after you had results from learn_paths or build_paths
+# writing results for training data
 JudiLing.write2df(
   res_train,
   latin_train,
@@ -201,6 +209,7 @@ JudiLing.write2df(
   path_sep_token=":",
   target_col=:Word)
 
+# writing results for validation data
 JudiLing.write2df(
   res_val,
   latin_val,
