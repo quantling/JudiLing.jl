@@ -14,7 +14,12 @@ function wh_learn(
     throw(ArgumentError("X($(size(inputs,1))) and Y($(size(outputs,1))) length doesn't match"))
   end
 
-  W = zeros(Float64, (size(X,2), size(Y,2)))
+  if isnothing(weights)
+    W = zeros(Float64, (size(X,2), size(Y,2)))
+  else
+    W = weights
+  end
+  
   inputT = Matrix{Float64}(undef, (size(X,2), 1))
   pred = Matrix{Float64}(undef, (1, size(Y,2)))
   deltaW = Matrix{Float64}(undef, (size(X,2), size(Y,2)))
