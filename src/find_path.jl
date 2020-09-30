@@ -123,6 +123,21 @@ res_val = JudiLing.learn_paths(
   max_tolerance=4,
   ...)
 
+# turn on check gold paths mode
+res_train, gpi_train = JudiLing.learn_paths(
+  ...
+  gold_ind=cue_obj_train.gold_ind,
+  Shat_val=Shat_train,
+  check_gold_path=true,
+  ...)
+
+res_val, gpi_val = JudiLing.learn_paths(
+  ...
+  gold_ind=cue_obj_val.gold_ind,
+  Shat_val=Shat_val,
+  check_gold_path=true,
+  ...)
+
 # control over sparsity
 res_val = JudiLing.learn_paths(
   ...

@@ -45,8 +45,8 @@ A = cue_obj.A
 # we calculate how many timestep we need for learn_paths and huo function
 max_t = JudiLing.cal_max_timestep(latin, :Word)
 
-# we calculate learn_paths and hua function
-res_learn = JudiLing.learn_paths(
+# we calculate learn_paths and build_paths function
+res_learn, gpi_learn = JudiLing.learn_paths(
   latin,
   latin,
   cue_obj.C,
@@ -55,6 +55,9 @@ res_learn = JudiLing.learn_paths(
   Chat,
   A,
   cue_obj.i2f,
+  check_gold_path=true,
+  gold_ind=cue_obj.gold_ind,
+  Shat_val=Shat,
   max_t=max_t,
   max_can=10,
   grams=3,

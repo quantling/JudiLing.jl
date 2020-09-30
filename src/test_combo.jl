@@ -42,12 +42,12 @@ A wrapper function for a full model for a specific combination of parameters.
 - `val_threshold=(-100.0)::Float64`: the value set for the support such that if the support of a n-gram is higher than this value, select the n-gram anyway for validation data
 - `val_tolerance=(-1000.0)::Float64`: the value set in tolerant mode such that if the support for a n-gram is inbetween this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path for validation data
 - `val_max_tolerance=4::Int64`: maximum number of nodes allowed in a path for validation data
-- `train_n_neighbors=2::Int64`: find indices only in top n neighbors for training datasets
-- `val_n_neighbors=10::Int64`: find indices only in top n neighbors for validation datasets
+- `train_n_neighbors=2::Int64`: find indices for only the top n neighbors for the training dataset
+- `val_n_neighbors=10::Int64`: find indices for only the top n neighbors for the validation dataset
 - `root_dir::String="."`: dir path for project root dir
-- `csv_dir="out"::String`: csv output dir inside root dir
-- `csv_prefix="french"::String`: csv file prefix
-- `seed::Int64=314`: the random seed
+- `csv_dir="out"::String`: output dir inside root dir for storing csv output
+- `csv_prefix=""::String`: csv file prefix
+- `seed::Int64=314`: the random seed for the whole analysis
 - `log_io=stdout::IO`: the log IO
 - `verbose::Bool=false`: if true, more information is printed
 
@@ -165,7 +165,7 @@ function test_combo(
     val_n_neighbors=10::Int64,
     root_dir="."::String,
     csv_dir="out"::String,
-    csv_prefix="french"::String,
+    csv_prefix=""::String,
     random_seed=314::Int64,
     log_io=stdout::IO,
     verbose=false::Bool

@@ -1,5 +1,5 @@
 """
-Check whether the prediction is correct.
+Check whether the predictions are correct.
 """
 function iscorrect(
   gold_ind::Vector,
@@ -34,7 +34,7 @@ function display_pred(
 end
 
 """
-Translate indices into words or utterances.
+Translate indices into words or utterances
 """
 function translate(
   ngrams_ind::Vector,
@@ -65,7 +65,7 @@ function translate(
 end
 
 """
-Append indices together to form a path.
+Append indices together to form a path
 """
 function translate_path(
   ngrams_ind,
@@ -81,7 +81,7 @@ Check whether a matrix is truly sparse regardless its format, where M is origina
 """
 function is_truly_sparse(
   M::SparseMatrixCSC;
-  threshold=0.2::Float64,
+  threshold=0.05::Float64,
   verbose=false::Bool
   )::Bool
   verbose && println("Sparsity: $(length(M.nzval)/M.m/M.n)")
@@ -93,7 +93,7 @@ Check whether a matrix is truly sparse regardless its format, where M is origina
 """
 function is_truly_sparse(
   M::Matrix;
-  threshold=0.2::Float64,
+  threshold=0.05::Float64,
   verbose=false::Bool
   )::Bool
   M = sparse(M)
