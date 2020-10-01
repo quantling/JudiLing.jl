@@ -34,7 +34,7 @@ using CSV # read csv files into dataframes
 ```
 
 ## Quick start example
-The Latin dataset [latin.csv]() contains lexemes and inflectional features for 672 inflected Latin verb forms for 8 lexemes from 4 conjugation classes. Word forms are inflected for person, number, tense, voice and mood.
+The Latin dataset [latin.csv](https://osf.io/2ejfu/download) contains lexemes and inflectional features for 672 inflected Latin verb forms for 8 lexemes from 4 conjugation classes. Word forms are inflected for person, number, tense, voice and mood.
 
 ```
 "","Word","Lexeme","Person","Number","Tense","Voice","Mood"
@@ -46,10 +46,12 @@ The Latin dataset [latin.csv]() contains lexemes and inflectional features for 6
 "6","vocant","vocare","p3","pl","present","active","ind"
 ```
 
-We first read the csv file into Julia:
+We first download and read the csv file into Julia:
 
 ```julia
-latin = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin.csv")));
+download("https://osf.io/2ejfu/download", "latin.csv")
+
+latin = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin.csv")));
 ```
 
 and we can take a peek at the latin dataframe:
@@ -360,7 +362,7 @@ path = joinpath(@__DIR__, "latin_out")
 rm(path, force=true, recursive=true)
 ```
 
-You can download and try out this script [here](https://github.com/MegamindHenry/JudiLing.jl/blob/master/examples/latin.jl).
+You can download and try out this script [here](https://osf.io/sa89x/download).
 
 ## Citation
 
