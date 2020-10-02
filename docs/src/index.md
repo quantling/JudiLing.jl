@@ -337,8 +337,166 @@ display(df_build)
 │ 670 │ 200       │ clamaaris  │
 │ 671 │ 200       │ clamaaris  │
 ```
+The model also provides functionality for cross-validation. Here, you can download our datasets, [latin_train.csv](https://osf.io/yr9a3/download) and [latin_val.csv](https://osf.io/bm7y6/download). Please notice that currently our model only support validation datasets that have all n-grams seen in the training datasets.
 
-However, we also have a wrapper function containing all above functionalities plus cross-validation we will discuss this in next section into one function:
+```
+download("https://osf.io/2ejfu/download", "latin_train.csv")
+download("https://osf.io/bm7y6/download", "latin_val.csv")
+
+latin_train = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin_train.csv")))
+latin_val = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin_val.csv")))
+```
+
+Then, we make C matrices and S matrices.
+```
+cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
+  latin_train,
+  latin_val,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+
+n_features = size(cue_obj_train.C, 2)
+
+S_train, S_val = JudiLing.make_S_matrix(
+  latin_train,
+  latin_val,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  ncol=n_features)
+```
+
+After that, we make transformation matrices, but this time we only use training dataset and use these matrices to predict validation dataset.
+```
+G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
+F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
+
+Chat_train = S_train * G_train
+Chat_val = S_val * G_train
+Shat_train = cue_obj_train.C * F_train
+Shat_val = cue_obj_val.C * F_train
+
+@show JudiLing.eval_SC(Chat_train, cue_obj_train.C)
+@show JudiLing.eval_SC(Chat_val, cue_obj_val.C)
+@show JudiLing.eval_SC(Shat_train, S_train)
+@show JudiLing.eval_SC(Shat_val, S_val)
+```
+
+Then, we can find possible paths through `build_paths` or `learn_paths`.
+
+```
+A = cue_obj_train.A
+max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
+
+res_train, gpi_train = JudiLing.learn_paths(
+  latin_train,
+  latin_train,
+  cue_obj_train.C,
+  S_train,
+  F_train,
+  Chat_train,
+  A,
+  cue_obj_train.i2f,
+  gold_ind=cue_obj_train.gold_ind,
+  Shat_val=Shat_train,
+  check_gold_path=true,
+  max_t=max_t,
+  max_can=10,
+  grams=3,
+  threshold=0.1,
+  tokenized=false,
+  sep_token="_",
+  keep_sep=false,
+  target_col=:Word,
+  issparse=:dense,
+  verbose=true)
+
+res_val, gpi_val = JudiLing.learn_paths(
+  latin_train,
+  latin_val,
+  cue_obj_train.C,
+  S_val,
+  F_train,
+  Chat_val,
+  A,
+  cue_obj_train.i2f,
+  gold_ind=cue_obj_val.gold_ind,
+  Shat_val=Shat_val,
+  check_gold_path=true,
+  max_t=max_t,
+  max_can=10,
+  grams=3,
+  threshold=0.1,
+  is_tolerant=true,
+  tolerance=-0.1,
+  max_tolerance=2,
+  tokenized=false,
+  sep_token="-",
+  keep_sep=false,
+  target_col=:Word,
+  issparse=:dense,
+  verbose=true)
+
+acc_train = JudiLing.eval_acc(
+  res_train,
+  cue_obj_train.gold_ind,
+  verbose=false
+)
+acc_val = JudiLing.eval_acc(
+  res_val,
+  cue_obj_val.gold_ind,
+  verbose=false
+)
+
+@show acc_train
+@show acc_val
+
+res_train = JudiLing.build_paths(
+  latin_train,
+  cue_obj_train.C,
+  S_train,
+  F_train,
+  Chat_train,
+  A,
+  cue_obj_train.i2f,
+  cue_obj_train.gold_ind,
+  max_t=max_t,
+  n_neighbors=3,
+  verbose=true
+  )
+
+res_val = JudiLing.build_paths(
+  latin_val,
+  cue_obj_train.C,
+  S_val,
+  F_train,
+  Chat_val,
+  A,
+  cue_obj_train.i2f,
+  cue_obj_train.gold_ind,
+  max_t=max_t,
+  n_neighbors=20,
+  verbose=true
+  )
+
+acc_train = JudiLing.eval_acc(
+  res_train,
+  cue_obj_train.gold_ind,
+  verbose=false
+)
+acc_val = JudiLing.eval_acc(
+  res_val,
+  cue_obj_val.gold_ind,
+  verbose=false
+)
+
+@show acc_train
+@show acc_val
+```
+
+However, we also have a wrapper function containing all above functionalities. You can quickly explore multiple datasets with a few optimizations.
 
 ```julia
 JudiLing.test_combo(
