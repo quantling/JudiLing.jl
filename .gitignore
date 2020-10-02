@@ -8,3 +8,5 @@
 *.log
 
 examples/data/
+
+examples/data_bak/
