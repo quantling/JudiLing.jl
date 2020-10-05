@@ -347,7 +347,7 @@ latin_train = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin_train.csv")))
 latin_val = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin_val.csv")))
 ```
 
-Then, we make C matrices and S matrices.
+Then, we make C matrices and S matrices passing both training and validation datasets to `make_cue_matrix` function.
 ```
 cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
   latin_train,
@@ -384,7 +384,7 @@ Shat_val = cue_obj_val.C * F_train
 @show JudiLing.eval_SC(Shat_val, S_val)
 ```
 
-Then, we can find possible paths through `build_paths` or `learn_paths`.
+Then, we can find possible paths through `build_paths` or `learn_paths`. Since validation dataset is harder to predict, we turn on `tolerant` mode where we could find more paths but investing more time.
 
 ```
 A = cue_obj_train.A
