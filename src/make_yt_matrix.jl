@@ -1,13 +1,13 @@
 """
-Make Yt matrix given timestep t.
+Make Yt matrix for timestep t.
 """
 function make_Yt_matrix end
 
 """
     make_Yt_matrix(::Int64, ::DataFrame) -> ::SparseMatrixCSC
 
-Make Yt matrix given timestep t. Each row of Yt matrix indicates the supports 
-of each n-gram predicted in timestep t.
+Make Yt matrix for timestep t. A given column of the Yt matrix specifies the support 
+for the corresponding n-gram predicted for timestep t for each of the observations (rows of Yt).
 
 ...
 # Obligatory Arguments
@@ -15,9 +15,9 @@ of each n-gram predicted in timestep t.
 - `data::DataFrame`: the dataset
 
 # Optional Arguments
-- `tokenized::Bool=false`: whether n-grams are tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: what is the sepertate token
-- `verbose::Bool=false`: if verbose, more information prints out
+- `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator token
+- `verbose::Bool=false`: if verbose, more information will be printed
 
 # Examples
 ```julia

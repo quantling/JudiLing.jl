@@ -259,6 +259,88 @@ function make_cue_matrix(
 end
 
 """
+    make_cue_matrix(::DataFrame, ::DataFrame) -> ::Cue_Matrix_Struct, ::Cue_Matrix_Struct
+
+Make the cue matrix for traiing and validation datasets at the same time.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+
+# Optional Arguments
+- `grams::Int64=3`: the number of grams for cues 
+- `target_col::Union{String, Symbol}=:Words`: the column name for target strings
+- `tokenized::Bool=false`:if true, the dataset target is assumed to be tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator
+- `keep_sep::Bool=false`: if true, keep separators in cues
+- `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
+- `verbose::Bool=false`: if true, more information is printed
+
+# Examples
+```julia
+# make cue matrix without tokenization
+cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
+  latin_train,
+  latin_val,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+
+# make cue matrix with tokenization
+cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
+  french_train,
+  french_val,
+  grams=3,
+  target_col=:Syllables,
+  tokenized=true,
+  sep_token="-",
+  keep_sep=true,
+  start_end_token="#",
+  verbose=false
+  )
+```
+...
+"""
+function make_cue_matrix(
+  data_train::DataFrame,
+  data_val::DataFrame;
+  grams=3::Int64,
+  target_col="Words"::String,
+  tokenized=false::Bool,
+  sep_token=nothing::Union{Nothing, String, Char},
+  keep_sep=false::Bool,
+  start_end_token="#"::Union{String, Char},
+  verbose=false::Bool
+  )::Tuple{Cue_Matrix_Struct, Cue_Matrix_Struct}
+  
+  cue_obj_train = make_cue_matrix(
+    data_train,
+    grams=grams,
+    target_col=target_col,
+    tokenized=tokenized,
+    sep_token=sep_token,
+    keep_sep=keep_sep,
+    start_end_token=start_end_token,
+    verbose=verbose)
+
+  cue_obj_val = make_cue_matrix(
+    data_val,
+    cue_obj_train,
+    grams=grams,
+    target_col=target_col,
+    tokenized=tokenized,
+    sep_token=sep_token,
+    keep_sep=keep_sep,
+    start_end_token=start_end_token,
+    verbose=verbose)
+
+  cue_obj_train, cue_obj_val
+end
+
+"""
   make_ngrams(::Array, ::Int64, ::Bool, ::Union{Nothing, String, Char},::Union{String, Char} -> ::Array
 
 Given a list of string tokens return a list of all n-grams for these tokens.

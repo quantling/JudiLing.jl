@@ -6,17 +6,18 @@ function make_adjacency_matrix end
 """
     make_adjacency_matrix(::Dict) -> ::SparseMatrixCSC
 
-Make full adjacency matrix based only on the form of n-grams regardless whether 
-they are seen in the training data. This usually takes hours for large datasets.
+Make full adjacency matrix based only on the form of n-grams regardless of whether 
+they are seen in the training data. This usually takes hours for large datasets, 
+as all possible combinations are considered.
 
 ...
 # Obligatory Arguments
-- `i2f::Dict`: the dictionary return features given indices
+- `i2f::Dict`: the dictionary returning features given indices
 
 # Optional Arguments
-- `tokenized::Bool=false`:if true, the dataset target is assumed tokenized
-- `sep_token::Union{Nothing, String, Char}=nothing`: separate token
-- `verbose::Bool=false`: if true, more information prints out
+- `tokenized::Bool=false`:if true, the dataset target is assumed to be tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator token
+- `verbose::Bool=false`: if true, more information will be printed
 
 # Examples
 ```julia
