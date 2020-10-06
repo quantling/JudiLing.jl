@@ -54,7 +54,7 @@ download("https://osf.io/2ejfu/download", "latin.csv")
 latin = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin.csv")));
 ```
 
-and we can take a peek at the latin dataframe:
+and we can inspect the latin dataframe:
 ```julia
 display(latin)
 ```
@@ -155,12 +155,12 @@ For our sequencing algorithms, we calculate the number of timesteps we need for 
 max_t = JudiLing.cal_max_timestep(latin, :Word)
 ```
 
-One sequence finding algorithm used discrimination learning for the position of triphones. This function returns two lists, one with the triphone paths and one with the learning supports for these paths.
+One sequence finding algorithm used discrimination learning for the position of triphones. This function returns two lists, one with candidate triphone paths and their positional learning support (res) and one with the semantic supports for the gold paths (gpi).
 
 ```julia
 res, gpi = JudiLing.learn_paths(
-  latin,
-  latin,
+  latin, # training dataset
+  latin, # validation dataset, in this example, it's the same as training dataset
   cue_obj.C,
   S,
   F,
@@ -195,8 +195,7 @@ println("Acc for train: $acc")
 Acc for train: 1.0
 ```
 
-The second sequence finding algorithm is usually faster than the first, but does not
-provide learnability estimates.
+The second sequence finding algorithm is usually faster than the first, but does not provide positional learnability estimates.
 
 ```julia
 res_build = JudiLing.build_paths(
@@ -223,7 +222,7 @@ acc_build = JudiLing.eval_acc(
 Acc for build: 1.0
 ```
 
-After having obtained the results from the sequence functions: learn_paths or build_paths, we can save the results either into a csv or into a dataframe, the dataframe can be loaded into R with the rput command of the RCall package.
+After having obtained the results from the sequence functions: `learn_paths` or `build_paths`, we can save the results either into a csv or into a dataframe, the dataframe can be loaded into R with the rput command of the RCall package.
 
 ```julia
 JudiLing.write2csv(
@@ -337,7 +336,7 @@ display(df_build)
 │ 670 │ 200       │ clamaaris  │
 │ 671 │ 200       │ clamaaris  │
 ```
-The model also provides functionality for cross-validation. Here, you can download our datasets, [latin_train.csv](https://osf.io/yr9a3/download) and [latin_val.csv](https://osf.io/bm7y6/download). Please notice that currently our model only support validation datasets that have all n-grams seen in the training datasets.
+The model also provides functionality for cross-validation. Here, you can download our datasets, [latin_train.csv](https://osf.io/yr9a3/download) and [latin_val.csv](https://osf.io/bm7y6/download). Please notice that currently our model only support validation datasets that have all their n-grams present in the training datasets.
 
 ```
 download("https://osf.io/2ejfu/download", "latin_train.csv")
@@ -347,7 +346,7 @@ latin_train = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin_train.csv")))
 latin_val = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin_val.csv")))
 ```
 
-Then, we make C matrices and S matrices passing both training and validation datasets to `make_cue_matrix` function.
+Then, we make the C and S matrices passing both training and validation datasets to the `make_cue_matrix` function.
 ```
 cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
   latin_train,
@@ -368,7 +367,7 @@ S_train, S_val = JudiLing.make_S_matrix(
   ncol=n_features)
 ```
 
-After that, we make transformation matrices, but this time we only use training dataset and use these matrices to predict validation dataset.
+After that, we make the transformation matrices, but this time we only use training dataset. We use these transformation matrices to predict the validation dataset.
 ```
 G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
 F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
@@ -384,7 +383,7 @@ Shat_val = cue_obj_val.C * F_train
 @show JudiLing.eval_SC(Shat_val, S_val)
 ```
 
-Then, we can find possible paths through `build_paths` or `learn_paths`. Since validation dataset is harder to predict, we turn on `tolerant` mode where we could find more paths but investing more time.
+Finally, we can find possible paths through `build_paths` or `learn_paths`. Since validation datasets are harder to predict, we turn on `tolerant` mode which allow the algorithms to find more paths but at the cost of investing more time.
 
 ```
 A = cue_obj_train.A
@@ -496,12 +495,12 @@ acc_val = JudiLing.eval_acc(
 @show acc_val
 ```
 
-However, we also have a wrapper function containing all above functionalities. You can quickly explore multiple datasets with a few optimizations.
+Alternatively, we  have a wrapper function incorporating all above functionalities. In this example, results are placed in a folder named `latin_out`.
 
 ```julia
 JudiLing.test_combo(
   joinpath("data", "latin.csv"),
-  joinpath("latin_out"),
+  joinpath("latin_out"), # this is your output dir
   ["Lexeme","Person","Number","Tense","Voice","Mood"],
   ["Lexeme"],
   ["Person","Number","Tense","Voice","Mood"],
@@ -514,7 +513,10 @@ JudiLing.test_combo(
   verbose=true)
 ```
 
-Once you are done, you may want to clean up the workspace:
+With this function, you can quickly explore datasets with different parameter settings.
+
+Once you are done, you may want to clean up your output directory:
+
 ```julia
 path = joinpath(@__DIR__, "latin_out")
 rm(path, force=true, recursive=true)
@@ -524,7 +526,11 @@ You can download and try out this script [here](https://osf.io/sa89x/download).
 
 ## Citation
 
-If you find our work helpful, please cite these following papers:
+If you find this package helpful, please cite this as follow:
+
+Luo, X., Chuang, Y. Y., Baayen, R. H. JudiLing: an implementation in Julia of Linear Discriminative Learning algorithms for language model. Eberhard Karls Universität Tübingen, Seminar für Sprachwissenschaft.
+
+The following studies have made use of several algorithms now implemented in JudiLing instead of WpmWithLdl:
 
 - Baayen, R. H., Chuang, Y. Y., Shafaei-Bajestan, E., and Blevins, J. P. (2019). The discriminative lexicon: A unified computational model for the lexicon and lexical processing in comprehension and production grounded not in (de)composition but in linear discriminative learning. Complexity, 2019, 1-39.
 
