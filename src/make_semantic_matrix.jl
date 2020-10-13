@@ -11,6 +11,19 @@ struct PS_Matrix_Struct
 end
 
 """
+A structure that stores Lexome semantic vectors:
+L is Lexome semantic matrix;
+f2i is a dictionary returning the indices for features;
+i2f is a dictionary returning the features for indices.
+"""
+struct L_Matrix_Struct
+  L::Matrix
+  f2i::Dict
+  i2f::Dict
+  ncol::Int64
+end
+
+"""
 Make discrete semantic matrix.
 """
 function make_pS_matrix end
@@ -19,6 +32,11 @@ function make_pS_matrix end
 Make simulated semantic matrix.
 """
 function make_S_matrix end
+
+"""
+Make simulated lexome matrix.
+"""
+function make_L_matrix end
 
 """
     make_pS_matrix(::DataFrame) -> ::PS_Matrix_Struct
@@ -693,4 +711,297 @@ function make_S_matrix(
   end
 
   St_train', St_val'
+end
+
+function make_S_matrix(
+  data::DataFrame,
+  base::Vector,
+  inflections::Vector,
+  L::L_Matrix_Struct;
+  add_noise=true::Bool,
+  sd_noise=1::Int64,
+  normalized=false::Bool
+  )::Matrix
+  
+  JudiLing.make_S_matrix(
+    data,
+    nothing,
+    base,
+    inflections,
+    L,
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized
+    )
+end
+
+function make_S_matrix(
+  data_train::DataFrame,
+  data_val::Union{DataFrame, Nothing},
+  base::Vector,
+  L::L_Matrix_Struct;
+  add_noise=true::Bool,
+  sd_noise=1::Int64,
+  normalized=false::Bool
+  )::Union{Matrix, Tuple{Matrix, Matrix}}
+  
+  JudiLing.make_S_matrix(
+    data_train,
+    data_val,
+    base,
+    nothing,
+    L,
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized
+    )
+
+end
+
+function make_S_matrix(
+  data::DataFrame,
+  base::Vector,
+  L::L_Matrix_Struct;
+  add_noise=true::Bool,
+  sd_noise=1::Int64,
+  normalized=false::Bool
+  )::Matrix
+
+  JudiLing.make_S_matrix(
+    data,
+    nothing,
+    base,
+    nothing,
+    L,
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized
+    )
+
+end
+
+function make_S_matrix(
+  data_train::DataFrame,
+  data_val::Union{DataFrame, Nothing},
+  base::Vector,
+  inflections::Union{Vector, Nothing},
+  L::L_Matrix_Struct;
+  add_noise=true::Bool,
+  sd_noise=1::Int64,
+  normalized=false::Bool
+  )::Union{Matrix, Tuple{Matrix, Matrix}}
+  
+  St_train = Array{Float64, 2}(undef, L.ncol, size(data_train, 1))
+
+  for i in 1:size(data_train, 1)
+    if !isnothing(inflections)
+      s_base = sum([L.L[L.f2i[f],:] for f in data_train[i, base]])
+      s_infl = sum([L.L[L.f2i[f],:] for f in data_train[i, inflections]])
+      s = s_base + s_infl
+    else
+      s_base = sum([L.L[L.f2i[f],:] for f in data_train[i, base]])
+      s = s_base
+    end
+    St_train[:,i] = s
+  end
+
+  if add_noise
+      noise = rand(Normal(0, sd_noise), size(St_train, 1), size(St_train, 2))
+      St_train += noise
+  end
+
+  if normalized
+    n_features = length(base) + length(inflections)
+    St_train = St_train./n_features
+  end
+
+  if !isnothing(data_val)
+    St_val = Array{Float64, 2}(undef, L.ncol, size(data_val, 1))
+
+    for i in 1:size(data_val, 1)
+      if !isnothing(inflections)
+        s_base = sum([L.L[L.f2i[f],:] for f in data_val[i, base]])
+        s_infl = sum([L.L[L.f2i[f],:] for f in data_val[i, inflections]])
+        s = s_base + s_infl
+      else
+        s_base = sum([L.L[L.f2i[f],:] for f in data_val[i, base]])
+        s = s_base
+      end
+      St_val[:,i] = s
+    end
+
+    if add_noise
+        noise = rand(Normal(0, sd_noise), size(St_val, 1), size(St_val, 2))
+        St_val += noise
+    end
+
+    if normalized
+      if !isnothing(inflections)
+        n_features = length(base) + length(inflections)
+      else
+        n_features = length(base)
+      end
+      St_val = St_val./n_features
+    end
+
+    return Array(St_train'), Array(St_val')
+  end
+
+  Array(St_train')
+end
+
+
+"""
+    make_L_matrix(::DataFrame, ::Vector, ::Vector) -> ::L_Matrix_Struct
+
+Create Lexome Matrix with simulated semantic vectors.
+
+...
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+- `base::Vector`: context lexemes
+- `inflections::Vector`: grammatic lexemes
+
+# Optional Arguments
+- `ncol::Int64=200`: dimension of semantic vectors, usually the same as that of cue vectors
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
+- `sd_base::Int64=4`: the sd of base features
+- `sd_inflection::Int64=4`: the sd of inflectional features
+- `seed::Int64=314`: the random seed
+- `isdeep::Bool=true`: if true, mean of each feature is also randomized
+
+# Examples
+```julia
+# basic usage
+L = JudiLing.make_L_matrix(
+  latin,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  ncol=200)
+```
+...
+"""
+function make_L_matrix(
+  data::DataFrame,
+  base::Vector,
+  inflections::Vector;
+  ncol=200::Int64,
+  sd_base_mean=1::Int64,
+  sd_inflection_mean=1::Int64,
+  sd_base=4::Int64,
+  sd_inflection=4::Int64,
+  seed=314::Int64,
+  isdeep=true::Bool
+  )::L_Matrix_Struct
+  
+  is_inflectional = true
+  if length(inflections) <= 0
+    is_inflectional = false
+  end
+
+  # collect all infl_features
+  base_f = [f for b in base for f in unique(data[:,b])]
+  base_f2i = Dict(v=>i for (i,v) in enumerate(base_f))
+  base_i2f = Dict(i=>v for (i,v) in enumerate(base_f))
+
+  if is_inflectional
+    infl_f = [f for i in inflections for f in unique(data[:,i])]
+    infl_f2i = Dict(v=>i for (i,v) in enumerate(infl_f))
+    infl_i2f = Dict(i=>v for (i,v) in enumerate(infl_f))
+
+    # indices need plus base indices when merging
+    lb = length(base_f2i)
+    infl_f2i_m = Dict(v=>i+lb for (i,v) in enumerate(infl_f))
+    infl_i2f_m = Dict(i+lb=>v for (i,v) in enumerate(infl_f))
+  end
+
+  Random.seed!(seed)
+  if isdeep # deep mode random means for each feature
+    base_means = rand(Normal(0, sd_base_mean), length(base_f))
+    base_m = [rand(Normal(base_means[i], sd_base), ncol) for i in 1:length(base_f)]
+
+    if is_inflectional
+      infl_means = rand(Normal(0, sd_inflection_mean), length(infl_f))
+      infl_m = [rand(Normal(infl_means[i], sd_inflection), ncol) for i in 1:length(infl_f)]
+    end
+
+  else # otherwise use mean=0 for all features
+    base_m = [rand(Normal(0, sd_base), ncol) for i in 1:length(base_f)]
+
+    if is_inflectional
+      infl_m = [rand(Normal(0, sd_inflection), ncol) for i in 1:length(infl_f)]
+    end
+  end
+
+  L_base = Matrix{Float64}(undef, (length(base_f2i) ,ncol))
+
+  for i in 1:length(base_f2i)
+    L_base[i,:] = base_m[i]
+  end
+
+  if is_inflectional
+    L_infl = Matrix{Float64}(undef, (length(infl_f2i) ,ncol))
+    for i in 1:length(infl_f2i)
+      L_infl[i,:] = infl_m[i]
+    end
+    L = vcat(L_base, L_infl)
+    f2i = merge(base_f2i, infl_f2i_m)
+    i2f = merge(base_i2f, infl_i2f_m)
+  else
+    L = L_base
+    f2i = base_f2i
+    i2f = base_i2f
+  end
+
+  L_Matrix_Struct(L, f2i, i2f, ncol)
+end
+
+"""
+    make_L_matrix(::DataFrame, ::Vector) -> ::L_Matrix_Struct
+
+Create Lexome Matrix with simulated semantic vectors where there are only base features.
+
+...
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+- `base::Vector`: context lexemes
+
+# Optional Arguments
+- `ncol::Int64=200`: dimension of semantic vectors, usually the same as that of cue vectors
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_base::Int64=4`: the sd of base features
+- `seed::Int64=314`: the random seed
+- `isdeep::Bool=true`: if true, mean of each feature is also randomized
+
+# Examples
+```julia
+# basic usage
+L = JudiLing.make_L_matrix(
+  latin,
+  ["Lexeme"],
+  ncol=200)
+```
+...
+"""
+function make_L_matrix(
+  data::DataFrame,
+  base::Vector;
+  ncol=200::Int64,
+  sd_base_mean=1::Int64,
+  sd_base=4::Int64,
+  seed=314::Int64,
+  isdeep=true::Bool
+  )::L_Matrix_Struct
+  
+  make_L_matrix(
+    data,
+    base,
+    [];
+    ncol=ncol,
+    sd_base_mean=sd_base_mean,
+    sd_base=sd_base,
+    seed=seed,
+    isdeep=isdeep
+    )
 end
