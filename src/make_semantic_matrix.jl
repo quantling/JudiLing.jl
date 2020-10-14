@@ -978,7 +978,6 @@ function make_S_matrix(
   Array(St_train')
 end
 
-
 """
     make_L_matrix(::DataFrame, ::Vector, ::Vector) -> ::L_Matrix_Struct
 
