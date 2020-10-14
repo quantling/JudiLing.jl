@@ -9,12 +9,17 @@ CurrentModule = JudiLing
   L_Matrix_Struct
   make_pS_matrix
   make_S_matrix
+  make_L_matrix
   make_pS_matrix(::DataFrame)
   make_pS_matrix(::DataFrame, ::PS_Matrix_Struct)
   make_S_matrix(::DataFrame, ::Vector, ::Vector)
   make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector)
   make_S_matrix(::DataFrame, ::Vector)
   make_S_matrix(::DataFrame, ::DataFrame, ::Vector)
+  make_S_matrix(::DataFrame, ::Vector, ::Vector, ::L_Matrix_Struct)
+  make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::L_Matrix_Struct)
+  make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector, ::L_Matrix_Struct)
+  make_S_matrix(::DataFrame, ::Vector, ::L_Matrix_Struct)
   make_L_matrix(::DataFrame, ::Vector, ::Vector)
   make_L_matrix(::DataFrame, ::Vector)
 ```

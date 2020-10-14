@@ -44,3 +44,65 @@ end
     @test e == false
   end
 end
+
+@testset "make semantic matrix for lexome" begin
+  try
+    latin = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin_mini.csv")))
+    latin_val = latin[1:20,:]
+
+    L1 = JudiLing.make_L_matrix(
+      latin,
+      ["Lexeme"],
+      ["Person","Number","Tense","Voice","Mood"],
+      ncol=20)
+
+    L2 = JudiLing.make_L_matrix(
+      latin,
+      ["Lexeme"],
+      ncol=20)
+
+    S1 = JudiLing.make_S_matrix(
+      latin,
+      ["Lexeme"],
+      ["Person","Number","Tense","Voice","Mood"],
+      L1,
+      add_noise=true,
+      sd_noise=1,
+      normalized=false
+      )
+
+    S1 = JudiLing.make_S_matrix(
+      latin,
+      ["Lexeme"],
+      L1,
+      add_noise=true,
+      sd_noise=1,
+      normalized=false
+      )
+
+    S1, S2 = JudiLing.make_S_matrix(
+      latin,
+      latin_val,
+      ["Lexeme"],
+      ["Person","Number","Tense","Voice","Mood"],
+      L1,
+      add_noise=true,
+      sd_noise=1,
+      normalized=false
+      )
+
+    S1, S2 = JudiLing.make_S_matrix(
+      latin,
+      latin_val,
+      ["Lexeme"],
+      L1,
+      add_noise=true,
+      sd_noise=1,
+      normalized=false
+      )
+
+    @test true
+  catch e
+    @test e == false
+  end
+end

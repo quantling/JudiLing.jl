@@ -713,6 +713,38 @@ function make_S_matrix(
   St_train', St_val'
 end
 
+"""
+    make_S_matrix(::DataFrame, ::Vector, ::Vector, ::L_Matrix_Struct) -> ::Matrix
+
+Create simulated semantic matrix where lexome matrix is available.
+
+...
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+- `base::Vector`: context lexemes
+- `inflections::Vector`: grammatic lexemes
+- `L::L_Matrix_Struct`: the lexome matrix
+
+# Optional Arguments
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
+
+# Examples
+```julia
+# basic usage
+S1 = JudiLing.make_S_matrix(
+  latin,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  L1,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
+```
+...
+"""
 function make_S_matrix(
   data::DataFrame,
   base::Vector,
@@ -735,6 +767,38 @@ function make_S_matrix(
     )
 end
 
+"""
+    make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::L_Matrix_Struct) -> ::Union{Matrix, Tuple{Matrix, Matrix}}
+
+Create simulated semantic matrix where lexome matrix is available.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `base::Vector`: context lexemes
+- `L::L_Matrix_Struct`: the lexome matrix
+
+# Optional Arguments
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
+
+# Examples
+```julia
+# basic usage
+S1, S2 = JudiLing.make_S_matrix(
+  latin,
+  latin_val,
+  ["Lexeme"],
+  L1,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
+```
+...
+"""
 function make_S_matrix(
   data_train::DataFrame,
   data_val::Union{DataFrame, Nothing},
@@ -758,6 +822,36 @@ function make_S_matrix(
 
 end
 
+"""
+    make_S_matrix(::DataFrame, ::Vector, ::L_Matrix_Struct) -> ::Matrix
+
+Create simulated semantic matrix where lexome matrix is available.
+
+...
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+- `base::Vector`: context lexemes
+- `L::L_Matrix_Struct`: the lexome matrix
+
+# Optional Arguments
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
+
+# Examples
+```julia
+# basic usage
+S1 = JudiLing.make_S_matrix(
+  latin,
+  ["Lexeme"],
+  L1,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
+```
+...
+"""
 function make_S_matrix(
   data::DataFrame,
   base::Vector,
@@ -780,6 +874,40 @@ function make_S_matrix(
 
 end
 
+"""
+    make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector, ::L_Matrix_Struct) -> ::Union{Matrix, Tuple{Matrix, Matrix}}
+
+Create simulated semantic matrix where lexome matrix is available.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `base::Vector`: context lexemes
+- `inflections::Vector`: grammatic lexemes
+- `L::L_Matrix_Struct`: the lexome matrix
+
+# Optional Arguments
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
+
+# Examples
+```julia
+# basic usage
+S1, S2 = JudiLing.make_S_matrix(
+  latin,
+  latin_val,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  L1,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
+```
+...
+"""
 function make_S_matrix(
   data_train::DataFrame,
   data_val::Union{DataFrame, Nothing},
