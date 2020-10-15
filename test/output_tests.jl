@@ -179,3 +179,45 @@ using Test
     rm(path, force=true, recursive=true)
   end
 end
+
+@testset "output tests for lexome matrix" begin
+  try
+    mkpath(joinpath(@__DIR__, "test_out"))
+    latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
+
+    L1 = JudiLing.make_L_matrix(
+      latin,
+      ["Lexeme"],
+      ["Person","Number","Tense","Voice","Mood"],
+      ncol=20)
+
+    L2 = JudiLing.make_L_matrix(
+      latin,
+      ["Lexeme"],
+      ncol=20)
+
+    JudiLing.save_L_matrix(L1, joinpath(@__DIR__, "test_out", "L1.csv"))
+    JudiLing.save_L_matrix(L2, joinpath(@__DIR__, "test_out", "L2.csv"))
+
+
+    L3 = JudiLing.load_L_matrix(joinpath(@__DIR__, "test_out", "L1.csv"))
+    L4 = JudiLing.load_L_matrix(joinpath(@__DIR__, "test_out", "L2.csv"))
+
+    @test L3.L == L1.L
+    @test L3.i2f == L1.i2f
+    @test L3.f2i == L1.f2i
+    @test L3.ncol == L1.ncol
+    @test L3.col_names == L1.col_names
+
+    @test L4.L == L2.L
+    @test L4.i2f == L2.i2f
+    @test L4.f2i == L2.f2i
+    @test L4.ncol == L2.ncol
+    @test L4.col_names == L2.col_names
+  catch e
+    @test false
+  finally
+    path = joinpath(@__DIR__, "test_out")
+    rm(path, force=true, recursive=true)
+  end
+end

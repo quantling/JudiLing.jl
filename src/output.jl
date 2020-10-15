@@ -13,6 +13,16 @@ that is optionally returned as second output result.
 function write2df end
 
 """
+Save lexome matrix into csv file.
+"""
+function save_L_matrix end
+
+"""
+Load lexome matrix from csv file.
+"""
+function load_L_matrix end
+
+"""
     write2csv(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct, ::String) -> ::Nothing
 
 Write results into csv file for the results from `learn_paths` and `build_paths`.
@@ -366,4 +376,60 @@ function write2df(
   df.timestep_support = timestep_support_vec
 
   df
+end
+
+"""
+    save_L_matrix(::L_Matrix_Struct, ::String) -> ::Nothing
+
+Save lexome matrix into csv file.
+
+...
+# Obligatory Arguments
+- `L::L_Matrix_Struct`: the lexome matrix struct
+- `filename::String`: the filename/filepath
+
+# Examples
+```julia
+JudiLing.save_L_matrix(L, joinpath(@__DIR__, "L.csv"))
+```
+...
+"""
+function save_L_matrix(
+  L::L_Matrix_Struct,
+  filename::String
+  )::Nothing
+
+  L_df = convert(DataFrames.DataFrame, L.L)
+  insertcols!(L_df, 1, :col_names => L.col_names)
+  CSV.write(filename, L_df, quotestrings=true, header=false)
+  nothing
+end
+
+"""
+    load_L_matrix(::String) -> ::L_Matrix_Struct
+
+Load lexome matrix from csv file.
+
+...
+# Obligatory Arguments
+- `filename::String`: the filename/filepath
+
+# Examples
+```julia
+L_load = JudiLing.load_L_matrix(joinpath(@__DIR__, "L.csv"))
+```
+...
+"""
+function load_L_matrix(
+  filename::String
+  )::L_Matrix_Struct
+
+  L_df = CSV.DataFrame!(CSV.File(filename, header=false))
+  col_names = L_df[:, 1]
+  f2i = Dict(v=>i for (i,v) in enumerate(col_names))
+  i2f = Dict(i=>v for (i,v) in enumerate(col_names))
+  ncol = size(L_df,2)-1
+  L = Array(select(L_df, Not(1)))
+  
+  L_Matrix_Struct(L, f2i, i2f, ncol, col_names)
 end

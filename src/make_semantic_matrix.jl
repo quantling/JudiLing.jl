@@ -21,6 +21,7 @@ struct L_Matrix_Struct
   f2i::Dict
   i2f::Dict
   ncol::Int64
+  col_names::Vector{String}
 end
 
 """
@@ -1032,10 +1033,15 @@ function make_L_matrix(
   base_f2i = Dict(v=>i for (i,v) in enumerate(base_f))
   base_i2f = Dict(i=>v for (i,v) in enumerate(base_f))
 
+  # features list
+  features_cols = base_f
+
   if is_inflectional
     infl_f = [f for i in inflections for f in unique(data[:,i])]
     infl_f2i = Dict(v=>i for (i,v) in enumerate(infl_f))
     infl_i2f = Dict(i=>v for (i,v) in enumerate(infl_f))
+
+    append!(features_cols, infl_f)
 
     # indices need plus base indices when merging
     lb = length(base_f2i)
@@ -1081,7 +1087,7 @@ function make_L_matrix(
     i2f = base_i2f
   end
 
-  L_Matrix_Struct(L, f2i, i2f, ncol)
+  L_Matrix_Struct(L, f2i, i2f, ncol, features_cols)
 end
 
 """
