@@ -15,6 +15,7 @@ A wrapper function for a full model for a specific combination of parameters.
 - `n_features_inflections::Vector`: the list of all other features
 
 # Optional Arguments
+- `val_only::Bool=false`: if true, then only validation datasets will be evaluate 
 - `output_dir_path="data"::String`: the path for storing training and validation datasets
 - `data_prefix="data"::String`: the prefix for training and validation datasets
 - `max_test_data=nothing::Union{Nothing, Int64}`: the maximum number of data in current testing
@@ -133,6 +134,7 @@ function test_combo(
     n_features_columns::Vector,
     n_features_base::Vector,
     n_features_inflections::Vector;
+    val_only::Bool=false,
     output_dir_path="data"::String,
     data_prefix="data"::String,
     max_test_data=nothing::Union{Nothing, Int64},
@@ -404,29 +406,31 @@ function test_combo(
 
   verbose && println("Finding paths...")
   if path_method==:learn_paths
-    res_train, gpi_train = learn_paths(
-      data_train,
-      data_train,
-      cue_obj_train.C,
-      S_train,
-      F_train,
-      Chat_train,
-      A,
-      cue_obj_train.i2f,
-      gold_ind=cue_obj_train.gold_ind,
-      Shat_val=Shat_train,
-      check_gold_path=true,
-      max_t=max_t,
-      max_can=max_can,
-      grams=grams,
-      threshold=train_threshold,
-      tokenized=n_grams_tokenized,
-      sep_token=n_grams_sep_token,
-      keep_sep=n_grams_keep_sep,
-      target_col=n_grams_target_col,
-      issparse=issparse,
-      sparse_ratio=sparse_ratio,
-      verbose=verbose)
+    if !val_only
+      res_train, gpi_train = learn_paths(
+        data_train,
+        data_train,
+        cue_obj_train.C,
+        S_train,
+        F_train,
+        Chat_train,
+        A,
+        cue_obj_train.i2f,
+        gold_ind=cue_obj_train.gold_ind,
+        Shat_val=Shat_train,
+        check_gold_path=true,
+        max_t=max_t,
+        max_can=max_can,
+        grams=grams,
+        threshold=train_threshold,
+        tokenized=n_grams_tokenized,
+        sep_token=n_grams_sep_token,
+        keep_sep=n_grams_keep_sep,
+        target_col=n_grams_target_col,
+        issparse=issparse,
+        sparse_ratio=sparse_ratio,
+        verbose=verbose)
+    end
 
     res_val, gpi_val = learn_paths(
       data_train,
@@ -455,19 +459,21 @@ function test_combo(
       sparse_ratio=sparse_ratio,
       verbose=verbose)
   else
-    res_train = build_paths(
-      data_train,
-      cue_obj_train.C,
-      S_train,
-      F_train,
-      Chat_train,
-      A,
-      cue_obj_train.i2f,
-      cue_obj_train.gold_ind,
-      max_t=max_t,
-      n_neighbors=train_n_neighbors,
-      verbose=verbose
-      )
+    if !val_only
+      res_train = build_paths(
+        data_train,
+        cue_obj_train.C,
+        S_train,
+        F_train,
+        Chat_train,
+        A,
+        cue_obj_train.i2f,
+        cue_obj_train.gold_ind,
+        max_t=max_t,
+        n_neighbors=train_n_neighbors,
+        verbose=verbose
+        )
+    end
 
     res_val = build_paths(
       data_val,
@@ -485,46 +491,52 @@ function test_combo(
   end
 
   verbose && println("Evaluate acc...")
-  acc_train = eval_acc(
-    res_train,
-    cue_obj_train.gold_ind,
-    verbose=verbose
-  )
+  if !val_only
+    acc_train = eval_acc(
+      res_train,
+      cue_obj_train.gold_ind,
+      verbose=verbose
+    )
+  end
   acc_val = eval_acc(
     res_val,
     cue_obj_val.gold_ind,
     verbose=verbose
   )
-  acc_train_loose = eval_acc_loose(
-    res_train,
-    cue_obj_train.gold_ind,
-    verbose=verbose
-  )
+  if !val_only
+    acc_train_loose = eval_acc_loose(
+      res_train,
+      cue_obj_train.gold_ind,
+      verbose=verbose
+    )
+  end
   acc_val_loose = eval_acc_loose(
     res_val,
     cue_obj_val.gold_ind,
     verbose=verbose
   )
-  println(log_io, "Acc for train: $acc_train")
+  !val_only && println(log_io, "Acc for train: $acc_train")
   println(log_io, "Acc for val: $acc_val")
-  println(log_io, "Acc for train loose: $acc_train_loose")
+  !val_only && println(log_io, "Acc for train loose: $acc_train_loose")
   println(log_io, "Acc for val loose: $acc_val_loose")
 
-  write2csv(
-    res_train,
-    data_train,
-    cue_obj_train,
-    cue_obj_train,
-    "res_$(csv_prefix)_train.csv",
-    grams=grams,
-    tokenized=n_grams_tokenized,
-    sep_token=n_grams_sep_token,
-    start_end_token=start_end_token,
-    output_sep_token=n_grams_sep_token,
-    path_sep_token=path_sep_token,
-    root_dir=root_dir,
-    output_dir=csv_dir,
-    target_col=n_grams_target_col)
+  if !val_only
+    write2csv(
+      res_train,
+      data_train,
+      cue_obj_train,
+      cue_obj_train,
+      "res_$(csv_prefix)_train.csv",
+      grams=grams,
+      tokenized=n_grams_tokenized,
+      sep_token=n_grams_sep_token,
+      start_end_token=start_end_token,
+      output_sep_token=n_grams_sep_token,
+      path_sep_token=path_sep_token,
+      root_dir=root_dir,
+      output_dir=csv_dir,
+      target_col=n_grams_target_col)
+  end
 
   write2csv(
     res_val,
