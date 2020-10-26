@@ -40,6 +40,16 @@ Make simulated lexome matrix.
 function make_L_matrix end
 
 """
+Make combined simulated S matrices, where combined features from both training datasets and validation datasets
+"""
+function make_combined_S_matrix end
+
+"""
+Make combined simulated Lexome matrix, where combined features from both training datasets and validation datasets
+"""
+function make_combined_L_matrix end
+
+"""
     make_pS_matrix(::DataFrame) -> ::PS_Matrix_Struct
 
 Create a discrete semantic matrix given a dataframe.
@@ -1138,3 +1148,260 @@ function make_L_matrix(
     isdeep=isdeep
     )
 end
+
+"""
+    make_combined_L_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector) -> ::L_Matrix_Struct
+
+Create Lexome Matrix with simulated semantic vectors, where features are 
+combined from both training datasets and validation datasets.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `base::Vector`: context lexemes
+- `inflections::Vector`: grammatic lexemes
+
+# Optional Arguments
+- `ncol::Int64=200`: dimension of semantic vectors, usually the same as that of cue vectors
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
+- `sd_base::Int64=4`: the sd of base features
+- `sd_inflection::Int64=4`: the sd of inflectional features
+- `seed::Int64=314`: the random seed
+- `isdeep::Bool=true`: if true, mean of each feature is also randomized
+
+# Examples
+```julia
+# basic usage
+L = JudiLing.make_combined_L_matrix(
+  latin_train,
+  latin_val,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  ncol=n_features)
+```
+...
+"""
+function make_combined_L_matrix(
+  data_train::DataFrame,
+  data_val::DataFrame,
+  base::Vector,
+  inflections::Vector;
+  ncol=200::Int64,
+  sd_base_mean=1::Int64,
+  sd_inflection_mean=1::Int64,
+  sd_base=4::Int64,
+  sd_inflection=4::Int64,
+  seed=314::Int64,
+  isdeep=true::Bool
+  )::L_Matrix_Struct
+
+  data_combined = copy(data_train)
+  append!(data_combined, data_val)
+
+  make_L_matrix(
+    data_combined,
+    base,
+    inflections;
+    ncol=ncol,
+    sd_base_mean=sd_base_mean,
+    sd_base=sd_base,
+    seed=seed,
+    isdeep=isdeep
+    )
+
+end
+
+"""
+    make_combined_L_matrix(::DataFrame, ::DataFrame, ::Vector) -> ::L_Matrix_Struct
+
+Create Lexome Matrix with simulated semantic vectors, where features are 
+combined from both training datasets and validation datasets.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `base::Vector`: context lexemes
+
+# Optional Arguments
+- `ncol::Int64=200`: dimension of semantic vectors, usually the same as that of cue vectors
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
+- `sd_base::Int64=4`: the sd of base features
+- `sd_inflection::Int64=4`: the sd of inflectional features
+- `seed::Int64=314`: the random seed
+- `isdeep::Bool=true`: if true, mean of each feature is also randomized
+
+# Examples
+```julia
+# basic usage
+L = JudiLing.make_combined_L_matrix(
+  latin_train,
+  latin_val,
+  ["Lexeme"],
+  ncol=n_features)
+```
+...
+"""
+function make_combined_L_matrix(
+  data_train::DataFrame,
+  data_val::DataFrame,
+  base::Vector;
+  ncol=200::Int64,
+  sd_base_mean=1::Int64,
+  sd_inflection_mean=1::Int64,
+  sd_base=4::Int64,
+  sd_inflection=4::Int64,
+  seed=314::Int64,
+  isdeep=true::Bool
+  )::L_Matrix_Struct
+  
+  make_combined_L_matrix(
+    data_train,
+    data_val,
+    base,
+    [];
+    ncol=ncol,
+    sd_base_mean=sd_base_mean,
+    sd_base=sd_base,
+    seed=seed,
+    isdeep=isdeep
+    )
+end
+
+"""
+    make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector, ::L_Matrix_Struct) -> ::Tuple{Matrix, Matrix}
+
+Create simulated semantic matrix for the training datasets and validation 
+datasets with existing Lexome matrix, where features are combined from both 
+training datasets and validation datasets.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `base::Vector`: context lexemes
+- `inflections::Vector`: grammatic lexemes
+- `L::L_Matrix_Struct`: the Lexome Matrix
+
+# Optional Arguments
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
+
+# Examples
+```julia
+# basic usage
+S_train, S_val = JudiLing.make_combined_S_matrix(
+  latin_train,
+  latin_val,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  L)
+```
+...
+"""
+function make_combined_S_matrix(
+  data_train::DataFrame,
+  data_val::Union{DataFrame, Nothing},
+  base::Vector,
+  inflections::Union{Vector, Nothing},
+  L::L_Matrix_Struct;
+  add_noise=true::Bool,
+  sd_noise=1::Int64,
+  normalized=false::Bool
+  )::Tuple{Matrix, Matrix}
+
+  make_S_matrix(
+    data_train,
+    data_val,
+    base,
+    inflections,
+    L;
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized
+    )
+end
+
+"""
+    make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector) -> ::Tuple{Matrix, Matrix}
+
+Create simulated semantic matrix for the training datasets and validation 
+datasets, where features are combined from both training datasets and 
+validation datasets.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `base::Vector`: context lexemes
+- `inflections::Vector`: grammatic lexemes
+
+# Optional Arguments
+- `ncol::Int64=200`: dimension of semantic vectors, usually the same as that of cue vectors
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
+- `sd_base::Int64=4`: the sd of base features
+- `sd_inflection::Int64=4`: the sd of inflectional features
+- `seed::Int64=314`: the random seed
+- `isdeep::Bool=true`: if true, mean of each feature is also randomized 
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
+
+# Examples
+```julia
+# basic usage
+S_train, S_val = JudiLing.make_combined_S_matrix(
+  latin_train,
+  latin_val,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  ncol=n_features)
+```
+...
+"""
+function make_combined_S_matrix(
+  data_train::DataFrame,
+  data_val::DataFrame,
+  base::Vector,
+  inflections::Vector;
+  ncol=200::Int64,
+  sd_base_mean=1::Int64,
+  sd_inflection_mean=1::Int64,
+  sd_base=4::Int64,
+  sd_inflection=4::Int64,
+  seed=314::Int64,
+  isdeep=true::Bool,
+  add_noise=true::Bool,
+  sd_noise=1::Int64,
+  normalized=false::Bool
+  )::Tuple{Matrix, Matrix}
+
+  L = make_combined_L_matrix(
+    data_train,
+    data_val,
+    base,
+    inflections;
+    ncol=ncol,
+    sd_base_mean=sd_base_mean,
+    sd_base=sd_base,
+    seed=seed,
+    isdeep=isdeep
+    )
+
+  make_S_matrix(
+    data_train,
+    data_val,
+    base,
+    inflections,
+    L;
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized
+    )
+end
+

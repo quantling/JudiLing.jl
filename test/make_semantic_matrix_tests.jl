@@ -106,3 +106,49 @@ end
     @test e == false
   end
 end
+
+@testset "make combined semantic matrix" begin
+  try
+    latin_full = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin_mini.csv")))
+
+    latin_train = latin_full[1:3,:]
+    latin_val = latin_full[10:15,:]
+
+    S_train, S_val = JudiLing.make_combined_S_matrix(
+      latin_train,
+      latin_val,
+      ["Lexeme"],
+      ["Person","Number","Tense","Voice","Mood"],
+      ncol=5)
+
+    @test S_train[1,3] == 0.014630732733543539
+    @test S_train[3,5] == -10.101157440166308
+    @test S_val[1,3] == -11.836979129448117
+    @test S_val[3,5] == -7.3722899992196025
+
+    L = JudiLing.make_combined_L_matrix(
+      latin_train,
+      latin_val,
+      ["Lexeme"],
+      ["Person","Number","Tense","Voice","Mood"],
+      ncol=5)
+
+    S_train, S_val = JudiLing.make_combined_S_matrix(
+      latin_train,
+      latin_val,
+      ["Lexeme"],
+      ["Person","Number","Tense","Voice","Mood"],
+      L)
+
+    @test L.L[1,3] == 0.5842161243366263
+    @test L.L[3,5] == -3.2550740303710355
+    @test L.i2f[3] == "p1"
+    @test L.f2i["p1"] == 3
+    @test S_train[1,3] == 0.014630732733543539
+    @test S_train[3,5] == -10.101157440166308
+    @test S_val[1,3] == -11.836979129448117
+    @test S_val[3,5] == -7.3722899992196025
+  catch e
+    @test false
+  end
+end

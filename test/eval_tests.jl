@@ -77,6 +77,7 @@ using Test
       Chat_train,
       A,
       cue_obj_train.i2f,
+      cue_obj_train.f2i,
       gold_ind=cue_obj_train.gold_ind,
       Shat_val=Shat_train,
       check_gold_path=true,
@@ -100,6 +101,7 @@ using Test
       Chat_val,
       A,
       cue_obj_train.i2f,
+      cue_obj_train.f2i,
       gold_ind=cue_obj_val.gold_ind,
       Shat_val=Shat_val,
       check_gold_path=true,
@@ -140,6 +142,6 @@ using Test
 
     @test true
   catch e
-    @test e == false
+    @test false
   end
 end

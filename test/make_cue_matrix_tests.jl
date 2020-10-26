@@ -84,3 +84,32 @@ end
     @test e == false
   end
 end
+
+@testset "make combined cue matrix" begin
+  try
+    latin_full = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin_mini.csv")))
+
+    latin_train = latin_full[1:3,:]
+    latin_val = latin_full[10:15,:]
+
+    cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(
+      latin_train,
+      latin_val,
+      grams=3,
+      target_col=:Word,
+      tokenized=false,
+      keep_sep=false
+      )
+
+    @test cue_obj_train.C[1,3] == 1
+    @test cue_obj_val.C[1,3] == 0
+    @test cue_obj_train.i2f[3] == "oco"
+    @test cue_obj_val.i2f[3] == "oco"
+    @test cue_obj_train.f2i["oco"] == 3
+    @test cue_obj_val.f2i["oco"] == 3
+    @test cue_obj_train.A[1,3] == 0
+    @test cue_obj_val.A[1,3] == 0
+  catch e
+    @test false
+  end
+end

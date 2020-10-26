@@ -13,6 +13,7 @@ for the corresponding n-gram predicted for timestep t for each of the observatio
 # Obligatory Arguments
 - `t::Int64`: the timestep t
 - `data::DataFrame`: the dataset
+- `f2i::Dict`: the dictionary returning indices given features
 
 # Optional Arguments
 - `tokenized::Bool=false`: if true, the dataset target is assumed to be tokenized
@@ -28,7 +29,8 @@ JudiLing.make_Yt_matrix(2, latin)
 """
 function make_Yt_matrix(
   t::Int64,
-  data::DataFrame;
+  data::DataFrame,
+  f2i::Dict;
   grams=3::Int64,
   target_col="Words"::String,
   tokenized=false::Bool,
@@ -48,12 +50,6 @@ function make_Yt_matrix(
   # make_ngrams function are below
   ngrams = make_ngrams.(tokens, grams, keep_sep, sep_token, start_end_token)
 
-  # find all unique ngrams features
-  ngrams_features = unique(vcat(ngrams...))
-
-  f2i = Dict(v => i for (i, v) in enumerate(ngrams_features))
-  i2f = Dict(i => v for (i, v) in enumerate(ngrams_features))
-
   ngrams_l = length.(ngrams)
 
   # the number of non-zero values is equal to the number of utterances have
@@ -61,7 +57,7 @@ function make_Yt_matrix(
   n_f = length(ngrams_l[ngrams_l .>= t])
 
   m = size(data, 1)
-  n = length(ngrams_features)
+  n = length(f2i)
   I = zeros(Int64, n_f)
   J = zeros(Int64, n_f)
   V = ones(Int64, n_f)
@@ -76,4 +72,5 @@ function make_Yt_matrix(
   end
 
   sparse(I, J, V, m, n)
+
 end

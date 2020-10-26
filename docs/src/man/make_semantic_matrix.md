@@ -10,6 +10,8 @@ CurrentModule = JudiLing
   make_pS_matrix
   make_S_matrix
   make_L_matrix
+  make_combined_S_matrix
+  make_combined_L_matrix
   make_pS_matrix(::DataFrame)
   make_pS_matrix(::DataFrame, ::PS_Matrix_Struct)
   make_S_matrix(::DataFrame, ::Vector, ::Vector)
@@ -22,4 +24,8 @@ CurrentModule = JudiLing
   make_S_matrix(::DataFrame, ::Vector, ::L_Matrix_Struct)
   make_L_matrix(::DataFrame, ::Vector, ::Vector)
   make_L_matrix(::DataFrame, ::Vector)
+  make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector, ::L_Matrix_Struct)
+  make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector)
+  make_combined_L_matrix(::DataFrame, ::DataFrame, ::Vector)
+  make_combined_L_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector)
 ```

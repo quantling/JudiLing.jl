@@ -34,6 +34,7 @@ word, which n-grams are best supported for a given position in the sequence of n
 - `Chat_val::Matrix`: the Chat matrix for validation dataset
 - `A::SparseMatrixCSC`: the adjacency matrix
 - `i2f::Dict`: the dictionary returning features given indices
+- `f2i::Dict`: the dictionary returning indices given features
 
 # Optional Arguments
 - `gold_ind::Union{Nothing, Vector}=nothing`: gold paths' indices
@@ -156,7 +157,8 @@ function learn_paths(
   F_train::Union{SparseMatrixCSC, Matrix},
   Chat_val::Matrix,
   A::SparseMatrixCSC,
-  i2f::Dict;
+  i2f::Dict,
+  f2i::Dict;
   gold_ind=nothing::Union{Nothing, Vector},
   Shat_val=nothing::Union{Nothing, Matrix},
   check_gold_path=false::Bool,
@@ -207,6 +209,7 @@ function learn_paths(
     Yt_train = make_Yt_matrix(
       i,
       data_train,
+      f2i,
       grams=grams,
       target_col=target_col,
       tokenized=tokenized,
