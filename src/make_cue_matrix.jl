@@ -20,6 +20,11 @@ Construct cue matrix.
 function make_cue_matrix end
 
 """
+Construct cue matrix where combined features and adjacencies for both training datasets and validation datasets.
+"""
+function make_combined_cue_matrix end
+
+"""
 Given a list of string tokens, extract their n-grams.
 """
 function make_ngrams end
@@ -457,4 +462,100 @@ function make_cue_matrix(
   A = sparse(I, J, V, length(f2i), length(f2i))
 
   Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A)
+end
+
+"""
+    make_combined_cue_matrix(::DataFrame, ::DataFrame) -> ::Cue_Matrix_Struct, ::Cue_Matrix_Struct
+
+Make the cue matrix for training and validation datasets at the same time, where the features and adjacencies are combined.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+
+# Optional Arguments
+- `grams::Int64=3`: the number of grams for cues 
+- `target_col::Union{String, Symbol}=:Words`: the column name for target strings
+- `tokenized::Bool=false`:if true, the dataset target is assumed to be tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator
+- `keep_sep::Bool=false`: if true, keep separators in cues
+- `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
+- `verbose::Bool=false`: if true, more information is printed
+
+# Examples
+```julia
+# make cue matrix without tokenization
+cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(
+  latin_train,
+  latin_val,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+
+# make cue matrix with tokenization
+cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(
+  french_train,
+  french_val,
+  grams=3,
+  target_col=:Syllables,
+  tokenized=true,
+  sep_token="-",
+  keep_sep=true,
+  start_end_token="#",
+  verbose=false
+  )
+```
+...
+"""
+function make_combined_cue_matrix(
+  data_train::DataFrame,
+  data_val::DataFrame;
+  grams=3::Int64,
+  target_col="Words"::String,
+  tokenized=false::Bool,
+  sep_token=nothing::Union{Nothing, String, Char},
+  keep_sep=false::Bool,
+  start_end_token="#"::Union{String, Char},
+  verbose=false::Bool
+  )::Tuple{Cue_Matrix_Struct, Cue_Matrix_Struct}
+
+  data_combined = copy(data_train)
+  append!(data_combined, data_val)
+
+  cue_obj_combined = make_cue_matrix(
+    data_combined,
+    grams=grams,
+    target_col=target_col,
+    tokenized=tokenized,
+    sep_token=sep_token,
+    keep_sep=keep_sep,
+    start_end_token=start_end_token,
+    verbose=verbose)
+  
+  cue_obj_train = make_cue_matrix(
+    data_train,
+    cue_obj_combined,
+    grams=grams,
+    target_col=target_col,
+    tokenized=tokenized,
+    sep_token=sep_token,
+    keep_sep=keep_sep,
+    start_end_token=start_end_token,
+    verbose=verbose)
+
+  cue_obj_val = make_cue_matrix(
+    data_val,
+    cue_obj_combined,
+    grams=grams,
+    target_col=target_col,
+    tokenized=tokenized,
+    sep_token=sep_token,
+    keep_sep=keep_sep,
+    start_end_token=start_end_token,
+    verbose=verbose)
+
+  cue_obj_train, cue_obj_val
 end
