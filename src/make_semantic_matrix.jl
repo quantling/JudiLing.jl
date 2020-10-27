@@ -934,11 +934,11 @@ function make_S_matrix(
 
   for i in 1:size(data_train, 1)
     if !isnothing(inflections)
-      s_base = sum([L.L[L.f2i[f],:] for f in data_train[i, base]])
-      s_infl = sum([L.L[L.f2i[f],:] for f in data_train[i, inflections]])
+      s_base = sum([L.L[L.f2i[f],:] for f in skipmissing(data_train[i, base])])
+      s_infl = sum([L.L[L.f2i[f],:] for f in skipmissing(data_train[i, inflections])])
       s = s_base + s_infl
     else
-      s_base = sum([L.L[L.f2i[f],:] for f in data_train[i, base]])
+      s_base = sum([L.L[L.f2i[f],:] for f in skipmissing(data_train[i, base])])
       s = s_base
     end
     St_train[:,i] = s
@@ -1039,7 +1039,7 @@ function make_L_matrix(
   end
 
   # collect all infl_features
-  base_f = [f for b in base for f in unique(data[:,b])]
+  base_f = [f for b in base for f in skipmissing(unique(data[:,b]))]
   base_f2i = Dict(v=>i for (i,v) in enumerate(base_f))
   base_i2f = Dict(i=>v for (i,v) in enumerate(base_f))
 
@@ -1047,7 +1047,8 @@ function make_L_matrix(
   features_cols = base_f
 
   if is_inflectional
-    infl_f = [f for i in inflections for f in unique(data[:,i])]
+    infl_f = [f for i in inflections for f in skipmissing(unique(data[:,i]))]
+
     infl_f2i = Dict(v=>i for (i,v) in enumerate(infl_f))
     infl_i2f = Dict(i=>v for (i,v) in enumerate(infl_f))
 
@@ -1085,9 +1086,11 @@ function make_L_matrix(
 
   if is_inflectional
     L_infl = Matrix{Float64}(undef, (length(infl_f2i) ,ncol))
+
     for i in 1:length(infl_f2i)
       L_infl[i,:] = infl_m[i]
     end
+
     L = vcat(L_base, L_infl)
     f2i = merge(base_f2i, infl_f2i_m)
     i2f = merge(base_i2f, infl_i2f_m)
