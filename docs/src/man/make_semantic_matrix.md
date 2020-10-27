@@ -28,4 +28,10 @@ CurrentModule = JudiLing
   make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector)
   make_combined_L_matrix(::DataFrame, ::DataFrame, ::Vector)
   make_combined_L_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector)
+  L_Matrix_Struct(L, sd_base, sd_base_mean, sd_inflection, sd_inflection_mean, base_f, infl_f, base_f2i, infl_f2i, n_base_f, n_infl_f, ncol)
+  L_Matrix_Struct(L, sd_base, sd_inflection, base_f, infl_f, base_f2i, infl_f2i, n_base_f, n_infl_f, ncol)
+  process_features(data, feature_cols)
+  comp_f_M!(L, sd, sd_mean, n_f, ncol, n_b)
+  comp_f_M!(L, sd, n_f, ncol, n_b)
+  merge_f2i(base_f2i, infl_f2i, n_base_f, n_infl_f)
 ```
