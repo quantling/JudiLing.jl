@@ -268,46 +268,26 @@ function make_S_matrix(
   normalized=false::Bool
   )::Matrix
 
-  # collect all infl_features
-  base_f = [f for b in base for f in unique(data[:,b])]
-  infl_f = [f for i in inflections for f in unique(data[:,i])]
+  L = make_L_matrix(
+    data,
+    base,
+    inflections,
+    sd_base_mean=sd_base_mean,
+    sd_inflection_mean=sd_inflection_mean,
+    sd_base=sd_base,
+    sd_inflection=sd_inflection,
+    ncol=ncol,
+    seed=seed,
+    isdeep=isdeep)
 
-  # maps features to indices
-  base_f2i = Dict(v=>i for (i,v) in enumerate(base_f))
-  infl_f2i = Dict(v=>i for (i,v) in enumerate(infl_f))
-
-  Random.seed!(seed)
-  if isdeep # deep mode random means for each feature
-    base_means = rand(Normal(0, sd_base_mean), length(base_f))
-    infl_means = rand(Normal(0, sd_inflection_mean), length(infl_f))
-
-    base_m = [rand(Normal(base_means[i], sd_base), ncol) for i in 1:length(base_f)]
-    infl_m = [rand(Normal(infl_means[i], sd_inflection), ncol) for i in 1:length(infl_f)]
-  else # otherwise use mean=0 for all features
-    base_m = [rand(Normal(0, sd_base), ncol) for i in 1:length(base_f)]
-    infl_m = [rand(Normal(0, sd_inflection), ncol) for i in 1:length(infl_f)]
-  end
-
-  # julia is column-wise language
-  # assign St first then do transpose is faster
-  St = Array{Float64, 2}(undef, ncol, size(data, 1))
-  for i in 1:size(data, 1)
-    s_base = sum([base_m[base_f2i[f]] for f in data[i, base]])
-    s_infl = sum([infl_m[infl_f2i[f]] for f in data[i, inflections]])
-    s = s_base + s_infl
-    St[:,i] = s
-  end
-
-  # add random var to S
-  if add_noise
-      noise = rand(Normal(0, sd_noise), size(St, 1), size(St, 2))
-      St += noise
-  end
-  if normalized
-    n_features = length(base) + length(inflections)
-    return St'./n_features
-  end
-  St'
+  make_S_matrix(
+    data,
+    base,
+    inflections,
+    L,
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized)
 end
 
 """
@@ -397,63 +377,27 @@ function make_S_matrix(
   normalized=false::Bool
   )::Tuple{Matrix, Matrix}
 
-  # collect all infl_features
-  base_f = [f for b in base for f in unique(data_train[:,b])]
-  infl_f = [f for i in inflections for f in unique(data_train[:,i])]
+  L = make_L_matrix(
+    data_train,
+    base,
+    inflections,
+    sd_base_mean=sd_base_mean,
+    sd_inflection_mean=sd_inflection_mean,
+    sd_base=sd_base,
+    sd_inflection=sd_inflection,
+    ncol=ncol,
+    seed=seed,
+    isdeep=isdeep)
 
-  # maps features to indices
-  base_f2i = Dict(v=>i for (i,v) in enumerate(base_f))
-  infl_f2i = Dict(v=>i for (i,v) in enumerate(infl_f))
-
-  Random.seed!(seed)
-  if isdeep # deep mode random means for each feature
-    base_means = rand(Normal(0, sd_base_mean), length(base_f))
-    infl_means = rand(Normal(0, sd_inflection_mean), length(infl_f))
-
-    base_m = [rand(Normal(base_means[i], sd_base), ncol) for i in 1:length(base_f)]
-    infl_m = [rand(Normal(infl_means[i], sd_inflection), ncol) for i in 1:length(infl_f)]
-  else # otherwise use mean=0 for all features
-    base_m = [rand(Normal(0, sd_base), ncol) for i in 1:length(base_f)]
-    infl_m = [rand(Normal(0, sd_inflection), ncol) for i in 1:length(infl_f)]
-  end
-
-  # julia is column-wise language
-  # assign St first then do transpose is faster
-  St_train = Array{Float64, 2}(undef, ncol, size(data_train, 1))
-  for i in 1:size(data_train, 1)
-    s_base = sum([base_m[base_f2i[f]] for f in data_train[i, base]])
-    s_infl = sum([infl_m[infl_f2i[f]] for f in data_train[i, inflections]])
-    s = s_base + s_infl
-    St_train[:,i] = s
-  end
-
-  # add random var to S
-  if add_noise
-      noise = rand(Normal(0, sd_noise), size(St_train, 1), size(St_train, 2))
-      St_train += noise
-  end
-
-  # julia is column-wise language
-  # assign St first then do transpose is faster
-  St_val = Array{Float64, 2}(undef, ncol, size(data_val, 1))
-  for i in 1:size(data_val, 1)
-    s_base = sum([base_m[base_f2i[f]] for f in data_val[i, base]])
-    s_infl = sum([infl_m[infl_f2i[f]] for f in data_val[i, inflections]])
-    s = s_base + s_infl
-    St_val[:,i] = s
-  end
-
-  # add random var to S
-  if add_noise
-      noise = rand(Normal(0, sd_noise), size(St_val, 1), size(St_val, 2))
-      St_val += noise
-  end
-
-  if normalized
-    n_features = length(base) + length(inflections)
-    return St_train'./n_features, St_val'./n_features
-  end
-  St_train', St_val'
+  make_S_matrix(
+    data_train,
+    data_val,
+    base,
+    inflections,
+    L,
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized)
 end
 
 """
@@ -530,38 +474,26 @@ function make_S_matrix(
   seed=314::Int64,
   isdeep=true::Bool,
   add_noise=true::Bool,
-  sd_noise=1::Int64
+  sd_noise=1::Int64,
+  normalized=false::Bool
   )::Matrix
 
-  # collect all infl_features
-  base_f = [f for b in base for f in unique(data[:,b])]
+  L = make_L_matrix(
+    data,
+    base,
+    sd_base_mean=sd_base_mean,
+    sd_base=sd_base,
+    ncol=ncol,
+    seed=seed,
+    isdeep=isdeep)
 
-  # maps features to indices
-  base_f2i = Dict(v=>i for (i,v) in enumerate(base_f))
-
-  if isdeep # deep mode random means for each feature
-    base_means = rand(Normal(0, sd_base_mean), length(base_f))
-    base_m = [rand(Normal(base_means[i], sd_base), ncol) for i in 1:length(base_f)]
-  else # otherwise use mean=0 for all features
-    base_m = [rand(Normal(0, sd_base), ncol) for i in 1:length(base_f)]
-  end
-
-  # julia is column-wise language
-  # assign St first then do transpose is faster
-  St = Array{Float64, 2}(undef, ncol, size(data, 1))
-  for i in 1:size(data, 1)
-    s_base = sum([base_m[base_f2i[f]] for f in data[i, base]])
-    s = s_base
-    St[:,i] = s
-  end
-
-  # add random var to S
-  if add_noise
-      noise = rand(Normal(0, sd_noise), size(St, 1), size(St, 2))
-      St += noise
-  end
-
-  St'
+  make_S_matrix(
+    data,
+    base,
+    L,
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized)
 end
 
 """
@@ -640,53 +572,27 @@ function make_S_matrix(
   seed=314::Int64,
   isdeep=true::Bool,
   add_noise=true::Bool,
-  sd_noise=1::Int64
+  sd_noise=1::Int64,
+  normalized=false::Bool
   )::Tuple{Matrix, Matrix}
 
-  # collect all infl_features
-  base_f = [f for b in base for f in unique(data_train[:,b])]
+  L = make_L_matrix(
+    data_train,
+    base,
+    sd_base_mean=sd_base_mean,
+    sd_base=sd_base,
+    ncol=ncol,
+    seed=seed,
+    isdeep=isdeep)
 
-  # maps features to indices
-  base_f2i = Dict(v=>i for (i,v) in enumerate(base_f))
-
-  if isdeep # deep mode random means for each feature
-    base_means = rand(Normal(0, sd_base_mean), length(base_f))
-    base_m = [rand(Normal(base_means[i], sd_base), ncol) for i in 1:length(base_f)]
-  else # otherwise use mean=0 for all features
-    base_m = [rand(Normal(0, sd_base), ncol) for i in 1:length(base_f)]
-  end
-
-  # julia is column-wise language
-  # assign St first then do transpose is faster
-  St_train = Array{Float64, 2}(undef, ncol, size(data_train, 1))
-  for i in 1:size(data_train, 1)
-    s_base = sum([base_m[base_f2i[f]] for f in data_train[i, base]])
-    s = s_base
-    St_train[:,i] = s
-  end
-
-  # add random var to S
-  if add_noise
-      noise = rand(Normal(0, sd_noise), size(St_train, 1), size(St_train, 2))
-      St_train += noise
-  end
-
-  # julia is column-wise language
-  # assign St first then do transpose is faster
-  St_val = Array{Float64, 2}(undef, ncol, size(data_val, 1))
-  for i in 1:size(data_val, 1)
-    s_base = sum([base_m[base_f2i[f]] for f in data_val[i, base]])
-    s = s_base
-    St_val[:,i] = s
-  end
-
-  # add random var to S
-  if add_noise
-      noise = rand(Normal(0, sd_noise), size(St_val, 1), size(St_val, 2))
-      St_val += noise
-  end
-
-  St_train', St_val'
+  make_S_matrix(
+    data_train,
+    data_val,
+    base,
+    L,
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized)
 end
 
 """
@@ -756,7 +662,7 @@ S1 = JudiLing.make_S_matrix(
 ...
 """
 function make_S_matrix(
-  data::DataFrame,
+  data_train::DataFrame,
   base::Vector,
   inflections::Vector,
   L::L_Matrix_Struct;
@@ -765,16 +671,15 @@ function make_S_matrix(
   normalized=false::Bool
   )::Matrix
   
-  JudiLing.make_S_matrix(
-    data,
-    nothing,
-    base,
-    inflections,
-    L,
-    add_noise=add_noise,
-    sd_noise=sd_noise,
-    normalized=normalized
-    )
+  n_train = size(data_train, 1)
+  n_base = length(base)
+  n_infl = length(inflections)
+  
+  St_train = make_St(L, n_train, data_train, base, inflections)
+  add_noise && add_St_noise!(St_train, sd_noise)
+  normalized && normalize_St!(St_train, n_base, n_infl)
+
+  Array(St_train')
 end
 
 """
@@ -823,7 +728,7 @@ function make_S_matrix(
     data_train,
     data_val,
     base,
-    nothing,
+    [],
     L,
     add_noise=add_noise,
     sd_noise=sd_noise,
@@ -873,9 +778,8 @@ function make_S_matrix(
 
   JudiLing.make_S_matrix(
     data,
-    nothing,
     base,
-    nothing,
+    [],
     L,
     add_noise=add_noise,
     sd_noise=sd_noise,
@@ -920,73 +824,32 @@ S1, S2 = JudiLing.make_S_matrix(
 """
 function make_S_matrix(
   data_train::DataFrame,
-  data_val::Union{DataFrame, Nothing},
+  data_val::DataFrame,
   base::Vector,
-  inflections::Union{Vector, Nothing},
+  inflections::Vector,
   L::L_Matrix_Struct;
   add_noise=true::Bool,
   sd_noise=1::Int64,
   normalized=false::Bool
-  )::Union{Matrix, Tuple{Matrix, Matrix}}
+  )::Tuple{Matrix, Matrix}
+
+  n_train = size(data_train, 1)
+  n_val = size(data_val, 1)
+  n_base = length(base)
+  n_infl = length(inflections)
   
-  St_train = Array{Float64, 2}(undef, L.ncol, size(data_train, 1))
+  St_train = make_St(L, n_train, data_train, base, inflections)
+  add_noise && add_St_noise!(St_train, sd_noise)
+  normalized && normalize_St!(St_train, n_base, n_infl)
 
-  for i in 1:size(data_train, 1)
-    if !isnothing(inflections)
-      s_base = sum([L.L[L.f2i[f],:] for f in skipmissing(data_train[i, base])])
-      s_infl = sum([L.L[L.f2i[f],:] for f in skipmissing(data_train[i, inflections])])
-      s = s_base + s_infl
-    else
-      s_base = sum([L.L[L.f2i[f],:] for f in skipmissing(data_train[i, base])])
-      s = s_base
-    end
-    St_train[:,i] = s
-  end
+  St_val = make_St(L, n_val, data_val, base, inflections)
+  add_noise && add_St_noise!(St_val, sd_noise)
+  normalized && normalize_St!(St_val, n_base, n_infl)
 
-  if add_noise
-      noise = rand(Normal(0, sd_noise), size(St_train, 1), size(St_train, 2))
-      St_train += noise
-  end
-
-  if normalized
-    n_features = length(base) + length(inflections)
-    St_train = St_train./n_features
-  end
-
-  if !isnothing(data_val)
-    St_val = Array{Float64, 2}(undef, L.ncol, size(data_val, 1))
-
-    for i in 1:size(data_val, 1)
-      if !isnothing(inflections)
-        s_base = sum([L.L[L.f2i[f],:] for f in data_val[i, base]])
-        s_infl = sum([L.L[L.f2i[f],:] for f in data_val[i, inflections]])
-        s = s_base + s_infl
-      else
-        s_base = sum([L.L[L.f2i[f],:] for f in data_val[i, base]])
-        s = s_base
-      end
-      St_val[:,i] = s
-    end
-
-    if add_noise
-        noise = rand(Normal(0, sd_noise), size(St_val, 1), size(St_val, 2))
-        St_val += noise
-    end
-
-    if normalized
-      if !isnothing(inflections)
-        n_features = length(base) + length(inflections)
-      else
-        n_features = length(base)
-      end
-      St_val = St_val./n_features
-    end
-
-    return Array(St_train'), Array(St_val')
-  end
-
-  Array(St_train')
+  Array(St_train'), Array(St_val')
 end
+
+
 
 """
     make_L_matrix(::DataFrame, ::Vector, ::Vector) -> ::L_Matrix_Struct
@@ -1443,4 +1306,45 @@ function merge_f2i(base_f2i, infl_f2i, n_base_f, n_infl_f)
     f2i[k] = v+n_base_f
   end
   f2i
+end
+
+function lexome_sum(L, features)
+  ls = [L.L[L.f2i[f],:] for f in skipmissing(features)]
+  if length(ls) > 0
+    return sum(ls)
+  end
+  zeros(Float64, L.ncol)
+end
+
+function make_St(L, n, data, base, inflections)
+  St = Array{Float64, 2}(undef, L.ncol, n)
+  for i in 1:n
+    ls_base = lexome_sum(L, data[i, base])
+    ls_infl = lexome_sum(L, data[i, inflections])
+    ls = ls_base + ls_infl
+    St[:,i] = ls
+  end
+  St
+end
+
+function make_St(L, n, data, base)
+  St = Array{Float64, 2}(undef, L.ncol, n)
+  for i in 1:n
+    ls_base = lexome_sum(L, data[i, base])
+    St[:,i] = ls_base
+  end
+  St
+end
+
+function add_St_noise!(St, sd_noise)
+  noise = rand(Normal(0, sd_noise), size(St))
+  St += noise
+end
+
+function normalize_St!(St, n_base, n_infl)
+  St = St./(n_base+n_infl)
+end
+
+function normalize_St!(St, n_base)
+  St = St./n_base
 end

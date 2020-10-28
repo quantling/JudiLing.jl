@@ -17,94 +17,113 @@ using DataFrames
   end
 end
 
-@testset "make semantic matrix for french" begin
+@testset "make semantic matrix" begin
   try
-    french = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "french_mini.csv")))
-    S_train = JudiLing.make_S_matrix(
-      french,
-      ["Lexeme"],
-      ["Tense","Aspect","Person","Number","Gender","Class","Mood"])
+    data = DataFrame(
+      X = ["A", "B", "C", "D", "E"],
+      Y = ["M", "F", "F", "M", missing], 
+      Z = ["P", "P", "S", missing, "P"])
 
-    french_val = french[100:end,:]
+    n_features = 3
+    seed = 314
+
+    L = JudiLing.make_L_matrix(
+      data[1:5,:],
+      ["Y"],
+      ["Z"],
+      ncol=n_features,
+      seed=seed,
+      isdeep=true)
+
     S_train, S_val = JudiLing.make_S_matrix(
-      french,
-      french_val,
-      ["Lexeme"],
-      ["Tense","Aspect","Person","Number","Gender","Class","Mood"])
+      data[1:2,:],
+      data[3:5,:],
+      ["Y"],
+      ["Z"],
+      L)
 
-    S_train = JudiLing.make_S_matrix(
-      french,
-      ["Lexeme"])
+    @test S_train[1,:] == L.L[L.f2i["M"],:] + L.L[L.f2i["P"],:]
+    @test S_train[2,:] == L.L[L.f2i["F"],:] + L.L[L.f2i["P"],:]
+    @test S_val[1,:] == L.L[L.f2i["F"],:] + L.L[L.f2i["S"],:]
+    @test S_val[2,:] == L.L[L.f2i["M"],:]
+    @test S_val[3,:] == L.L[L.f2i["P"],:]
 
     S_train, S_val = JudiLing.make_S_matrix(
-      french,
-      french_val,
-      ["Lexeme"])
+      data[1:2,:],
+      data[3:5,:],
+      ["Y"],
+      L)
+
+    @test S_train[1,:] == L.L[L.f2i["M"],:]
+    @test S_train[2,:] == L.L[L.f2i["F"],:]
+    @test S_val[1,:] == L.L[L.f2i["F"],:]
+    @test S_val[2,:] == L.L[L.f2i["M"],:]
+    @test S_val[3,:] == zeros(Float64, 3)
+
+    S_train = JudiLing.make_S_matrix(
+      data[1:5,:],
+      ["Y"],
+      ["Z"],
+      L)
+
+    @test S_train[1,:] == L.L[L.f2i["M"],:] + L.L[L.f2i["P"],:]
+    @test S_train[2,:] == L.L[L.f2i["F"],:] + L.L[L.f2i["P"],:]
+    @test S_train[3,:] == L.L[L.f2i["F"],:] + L.L[L.f2i["S"],:]
+    @test S_train[4,:] == L.L[L.f2i["M"],:]
+    @test S_train[5,:] == L.L[L.f2i["P"],:]
+
+    S_train = JudiLing.make_S_matrix(
+      data[1:5,:],
+      ["Y"],
+      L)
+
+    @test S_train[1,:] == L.L[L.f2i["M"],:]
+    @test S_train[2,:] == L.L[L.f2i["F"],:]
+    @test S_train[3,:] == L.L[L.f2i["F"],:]
+    @test S_train[4,:] == L.L[L.f2i["M"],:]
+    @test S_train[5,:] == zeros(Float64, 3)
+
+    S_train, S_val = JudiLing.make_S_matrix(
+      data[1:5,:],
+      data[3:5,:],
+      ["Y"],
+      ["Z"],
+      ncol=n_features,
+      seed=seed,
+      isdeep=true)
+
+    @test S_train[1,:] == L.L[L.f2i["M"],:] + L.L[L.f2i["P"],:]
+    @test S_train[2,:] == L.L[L.f2i["F"],:] + L.L[L.f2i["P"],:]
+    @test S_val[1,:] == L.L[L.f2i["F"],:] + L.L[L.f2i["S"],:]
+    @test S_val[2,:] == L.L[L.f2i["M"],:]
+    @test S_val[3,:] == L.L[L.f2i["P"],:]
+
+    S_train = JudiLing.make_S_matrix(
+      data[1:5,:],
+      ["Y"],
+      ["Z"],
+      ncol=n_features,
+      seed=seed,
+      isdeep=true)
+
+    S_train, S_val = JudiLing.make_S_matrix(
+      data[1:5,:],
+      data[3:5,:],
+      ["Y"],
+      ncol=n_features,
+      seed=seed,
+      isdeep=true)
+
+    S_train = JudiLing.make_S_matrix(
+      data[1:5,:],
+      ["Y"],
+      ncol=n_features,
+      seed=seed,
+      isdeep=true)
+
     @test true
-  catch e
-    @test e == false
-  end
-end
-
-@testset "make semantic matrix for lexome" begin
-  try
-    latin = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin_mini.csv")))
-    latin_val = latin[1:20,:]
-
-    L1 = JudiLing.make_L_matrix(
-      latin,
-      ["Lexeme"],
-      ["Person","Number","Tense","Voice","Mood"],
-      ncol=20)
-
-    L2 = JudiLing.make_L_matrix(
-      latin,
-      ["Lexeme"],
-      ncol=20)
-
-    S1 = JudiLing.make_S_matrix(
-      latin,
-      ["Lexeme"],
-      ["Person","Number","Tense","Voice","Mood"],
-      L1,
-      add_noise=true,
-      sd_noise=1,
-      normalized=false
-      )
-
-    S1 = JudiLing.make_S_matrix(
-      latin,
-      ["Lexeme"],
-      L1,
-      add_noise=true,
-      sd_noise=1,
-      normalized=false
-      )
-
-    S1, S2 = JudiLing.make_S_matrix(
-      latin,
-      latin_val,
-      ["Lexeme"],
-      ["Person","Number","Tense","Voice","Mood"],
-      L1,
-      add_noise=true,
-      sd_noise=1,
-      normalized=false
-      )
-
-    S1, S2 = JudiLing.make_S_matrix(
-      latin,
-      latin_val,
-      ["Lexeme"],
-      L1,
-      add_noise=true,
-      sd_noise=1,
-      normalized=false
-      )
-
-    @test true
-  catch e
-    @test e == false
+  catch
+    @test false
   end
 end
 
