@@ -34,4 +34,10 @@ CurrentModule = JudiLing
   comp_f_M!(L, sd, sd_mean, n_f, ncol, n_b)
   comp_f_M!(L, sd, n_f, ncol, n_b)
   merge_f2i(base_f2i, infl_f2i, n_base_f, n_infl_f)
+  lexome_sum(L, features)
+  make_St(L, n, data, base, inflections)
+  make_St(L, n, data, base)
+  add_St_noise!(St, sd_noise)
+  normalize_St!(St, n_base, n_infl)
+  normalize_St!(St, n_base)
 ```

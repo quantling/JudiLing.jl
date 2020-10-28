@@ -1123,9 +1123,9 @@ S_train, S_val = JudiLing.make_combined_S_matrix(
 """
 function make_combined_S_matrix(
   data_train::DataFrame,
-  data_val::Union{DataFrame, Nothing},
+  data_val::DataFrame,
   base::Vector,
-  inflections::Union{Vector, Nothing},
+  inflections::Vector,
   L::L_Matrix_Struct;
   add_noise=true::Bool,
   sd_noise=1::Int64,
@@ -1137,6 +1137,58 @@ function make_combined_S_matrix(
     data_val,
     base,
     inflections,
+    L;
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized
+    )
+end
+
+"""
+    make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::L_Matrix_Struct) -> ::Tuple{Matrix, Matrix}
+
+Create simulated semantic matrix for the training datasets and validation 
+datasets with existing Lexome matrix, where features are combined from both 
+training datasets and validation datasets.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `base::Vector`: context lexemes
+- `L::L_Matrix_Struct`: the Lexome Matrix
+
+# Optional Arguments
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
+
+# Examples
+```julia
+# basic usage
+S_train, S_val = JudiLing.make_combined_S_matrix(
+  latin_train,
+  latin_val,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  L)
+```
+...
+"""
+function make_combined_S_matrix(
+  data_train::DataFrame,
+  data_val::Union{DataFrame, Nothing},
+  base::Vector,
+  L::L_Matrix_Struct;
+  add_noise=true::Bool,
+  sd_noise=1::Int64,
+  normalized=false::Bool
+  )::Tuple{Matrix, Matrix}
+
+  make_S_matrix(
+    data_train,
+    data_val,
+    base,
     L;
     add_noise=add_noise,
     sd_noise=sd_noise,
@@ -1217,6 +1269,81 @@ function make_combined_S_matrix(
     base,
     inflections,
     L;
+    add_noise=add_noise,
+    sd_noise=sd_noise,
+    normalized=normalized
+    )
+end
+
+"""
+    make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector) -> ::Tuple{Matrix, Matrix}
+
+Create simulated semantic matrix for the training datasets and validation 
+datasets, where features are combined from both training datasets and 
+validation datasets.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `base::Vector`: context lexemes
+
+# Optional Arguments
+- `ncol::Int64=200`: dimension of semantic vectors, usually the same as that of cue vectors
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
+- `sd_base::Int64=4`: the sd of base features
+- `sd_inflection::Int64=4`: the sd of inflectional features
+- `seed::Int64=314`: the random seed
+- `isdeep::Bool=true`: if true, mean of each feature is also randomized 
+- `add_noise::Bool=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Bool=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
+
+# Examples
+```julia
+# basic usage
+S_train, S_val = JudiLing.make_combined_S_matrix(
+  latin_train,
+  latin_val,
+  ["Lexeme"],
+  ["Person","Number","Tense","Voice","Mood"],
+  ncol=n_features)
+```
+...
+"""
+function make_combined_S_matrix(
+  data_train::DataFrame,
+  data_val::DataFrame,
+  base::Vector;
+  ncol=200::Int64,
+  sd_base_mean=1::Int64,
+  sd_inflection_mean=1::Int64,
+  sd_base=4::Int64,
+  sd_inflection=4::Int64,
+  seed=314::Int64,
+  isdeep=true::Bool,
+  add_noise=true::Bool,
+  sd_noise=1::Int64,
+  normalized=false::Bool
+  )::Tuple{Matrix, Matrix}
+
+  L = make_combined_L_matrix(
+    data_train,
+    data_val,
+    base,
+    ncol=ncol,
+    sd_base_mean=sd_base_mean,
+    sd_base=sd_base,
+    seed=seed,
+    isdeep=isdeep
+    )
+
+  make_S_matrix(
+    data_train,
+    data_val,
+    base,
+    L,
     add_noise=add_noise,
     sd_noise=sd_noise,
     normalized=normalized
@@ -1308,6 +1435,11 @@ function merge_f2i(base_f2i, infl_f2i, n_base_f, n_infl_f)
   f2i
 end
 
+"""
+    lexome_sum(L, features)
+
+Sum up semantic vector, given lexome vector.
+"""
 function lexome_sum(L, features)
   ls = [L.L[L.f2i[f],:] for f in skipmissing(features)]
   if length(ls) > 0
@@ -1316,6 +1448,11 @@ function lexome_sum(L, features)
   zeros(Float64, L.ncol)
 end
 
+"""
+    make_St(L, n, data, base, inflections)
+
+Make S transpose matrix with inflections.
+"""
 function make_St(L, n, data, base, inflections)
   St = Array{Float64, 2}(undef, L.ncol, n)
   for i in 1:n
@@ -1327,6 +1464,11 @@ function make_St(L, n, data, base, inflections)
   St
 end
 
+"""
+    make_St(L, n, data, base)
+
+Make S transpose matrix without inflections.
+"""
 function make_St(L, n, data, base)
   St = Array{Float64, 2}(undef, L.ncol, n)
   for i in 1:n
@@ -1336,15 +1478,30 @@ function make_St(L, n, data, base)
   St
 end
 
+"""
+    add_St_noise!(St, sd_noise)
+
+Add noise.
+"""
 function add_St_noise!(St, sd_noise)
   noise = rand(Normal(0, sd_noise), size(St))
   St += noise
 end
 
+"""
+    normalize_St!(St, n_base, n_infl)
+
+Normalize S transpose with inflections.
+"""
 function normalize_St!(St, n_base, n_infl)
   St = St./(n_base+n_infl)
 end
 
+"""
+    normalize_St!(St, n_base)
+
+Normalize S transpose without inflections.
+"""
 function normalize_St!(St, n_base)
   St = St./n_base
 end
