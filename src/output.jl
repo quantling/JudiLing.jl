@@ -400,7 +400,7 @@ function save_L_matrix(
   )::Nothing
 
   L_df = convert(DataFrames.DataFrame, L.L)
-  insertcols!(L_df, 1, :col_names => L.col_names)
+  insertcols!(L_df, 1, :col_names => L.i2f)
   CSV.write(filename, L_df, quotestrings=true, header=false)
   nothing
 end
@@ -425,11 +425,10 @@ function load_L_matrix(
   )::L_Matrix_Struct
 
   L_df = CSV.DataFrame!(CSV.File(filename, header=false))
-  col_names = L_df[:, 1]
-  f2i = Dict(v=>i for (i,v) in enumerate(col_names))
-  i2f = Dict(i=>v for (i,v) in enumerate(col_names))
+  i2f = L_df[:, 1]
+  f2i = Dict(v=>i for (i,v) in enumerate(i2f))
   ncol = size(L_df,2)-1
   L = Array(select(L_df, Not(1)))
   
-  L_Matrix_Struct(L, f2i, i2f, ncol, col_names)
+  L_Matrix_Struct(L, f2i, i2f, ncol)
 end

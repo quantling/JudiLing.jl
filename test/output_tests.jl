@@ -209,14 +209,12 @@ end
     @test L3.i2f == L1.i2f
     @test L3.f2i == L1.f2i
     @test L3.ncol == L1.ncol
-    @test L3.col_names == L1.col_names
 
     @test L4.L == L2.L
     @test L4.i2f == L2.i2f
     @test L4.f2i == L2.f2i
     @test L4.ncol == L2.ncol
-    @test L4.col_names == L2.col_names
-  catch e
+  catch
     @test false
   finally
     path = joinpath(@__DIR__, "test_out")
