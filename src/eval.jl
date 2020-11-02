@@ -8,6 +8,13 @@ struct Comp_Acc_Struct
 end
 
 """
+Assess model accuracy on the basis of the correlations of row vectors of Chat and 
+C or Shat and S. Ideally the target words have highest correlations on the diagonal 
+of the pertinent correlation matrices.
+"""
+function eval_SC end
+
+"""
     accuracy_comprehension(::Matrix, ::Matrix) -> ::Comp_Acc_Struct
 
 Evaluate comprehension accuracy.
@@ -107,8 +114,73 @@ function eval_SC(
   )::Float64
 
   rSC = cor(convert(Matrix{Float64}, SChat), convert(Matrix{Float64}, SC), dims=2)
-  v = [(i[1]==i[2] || rSC[i[1],i[1]]==rSC[i]) ? 1 : 0 for i in argmax(rSC, dims=2)]
+  v = [rSC[i[1],i[1]]==rSC[i] ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)/length(v)
+end
+
+"""
+    eval_SC(SChat,SC,batch_size;verbose=false)
+
+Assess model accuracy on the basis of the correlations of row vectors of Chat and 
+C or Shat and S. Ideally the target words have highest correlations on the diagonal 
+of the pertinent correlation matrices. For large datasets, pass batch_size to 
+process evaluation in chucks.
+
+...
+# Obligatory Arguments
+- `SChat`: the Chat or Shat matrix
+- `SC`: the C or S matrix
+- `batch_size`: batch size
+
+```julia
+eval_SC(cue_obj_train.C, Chat_train, 5000)
+eval_SC(cue_obj_val.C, Chat_val, 5000)
+eval_SC(S_train, Shat_train, 5000)
+eval_SC(S_val, Shat_val, 5000)
+```
+...
+"""
+function eval_SC(SChat,SC,batch_size;verbose=false)
+  l = size(SChat, 1)
+  num_chucks = ceil(Int64, l/batch_size)
+  verbose && begin pb = Progress(num_chucks) end
+  correct = 0
+
+  SChat_d = convert(Matrix{Float64}, SChat)
+  SC_d = convert(Matrix{Float64}, SC)
+
+  # for first parts
+  for j in 1:num_chucks-1
+    correct += eval_SC_chucks(SChat_d,SC_d,(j-1)*batch_size+1,j*batch_size,batch_size)
+    verbose && ProgressMeter.next!(pb)
+  end
+  # for last part
+  correct += eval_SC_chucks(SChat_d,SC_d,(num_chucks-1)*batch_size+1,batch_size)
+  verbose && ProgressMeter.next!(pb)
+
+  correct/l
+end
+
+"""
+    eval_SC(SChat,SC,s,e,batch_size)
+
+Evaluate SC in chucks.
+"""
+function eval_SC_chucks(SChat,SC,s,e,batch_size)
+  rSC = cor(SChat[s:e,:], SC, dims=2)
+  v = [(rSC[i[1],i[1]+s-1] == rSC[i]) ? 1 : 0 for i in argmax(rSC, dims=2)]
+  sum(v)
+end
+
+"""
+    eval_SC(SChat,SC,s,batch_size)
+
+Evaluate SC in chucks.
+"""
+function eval_SC_chucks(SChat,SC,s,batch_size)
+  rSC = cor(SChat[s:end,:], SC, dims=2)
+  v = [(rSC[i[1],i[1]+s-1] == rSC[i]) ? 1 : 0 for i in argmax(rSC, dims=2)]
+  sum(v)
 end
 
 """

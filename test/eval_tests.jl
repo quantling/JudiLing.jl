@@ -145,3 +145,58 @@ using Test
     @test false
   end
 end
+
+@testset "eval_SC" begin
+  try
+    A = [
+    1 0 0
+    0 1 0
+    0 0 1
+    1 0 0
+    0 1 0
+    0 0 1
+    1 0 0
+    0 1 0
+    0 0 1
+    0 0 1
+    ]
+
+    B = [
+    1 0 0
+    0 1 0
+    0 0 1
+    1 0 0
+    1 0 0
+    0 0 1
+    1 0 0
+    0 1 0
+    0 0 1
+    0 0 1
+    ]
+
+    C = [
+    1 0 0
+    0 1 0
+    0 0 1
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    1 0 0
+    0 0 1
+    ]
+
+    @test JudiLing.eval_SC(A,B) == 0.9
+    @test JudiLing.eval_SC(A,C) == 0.6
+    @test JudiLing.eval_SC(C,B) == 0.7
+    @test JudiLing.eval_SC(A,B,2) == 0.9
+    @test JudiLing.eval_SC(A,B,3) == 0.9
+    @test JudiLing.eval_SC(A,B,4) == 0.9
+    @test JudiLing.eval_SC(A,B,4) == 0.9
+    @test JudiLing.eval_SC(A,C,2) == 0.6
+    @test JudiLing.eval_SC(C,B,2) == 0.7
+  catch
+    @test false
+  end
+end
