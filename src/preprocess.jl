@@ -2,6 +2,41 @@ struct SplitDataException <: Exception
   msg::String
 end
 
+"""
+Leave p out cross-validation.
+"""
+function lpo_cv_split end
+
+"""
+Leave one out cross-validation.
+"""
+function loo_cv_split end
+
+"""
+    lpo_cv_split(p, data_path)
+
+Leave p out cross-validation.
+"""
+function lpo_cv_split(p, data_path; random_seed=314)
+  # read csv
+  data = CSV.DataFrame!(CSV.File(data_path))
+
+  # shuffle data
+  rng = MersenneTwister(random_seed)
+  data = data[shuffle(rng, 1:size(data, 1)),:]
+
+  data[p+1:end,:], data[1:p,:]
+end
+
+"""
+    loo_cv_split(p, data_path)
+
+Leave one out cross-validation.
+"""
+function loo_cv_split(data_path; random_seed=314)
+  lpo_cv_split(1, data_path)
+end
+
 function train_val_split(
   data_path::String,
   output_dir_path::String,
