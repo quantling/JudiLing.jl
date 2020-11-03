@@ -125,7 +125,7 @@ and evaluate the model's prediction accuracy:
 ```julia
 @show JudiLing.eval_SC(cue_obj.C, Chat)
 ```
-```
+```output
 JudiLing.eval_SC(cue_obj.C, Chat) = 1.0
 ```
 
@@ -138,7 +138,7 @@ and we then calculate the Shat matrix and evaluate comprehension accuracy:
 Shat = cue_obj.C * F
 @show JudiLing.eval_SC(S, Shat)
 ```
-```
+```output
 JudiLing.eval_SC(S, Shat) = 1.0
 ```
 To model speech production, the proper triphones have to be selected and put into the right order. We have two algorithms that accomplish this. Both algorithms construct paths in a triphone space that start with word-initial triphones and end with word-final triphones.
@@ -167,6 +167,7 @@ res, gpi = JudiLing.learn_paths(
   Chat,
   A,
   cue_obj.i2f,
+  cue_obj.f2i, # api changed in 0.3.1
   check_gold_path=true,
   gold_ind=cue_obj.gold_ind,
   Shat_val=Shat,
@@ -398,6 +399,7 @@ res_train, gpi_train = JudiLing.learn_paths(
   Chat_train,
   A,
   cue_obj_train.i2f,
+  cue_obj_train.f2i, # api changed in 0.3.1
   gold_ind=cue_obj_train.gold_ind,
   Shat_val=Shat_train,
   check_gold_path=true,
@@ -421,6 +423,7 @@ res_val, gpi_val = JudiLing.learn_paths(
   Chat_val,
   A,
   cue_obj_train.i2f,
+  cue_obj_train.f2i, # api changed in 0.3.1
   gold_ind=cue_obj_val.gold_ind,
   Shat_val=Shat_val,
   check_gold_path=true,
@@ -500,10 +503,11 @@ Alternatively, we  have a wrapper function incorporating all above functionaliti
 ```julia
 JudiLing.test_combo(
   joinpath("data", "latin.csv"),
-  joinpath("latin_out"), # this is your output dir
+  # joinpath("latin_out"), # api changed, this is moved as output_dir_path
   ["Lexeme","Person","Number","Tense","Voice","Mood"],
   ["Lexeme"],
   ["Person","Number","Tense","Voice","Mood"],
+  output_dir_path=joinpath("latin_out"),
   n_grams_target_col=:Word,
   grams=3,
   path_method=:learn_paths,

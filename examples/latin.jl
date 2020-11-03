@@ -58,6 +58,7 @@ res_learn, gpi_learn = JudiLing.learn_paths(
   Chat,
   A,
   cue_obj.i2f,
+  cue_obj.f2i, # api changed in 0.3.1
   check_gold_path=true,
   gold_ind=cue_obj.gold_ind,
   Shat_val=Shat,
@@ -222,6 +223,7 @@ res_train, gpi_train = JudiLing.learn_paths(
   Chat_train,
   A,
   cue_obj_train.i2f,
+  cue_obj_train.f2i, # api changed in 0.3.1
   gold_ind=cue_obj_train.gold_ind,
   Shat_val=Shat_train,
   check_gold_path=true,
@@ -245,6 +247,7 @@ res_val, gpi_val = JudiLing.learn_paths(
   Chat_val,
   A,
   cue_obj_train.i2f,
+  cue_obj_train.f2i, # api changed in 0.3.1
   gold_ind=cue_obj_val.gold_ind,
   Shat_val=Shat_val,
   check_gold_path=true,
@@ -321,10 +324,11 @@ acc_val = JudiLing.eval_acc(
 # However, we also have a wrapper function containing all above functionalities plus cross-validation into one function
 JudiLing.test_combo(
   joinpath("data", "latin.csv"),
-  joinpath("latin_out"),
+  # joinpath("latin_out"), # api changed, move to named argument
   ["Lexeme","Person","Number","Tense","Voice","Mood"],
   ["Lexeme"],
   ["Person","Number","Tense","Voice","Mood"],
+  output_dir_path=joinpath("latin_out"),
   n_grams_target_col=:Word,
   grams=3,
   path_method=:learn_paths,
