@@ -32,7 +32,7 @@ G = JudiLing.make_transform_matrix(S, cue_obj.C)
 # we calculate Chat matrixes by multiplying S and G 
 Chat = S * G
 
-@show JudiLing.eval_SC(cue_obj.C, Chat)
+@show JudiLing.eval_SC(Chat, cue_obj.C)
 
 # we calculate F as we did for G
 F = JudiLing.make_transform_matrix(cue_obj.C, S)
@@ -40,7 +40,7 @@ F = JudiLing.make_transform_matrix(cue_obj.C, S)
 # we calculate Shat as we did for Chat
 Shat = cue_obj.C * F
 
-@show JudiLing.eval_SC(S, Shat)
+@show JudiLing.eval_SC(Shat, S)
 
 # here we only use a adjacency matrix as we got it from training dataset
 A = cue_obj.A
