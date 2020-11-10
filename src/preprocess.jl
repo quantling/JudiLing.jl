@@ -13,7 +13,7 @@ Leave one out cross-validation.
 function loo_cv_split end
 
 """
-    lpo_cv_split(p, data_path)
+    lpo_cv_split(p, data_path; random_seed=314)
 
 Leave p out cross-validation.
 """
@@ -29,7 +29,7 @@ function lpo_cv_split(p, data_path; random_seed=314)
 end
 
 """
-    loo_cv_split(p, data_path)
+    loo_cv_split(data_path; random_seed=314)
 
 Leave one out cross-validation.
 """
