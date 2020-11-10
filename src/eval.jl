@@ -114,7 +114,7 @@ function eval_SC(
   )::Float64
 
   rSC = cor(convert(Matrix{Float64}, SChat), convert(Matrix{Float64}, SC), dims=2)
-  v = [rSC[i[1],i[1]]==rSC[i] ? 1 : 0 for i in argmax(rSC, dims=2)]
+  v = [i[2]==i[1] ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)/length(v)
 end
 
@@ -168,7 +168,7 @@ Evaluate SC in chucks.
 """
 function eval_SC_chucks(SChat,SC,s,e,batch_size)
   rSC = cor(SChat[s:e,:], SC, dims=2)
-  v = [(rSC[i[1],i[1]+s-1] == rSC[i]) ? 1 : 0 for i in argmax(rSC, dims=2)]
+  v = [i[2] == i[1]+s-1 ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)
 end
 
@@ -179,7 +179,7 @@ Evaluate SC in chucks.
 """
 function eval_SC_chucks(SChat,SC,s,batch_size)
   rSC = cor(SChat[s:end,:], SC, dims=2)
-  v = [(rSC[i[1],i[1]+s-1] == rSC[i]) ? 1 : 0 for i in argmax(rSC, dims=2)]
+  v = [i[2] == i[1]+s-1] ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)
 end
 
