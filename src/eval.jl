@@ -101,10 +101,10 @@ of the pertinent correlation matrices.
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
 
 ```julia
-eval_SC(cue_obj_train.C, Chat_train)
-eval_SC(cue_obj_val.C, Chat_val)
-eval_SC(S_train, Shat_train)
-eval_SC(S_val, Shat_val)
+eval_SC(Chat_train, cue_obj_train.C)
+eval_SC(Chat_val, cue_obj_val.C)
+eval_SC(Shat_train, S_train)
+eval_SC(Shat_val, S_val)
 ```
 ...
 """
