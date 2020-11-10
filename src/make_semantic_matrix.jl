@@ -1484,8 +1484,8 @@ end
 Add noise.
 """
 function add_St_noise!(St, sd_noise)
-  noise = rand(Normal(0, sd_noise), size(St))
-  St += noise
+  Noise = rand(Normal(0, sd_noise), size(St))
+  broadcast!(+, St, St, Noise)
 end
 
 """
@@ -1494,7 +1494,7 @@ end
 Normalize S transpose with inflections.
 """
 function normalize_St!(St, n_base, n_infl)
-  St = St./(n_base+n_infl)
+  broadcast!(/, St, St, n_base+n_infl)
 end
 
 """
