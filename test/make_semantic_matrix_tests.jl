@@ -40,7 +40,8 @@ end
       data[3:5,:],
       ["Y"],
       ["Z"],
-      L)
+      L,
+      add_noise=false)
 
     @test S_train[1,:] == L.L[L.f2i["M"],:] + L.L[L.f2i["P"],:]
     @test S_train[2,:] == L.L[L.f2i["F"],:] + L.L[L.f2i["P"],:]
@@ -52,7 +53,8 @@ end
       data[1:2,:],
       data[3:5,:],
       ["Y"],
-      L)
+      L,
+      add_noise=false)
 
     @test S_train[1,:] == L.L[L.f2i["M"],:]
     @test S_train[2,:] == L.L[L.f2i["F"],:]
@@ -64,7 +66,8 @@ end
       data[1:5,:],
       ["Y"],
       ["Z"],
-      L)
+      L,
+      add_noise=false)
 
     @test S_train[1,:] == L.L[L.f2i["M"],:] + L.L[L.f2i["P"],:]
     @test S_train[2,:] == L.L[L.f2i["F"],:] + L.L[L.f2i["P"],:]
@@ -75,7 +78,8 @@ end
     S_train = JudiLing.make_S_matrix(
       data[1:5,:],
       ["Y"],
-      L)
+      L,
+      add_noise=false)
 
     @test S_train[1,:] == L.L[L.f2i["M"],:]
     @test S_train[2,:] == L.L[L.f2i["F"],:]
@@ -90,7 +94,8 @@ end
       ["Z"],
       ncol=n_features,
       seed=seed,
-      isdeep=true)
+      isdeep=true,
+      add_noise=false)
 
     @test S_train[1,:] == L.L[L.f2i["M"],:] + L.L[L.f2i["P"],:]
     @test S_train[2,:] == L.L[L.f2i["F"],:] + L.L[L.f2i["P"],:]
@@ -104,7 +109,8 @@ end
       ["Z"],
       ncol=n_features,
       seed=seed,
-      isdeep=true)
+      isdeep=true,
+      add_noise=false)
 
     S_train, S_val = JudiLing.make_S_matrix(
       data[1:5,:],
@@ -112,14 +118,16 @@ end
       ["Y"],
       ncol=n_features,
       seed=seed,
-      isdeep=true)
+      isdeep=true,
+      add_noise=false)
 
     S_train = JudiLing.make_S_matrix(
       data[1:5,:],
       ["Y"],
       ncol=n_features,
       seed=seed,
-      isdeep=true)
+      isdeep=true,
+      add_noise=false)
 
     @test true
   catch
@@ -152,7 +160,8 @@ end
       ["Z"],
       ncol=n_features,
       seed=seed,
-      isdeep=true)
+      isdeep=true,
+      add_noise=false)
 
     @test S_train[1,:] == L.L[L.f2i["M"],:] + L.L[L.f2i["P"],:]
     @test S_train[2,:] == L.L[L.f2i["F"],:] + L.L[L.f2i["P"],:]
@@ -166,7 +175,8 @@ end
       ["Y"],
       ncol=n_features,
       seed=seed,
-      isdeep=true)
+      isdeep=true,
+      add_noise=false)
 
     @test S_train[1,:] == L.L[L.f2i["M"],:]
     @test S_train[2,:] == L.L[L.f2i["F"],:]

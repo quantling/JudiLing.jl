@@ -89,7 +89,7 @@ function accuracy_comprehension(
 end
 
 """
-    eval_SC(Union{SparseMatrixCSC, Matrix}, Union{SparseMatrixCSC, Matrix}) -> ::Float64
+    eval_SC(SChat,SC)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and 
 C or Shat and S. Ideally the target words have highest correlations on the diagonal 
@@ -108,13 +108,36 @@ eval_SC(Shat_val, S_val)
 ```
 ...
 """
-function eval_SC(
-  SChat::Union{SparseMatrixCSC, Matrix},
-  SC::Union{SparseMatrixCSC, Matrix}
-  )::Float64
+function eval_SC(SChat,SC)
 
   rSC = cor(convert(Matrix{Float64}, SChat), convert(Matrix{Float64}, SC), dims=2)
-  v = [i[2]==i[1] ? 1 : 0 for i in argmax(rSC, dims=2)]
+  v = [rSC[i[1],i[1]]==rSC[i] ? 1 : 0 for i in argmax(rSC, dims=2)]
+  sum(v)/length(v)
+end
+
+"""
+    eval_SC(SChat,SC,data,target_col)
+
+Assess model accuracy on the basis of the correlations of row vectors of Chat and 
+C or Shat and S. Ideally the target words have highest correlations on the diagonal 
+of the pertinent correlation matrices. Support for homophones.
+
+...
+# Obligatory Arguments
+- `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
+- `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
+
+```julia
+eval_SC(Chat_train, cue_obj_train.C)
+eval_SC(Chat_val, cue_obj_val.C)
+eval_SC(Shat_train, S_train)
+eval_SC(Shat_val, S_val)
+```
+...
+"""
+function eval_SC(SChat,SC,data,target_col)
+  rSC = cor(convert(Matrix{Float64}, SChat), convert(Matrix{Float64}, SC), dims=2)
+  v = [data[i[1],target_col] == data[i[2],target_col] ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)/length(v)
 end
 
@@ -131,12 +154,14 @@ process evaluation in chucks.
 - `SChat`: the Chat or Shat matrix
 - `SC`: the C or S matrix
 - `batch_size`: batch size
+- `data`: datasets
+- `target_col`: target column name
 
 ```julia
-eval_SC(cue_obj_train.C, Chat_train, 5000)
-eval_SC(cue_obj_val.C, Chat_val, 5000)
-eval_SC(S_train, Shat_train, 5000)
-eval_SC(S_val, Shat_val, 5000)
+eval_SC(Chat_train, cue_obj_train.C, latin, :Word)
+eval_SC(Chat_val, cue_obj_val.C, latin, :Word)
+eval_SC(Shat_train, S_train, latin, :Word)
+eval_SC(Shat_val, S_val, latin, :Word)
 ```
 ...
 """
@@ -162,24 +187,73 @@ function eval_SC(SChat,SC,batch_size;verbose=false)
 end
 
 """
-    eval_SC(SChat,SC,s,e,batch_size)
+    eval_SC(SChat,SC,data,target_col,batch_size;verbose=false)
 
-Evaluate SC in chucks.
+Assess model accuracy on the basis of the correlations of row vectors of Chat and 
+C or Shat and S. Ideally the target words have highest correlations on the diagonal 
+of the pertinent correlation matrices. For large datasets, pass batch_size to 
+process evaluation in chucks. Support homophones.
+
+...
+# Obligatory Arguments
+- `SChat`: the Chat or Shat matrix
+- `SC`: the C or S matrix
+- `batch_size`: batch size
+- `data`: datasets
+- `target_col`: target column name
+
+```julia
+eval_SC(Chat_train, cue_obj_train.C, latin, :Word, 5000)
+eval_SC(Chat_val, cue_obj_val.C, latin, :Word, 5000)
+eval_SC(Shat_train, S_train, latin, :Word, 5000)
+eval_SC(Shat_val, S_val, latin, :Word, 5000)
+```
+...
 """
+function eval_SC(SChat,SC,data,target_col,batch_size;verbose=false)
+  l = size(SChat, 1)
+  num_chucks = ceil(Int64, l/batch_size)
+  verbose && begin pb = Progress(num_chucks) end
+  correct = 0
+
+  SChat_d = convert(Matrix{Float64}, SChat)
+  SC_d = convert(Matrix{Float64}, SC)
+
+  # for first parts
+  for j in 1:num_chucks-1
+    correct += eval_SC_chucks(SChat_d,SC_d, (j-1)*batch_size+1, 
+      j*batch_size, batch_size, data, target_col)
+    verbose && ProgressMeter.next!(pb)
+  end
+  # for last part
+  correct += eval_SC_chucks(SChat_d, SC_d, (num_chucks-1)*batch_size+1, 
+    batch_size, data, target_col)
+  verbose && ProgressMeter.next!(pb)
+
+  correct/l
+end
+
 function eval_SC_chucks(SChat,SC,s,e,batch_size)
   rSC = cor(SChat[s:e,:], SC, dims=2)
-  v = [i[2] == i[1]+s-1 ? 1 : 0 for i in argmax(rSC, dims=2)]
+  v = [(rSC[i[1],i[1]+s-1] == rSC[i]) ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)
 end
 
-"""
-    eval_SC(SChat,SC,s,batch_size)
+function eval_SC_chucks(SChat,SC,s,e,batch_size,data,target_col)
+  rSC = cor(SChat[s:e,:], SC, dims=2)
+  v = [data[i[1]+s-1,target_col] == data[i[2],target_col] ? 1 : 0 for i in argmax(rSC, dims=2)]
+  sum(v)
+end
 
-Evaluate SC in chucks.
-"""
 function eval_SC_chucks(SChat,SC,s,batch_size)
   rSC = cor(SChat[s:end,:], SC, dims=2)
-  v = [i[2] == i[1]+s-1] ? 1 : 0 for i in argmax(rSC, dims=2)]
+  v = [(rSC[i[1],i[1]+s-1] == rSC[i]) ? 1 : 0 for i in argmax(rSC, dims=2)]
+  sum(v)
+end
+
+function eval_SC_chucks(SChat,SC,s,batch_size,data,target_col)
+  rSC = cor(SChat[s:end,:], SC, dims=2)
+  v = [data[i[1]+s-1,target_col] == data[i[2],target_col] ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)
 end
 
