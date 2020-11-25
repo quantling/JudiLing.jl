@@ -10,9 +10,17 @@ end
 """
 Assess model accuracy on the basis of the correlations of row vectors of Chat and 
 C or Shat and S. Ideally the target words have highest correlations on the diagonal 
-of the pertinent correlation matrices.
+of the pertinent correlation matrices. Homophones support option is implemented.
 """
 function eval_SC end
+
+
+"""
+Assess model accuracy on the basis of the correlations of row vectors of Chat and 
+C or Shat and S. Count it as correct if one of the top k candidates is correct. 
+Homophones support option is implemented.
+"""
+function eval_SC_loose end
 
 """
     accuracy_comprehension(::Matrix, ::Matrix) -> ::Comp_Acc_Struct
@@ -255,6 +263,79 @@ function eval_SC_chucks(SChat,SC,s,batch_size,data,target_col)
   rSC = cor(SChat[s:end,:], SC, dims=2)
   v = [data[i[1]+s-1,target_col] == data[i[2],target_col] ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)
+end
+
+"""
+    eval_SC_loose(SChat, SC, k)
+
+Assess model accuracy on the basis of the correlations of row vectors of Chat and 
+C or Shat and S. Count it as correct if one of the top k candidates is correct. 
+
+...
+# Obligatory Arguments
+- `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
+- `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
+- `k`: top k candidates
+
+```julia
+eval_SC_loose(Chat, cue_obj.C, k)
+eval_SC_loose(Shat, S, k)
+```
+...
+"""
+function eval_SC_loose(SChat, SC, k)
+  total = size(SChat, 1)
+  correct = 0
+  rSC = cor(convert(Matrix{Float64}, SChat), convert(Matrix{Float64}, SC), dims=2)
+  
+  for i in 1:total
+    p = sortperm(rSC[i,:],rev=true)
+    p = p[1:k,:]
+    if i in p
+      correct += 1
+    end
+  end
+  return correct/total
+end
+
+"""
+    eval_SC_loose(SChat,SC,k,data,target_col)
+
+Assess model accuracy on the basis of the correlations of row vectors of Chat and 
+C or Shat and S. Count it as correct if one of the top k candidates is correct. 
+Support for homophones.
+
+...
+# Obligatory Arguments
+- `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
+- `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
+- `k`: top k candidates
+- `data`: datasets
+- `target_col`: target column name
+
+```julia
+eval_SC_loose(Chat, cue_obj.C, k, latin, :Word)
+eval_SC_loose(Shat, S, k, latin, :Word)
+```
+...
+"""
+function eval_SC_loose(SChat,SC,k,data,target_col)
+  total = size(SChat, 1)
+  correct = 0
+  rSC = cor(convert(Matrix{Float64}, SChat), convert(Matrix{Float64}, SC), dims=2)
+  
+  for i in 1:total
+    p = sortperm(rSC[i,:],rev=true)
+    p = p[1:k]
+    if i in p
+      correct += 1
+    else
+      if data[i,target_col] in data[p,:Word]
+        correct += 1
+      end
+    end
+  end
+  return correct/total
 end
 
 """
