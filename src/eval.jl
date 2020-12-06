@@ -330,7 +330,7 @@ function eval_SC_loose(SChat,SC,k,data,target_col)
     if i in p
       correct += 1
     else
-      if data[i,target_col] in data[p,:Word]
+      if data[i,target_col] in data[p,target_col]
         correct += 1
       end
     end

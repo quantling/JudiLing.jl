@@ -4,7 +4,7 @@ A wrapper function for a full model for a specific combination of parameters.
 function test_combo end
 
 """
-    function test_combo(::String, ::String, ::Vector, ::Vector, ::Vector) -> ::Nothing
+    function test_combo(::String, ::Vector, ::Vector, ::Vector) -> ::Nothing
 
 A wrapper function for a full model for a specific combination of parameters.
 
