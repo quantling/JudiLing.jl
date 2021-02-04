@@ -75,3 +75,60 @@ function make_adjacency_matrix(
 
   sparse(I, J, V, n_ngrams, n_ngrams, *)
 end
+
+"""
+    make_combined_adjacency_matrix(::DataFrame, ::DataFrame) -> ::SparseMatrixCSC
+
+Make combined adjacency matrix.
+
+...
+# Obligatory Arguments
+- `data_train::DataFrame`: training dataset
+- `data_val::DataFrame`: validation dataset
+
+# Optional Arguments
+- `grams=3`: the number of grams for cues 
+- `target_col=:Words`: the column name for target strings
+- `tokenized=false`:if true, the dataset target is assumed to be tokenized
+- `sep_token=nothing`: separator
+- `keep_sep=false`: if true, keep separators in cues
+- `start_end_token="#"`: start and end token in boundary cues
+- `verbose=false`: if true, more information is printed
+
+# Examples
+```julia
+JudiLing.make_combined_adjacency_matrix(
+  latin_train,
+  latin_val,
+  grams=3,
+  target_col=:Word,
+  tokenized=false,
+  keep_sep=false
+  )
+```
+...
+"""
+function make_combined_adjacency_matrix(
+  data_train::DataFrame,
+  data_val::DataFrame;
+  grams=3,
+  target_col=:Words,
+  tokenized=false,
+  sep_token=nothing,
+  keep_sep=false,
+  start_end_token="#",
+  verbose=false)
+
+  t, v = make_combined_cue_matrix(
+    data_train,
+    data_val;
+    grams=grams,
+    target_col=target_col,
+    tokenized=tokenized,
+    sep_token=sep_token,
+    keep_sep=keep_sep,
+    start_end_token=start_end_token,
+    verbose=verbose)
+
+  t.A
+end
