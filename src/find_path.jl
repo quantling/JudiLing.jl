@@ -553,15 +553,14 @@ function eval_can(
     res = Result_Path_Info_Struct[]
     if size(candidates[i], 1) > 0
       for (ci,n) in candidates[i] # ci = [1,3,4]
-        Chat = zeros(Int64, length(i2f))
-        Chat[ci] .= 1
-        Shat = Chat'*F
+        Shat = sum(F[ci,:], dims=1)
         Scor = cor(Shat[1,:],S[i,:])
         push!(res, Result_Path_Info_Struct(ci, n, Scor))
       end
     end
     # we collect only top x candidates from the top
-    res_l[i] = collect(Iterators.take(sort!(res, by=x->x.support, rev=true), max_can))
+    res_l[i] = collect(Iterators.take(sort!(
+      res, by=x->x.support, rev=true), max_can))
     if verbose
       ProgressMeter.next!(pb)
     end
