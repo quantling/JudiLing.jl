@@ -1,6 +1,0 @@
-```@meta
-CurrentModule = JudiLing
-```
-
-```@index
-```

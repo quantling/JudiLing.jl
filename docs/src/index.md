@@ -125,8 +125,10 @@ and evaluate the model's prediction accuracy:
 ```julia
 @show JudiLing.eval_SC(cue_obj.C, Chat)
 ```
+
+Output:
 ```output
-JudiLing.eval_SC(cue_obj.C, Chat) = 1.0
+JudiLing.eval_SC(cue_obj.C, Chat) = 0.9732142857142857
 ```
 
 Similar to G and Chat, we can solve S = CF:
@@ -138,8 +140,10 @@ and we then calculate the Shat matrix and evaluate comprehension accuracy:
 Shat = cue_obj.C * F
 @show JudiLing.eval_SC(S, Shat)
 ```
+
+Output:
 ```output
-JudiLing.eval_SC(S, Shat) = 1.0
+JudiLing.eval_SC(S, Shat) = 0.9955357142857143
 ```
 To model speech production, the proper triphones have to be selected and put into the right order. We have two algorithms that accomplish this. Both algorithms construct paths in a triphone space that start with word-initial triphones and end with word-final triphones.
 
