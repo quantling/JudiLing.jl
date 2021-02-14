@@ -19,7 +19,7 @@ struct Gold_Path_Info_Struct
 end
 
 """
-    learn_paths(::DataFrame, ::DataFrame, ::SparseMatrixCSC, ::Union{SparseMatrixCSC, Matrix}, ::Union{SparseMatrixCSC, Matrix}, ::Matrix, ::SparseMatrixCSC, ::Dict) -> ::Union{Tuple{Vector{Vector{Result_Path_Info_Struct}}, Vector{Gold_Path_Info_Struct}}, Vector{Vector{Result_Path_Info_Struct}}}
+    learn_paths(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
 
 A sequence finding algorithm using discrimination learning to predict, for a given 
 word, which n-grams are best supported for a given position in the sequence of n-grams.
@@ -53,6 +53,8 @@ word, which n-grams are best supported for a given position in the sequence of n
 - `target_col::Union{String, :Symbol}=:Words`: the column name for target strings
 - `issparse::Symbol=:auto`: control of whether output of Mt matrix is a dense matrix or a sparse matrix
 - `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
+- `if_pca::Bool=false`: turn on to enable pca mode
+- `pca_eval_M::Matrix=nothing`: pass original F for pca mode
 - `verbose::Bool=false`: if true, more information is printed
 
 # Examples
@@ -146,37 +148,65 @@ res_val = JudiLing.learn_paths(
   sparse_ratio=0.2,
   ...)
 
+# pca mode
+res_learn = JudiLing.learn_paths(
+  korean,
+  korean,
+  Array(Cpcat),
+  S,
+  F,
+  ChatPCA,
+  A,
+  cue_obj.i2f,
+  cue_obj.f2i,
+  check_gold_path=false,
+  gold_ind=cue_obj.gold_ind,
+  Shat_val=Shat,
+  max_t=max_t,
+  max_can=10,
+  grams=3,
+  threshold=0.1,
+  tokenized=true,
+  sep_token="_",
+  keep_sep=true,
+  target_col=:Verb_syll,
+  if_pca=true,
+  pca_eval_M=Fo,
+  verbose=true);
+
 ```
 ...
 """
 function learn_paths(
-  data_train::DataFrame,
-  data_val::DataFrame,
-  C_train::SparseMatrixCSC,
-  S_val::Union{SparseMatrixCSC, Matrix},
-  F_train::Union{SparseMatrixCSC, Matrix},
-  Chat_val::Matrix,
-  A::SparseMatrixCSC,
-  i2f::Dict,
-  f2i::Dict;
-  gold_ind=nothing::Union{Nothing, Vector},
-  Shat_val=nothing::Union{Nothing, Matrix},
-  check_gold_path=false::Bool,
-  max_t=15::Int64,
-  max_can=10::Int64,
-  threshold=0.1::Float64,
-  is_tolerant=false::Bool,
-  tolerance=(-1000.0)::Float64,
-  max_tolerance=4::Int64,
-  grams=3::Int64,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  keep_sep=false::Bool,
-  target_col="Words"::String,
-  issparse=:auto::Symbol,
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{Tuple{Vector{Vector{Result_Path_Info_Struct}}, Vector{Gold_Path_Info_Struct}}, Vector{Vector{Result_Path_Info_Struct}}}
+  data_train,
+  data_val,
+  C_train,
+  S_val,
+  F_train,
+  Chat_val,
+  A,
+  i2f,
+  f2i;
+  gold_ind=nothing,
+  Shat_val=nothing,
+  check_gold_path=false,
+  max_t=15,
+  max_can=10,
+  threshold=0.1,
+  is_tolerant=false,
+  tolerance=(-1000.0),
+  max_tolerance=3,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  keep_sep=false,
+  target_col="Words",
+  issparse=:auto,
+  sparse_ratio=0.2,
+  if_pca=false,
+  pca_eval_M=nothing,
+  verbose=false
+  )
 
   # initialize queues for storing paths
   n_val = size(data_val, 1)
@@ -333,7 +363,7 @@ function learn_paths(
   end
 
   verbose && println("Evaluating paths...")
-  res = eval_can(res, S_val, F_train, i2f, max_can, verbose)
+  res = eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, verbose)
 
   # initialize gold_path_infos
   if check_gold_path
@@ -360,7 +390,7 @@ function learn_paths(
 end
 
 """
-    build_paths(::DataFrame,::SparseMatrixCSC,::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Matrix,::SparseMatrixCSC,::Dict,::Array) -> ::Vector{Vector{Result_Path_Info_Struct}}
+    build_paths(data_val, C_train, S_val, F_train, Chat_val, A, i2f, C_train_ind)
 
 the build_paths function constructs paths by only considering those n-grams that are 
 close to the target. It first takes the predicted c-hat vector and finds the 
@@ -389,6 +419,8 @@ correlation with the target semantic vector (through synthesis by analysis) is s
 - `tokenized::Bool=false`: if true, the dataset target is tokenized
 - `sep_token::Union{Nothing, String, Char}=nothing`: separator
 - `target_col::Union{String, :Symbol}=:Words`: the column name for target strings
+- `if_pca::Bool=false`: turn on to enable pca mode
+- `pca_eval_M::Matrix=nothing`: pass original F for pca mode
 - `verbose::Bool=false`: if true, more information will be printed
 
 # Examples
@@ -422,28 +454,47 @@ JudiLing.build_paths(
   n_neighbors=10,
   verbose=false
   )
+
+# pca mode
+res_build = JudiLing.build_paths(
+  korean,
+  Array(Cpcat),
+  S,
+  F,
+  ChatPCA,
+  A,
+  cue_obj.i2f,
+  cue_obj.gold_ind,
+  max_t=max_t,
+  if_pca=true,
+  pca_eval_M=Fo,
+  n_neighbors=3,
+  verbose=true
+  )
 ```
 ...
 """
 function build_paths(
-  data_val::DataFrame,
-  C_train::SparseMatrixCSC,
-  S_val::Union{SparseMatrixCSC, Matrix},
-  F_train::Union{SparseMatrixCSC, Matrix},
-  Chat_val::Matrix,
-  A::SparseMatrixCSC,
-  i2f::Dict,
-  C_train_ind::Array;
-  rC=nothing::Union{Nothing, Matrix},
-  max_t=15::Int64,
-  max_can=10::Int64,
-  n_neighbors=10::Int64,
-  grams=3::Int64,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  target_col=:Words::Union{String, Symbol},
-  verbose=false::Bool
-  )::Vector{Vector{Result_Path_Info_Struct}}
+  data_val,
+  C_train,
+  S_val,
+  F_train,
+  Chat_val,
+  A,
+  i2f,
+  C_train_ind;
+  rC=nothing,
+  max_t=15,
+  max_can=10,
+  n_neighbors=10,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  target_col=:Words,
+  if_pca=false,
+  pca_eval_M=nothing,
+  verbose=false
+  )
   # initialize queues for storing paths
   n_val = size(data_val, 1)
   # working_q = Array{Queue{Array{Int64,1}},1}(undef, n_val)
@@ -521,24 +572,26 @@ function build_paths(
   end
 
   verbose && println("Evaluating paths...")
-  eval_can(res, S_val, F_train, i2f, max_can, verbose)
+  eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, verbose)
 end
 
 """
-    eval_can(::Vector{Vector{Tuple{Vector{Int64}, Int64}}},::Union{SparseMatrixCSC, Matrix},::Union{SparseMatrixCSC, Matrix},::Dict,::Int64,::Bool) -> ::Array{Array{Result_Path_Info_Struct,1},1}
+    eval_can(candidates, S, F, i2f, max_can, if_pca, pca_eval_M)
 
 Calculate for each candidate path the correlation between predicted semantic 
 vector and the gold standard semantic vector, and select as target for production 
 the path with the highest correlation.
 """
 function eval_can(
-  candidates::Vector{Vector{Tuple{Vector{Int64}, Int64}}},
-  S::Union{SparseMatrixCSC, Matrix},
-  F::Union{SparseMatrixCSC, Matrix},
-  i2f::Dict,
-  max_can::Int64,
-  verbose=false::Bool
-  )::Array{Array{Result_Path_Info_Struct,1},1}
+  candidates,
+  S,
+  F,
+  i2f,
+  max_can,
+  if_pca,
+  pca_eval_M,
+  verbose=false
+  )
 
   verbose && println("average $(mean(length.(candidates))) of paths to evaluate")
 
@@ -548,20 +601,23 @@ function eval_can(
     pb = Progress(size(S, 1))
   end
 
+  if if_pca
+    F = pca_eval_M
+  end
+
   @Threads.threads for i in iter
     tid = Threads.threadid()
     res = Result_Path_Info_Struct[]
     if size(candidates[i], 1) > 0
       for (ci,n) in candidates[i] # ci = [1,3,4]
-        Chat = zeros(Int64, length(i2f))
-        Chat[ci] .= 1
-        Shat = Chat'*F
+        Shat = sum(F[ci,:], dims=1)
         Scor = cor(Shat[1,:],S[i,:])
         push!(res, Result_Path_Info_Struct(ci, n, Scor))
       end
     end
     # we collect only top x candidates from the top
-    res_l[i] = collect(Iterators.take(sort!(res, by=x->x.support, rev=true), max_can))
+    res_l[i] = collect(Iterators.take(sort!(
+      res, by=x->x.support, rev=true), max_can))
     if verbose
       ProgressMeter.next!(pb)
     end
@@ -571,19 +627,17 @@ function eval_can(
 end
 
 """
-    find_top_feature_indices(::Matrix, ::Array) -> ::Vector{Vector{Int64}}
+    find_top_feature_indices(rC, C_train_ind)
 
 Find all indices for the n-grams of the top n closest neighbors of 
 a given target.
 """
 function find_top_feature_indices(
-  # C_train::SparseMatrixCSC,
-  # Chat_val::Union{SparseMatrixCSC, Matrix},
-  rC::Matrix,
-  C_train_ind::Array;
-  n_neighbors=10::Int64,
-  verbose=false::Bool
-  )::Vector{Vector{Int64}}
+  rC,
+  C_train_ind;
+  n_neighbors=10,
+  verbose=false
+  )
 
   # collect num of val data
   n_val = size(rC, 1)
