@@ -29,8 +29,12 @@ function wh_learn(
     inputT = Matrix{Float64}(undef, (size(X, 2), 1))
     pred = Matrix{Float64}(undef, (1, size(Y, 2)))
     deltaW = Matrix{Float64}(undef, (size(X, 2), size(Y, 2)))
-    verbose && begin
-        pb = Progress(size(X, 1) * n_epochs)
+    if verbose
+        if isnothing(learn_seq)
+            pb = Progress(size(X, 1) * n_epochs)
+        else
+            pb = Progress(size(learn_seq, 1) * n_epochs)
+        end
     end
     for j = 1:n_epochs # 100 epochs
         for i in learn_seq # for each events
