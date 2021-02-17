@@ -121,9 +121,9 @@ mkpath(joinpath("french_out"))
 test_io = open(joinpath("french_out", "out.log"), "w")
 
 JudiLing.test_combo(
-  ...
-  log_io=test_io,
-  ...)
+    ...
+    log_io=test_io,
+    ...)
 
 close(test_io)
 ```
