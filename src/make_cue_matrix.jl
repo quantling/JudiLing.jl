@@ -30,7 +30,7 @@ Given a list of string tokens, extract their n-grams.
 function make_ngrams end
 
 """
-    make_cue_matrix(::DataFrame) -> ::Cue_Matrix_Struct
+    make_cue_matrix(data::DataFrame)
 
 Make the cue matrix for training datasets and corresponding indices as well as the adjacency matrix 
 and gold paths given a dataset in a form of dataframe.
@@ -78,14 +78,14 @@ cue_obj_train = JudiLing.make_cue_matrix(
 """
 function make_cue_matrix(
   data::DataFrame;
-  grams=3::Int64,
-  target_col=:Words::Union{String, Symbol},
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  keep_sep=false::Bool,
-  start_end_token="#"::Union{String, Char},
-  verbose=false::Bool
-  )::Cue_Matrix_Struct
+  grams=3,
+  target_col=:Words,
+  tokenized=false,
+  sep_token=nothing,
+  keep_sep=false,
+  start_end_token="#",
+  verbose=false
+  )
 
   # split tokens from words or other columns
   if tokenized && !isnothing(sep_token)
@@ -164,7 +164,7 @@ function make_cue_matrix(
 end
 
 """
-    make_cue_matrix(::DataFrame, ::Cue_Matrix_Struct) -> ::Cue_Matrix_Struct
+    make_cue_matrix(data::DataFrame, cue_obj::Cue_Matrix_Struct)
 
 Make the cue matrix for validation datasets and corresponding indices as well as the adjacency matrix 
 and gold paths given a dataset in a form of dataframe.
@@ -216,14 +216,14 @@ cue_obj_val = JudiLing.make_cue_matrix(
 function make_cue_matrix(
   data::DataFrame,
   cue_obj::Cue_Matrix_Struct;
-  grams=3::Int64,
-  target_col="Words"::String,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  keep_sep=false::Bool,
-  start_end_token="#"::Union{String, Char},
-  verbose=false::Bool
-  )::Cue_Matrix_Struct
+  grams=3,
+  target_col="Words",
+  tokenized=false,
+  sep_token=nothing,
+  keep_sep=false,
+  start_end_token="#",
+  verbose=false
+  )
 
   # split tokens from words or other columns
   if tokenized && !isnothing(sep_token)
@@ -264,7 +264,7 @@ function make_cue_matrix(
 end
 
 """
-    make_cue_matrix(::DataFrame, ::DataFrame) -> ::Cue_Matrix_Struct, ::Cue_Matrix_Struct
+    make_cue_matrix(data_train::DataFrame, data_val::DataFrame)
 
 Make the cue matrix for traiing and validation datasets at the same time.
 
@@ -312,14 +312,14 @@ cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
 function make_cue_matrix(
   data_train::DataFrame,
   data_val::DataFrame;
-  grams=3::Int64,
-  target_col="Words"::String,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  keep_sep=false::Bool,
-  start_end_token="#"::Union{String, Char},
-  verbose=false::Bool
-  )::Tuple{Cue_Matrix_Struct, Cue_Matrix_Struct}
+  grams=3,
+  target_col="Words",
+  tokenized=false,
+  sep_token=nothing,
+  keep_sep=false,
+  start_end_token="#",
+  verbose=false
+  )
   
   cue_obj_train = make_cue_matrix(
     data_train,
@@ -346,47 +346,21 @@ function make_cue_matrix(
 end
 
 """
-  make_ngrams(::Array, ::Int64, ::Bool, ::Union{Nothing, String, Char},::Union{String, Char} -> ::Array
-
-Given a list of string tokens return a list of all n-grams for these tokens.
-"""
-function make_ngrams(
-  tokens::Array,
-  grams=3::Int64,
-  keep_sep=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  start_end_token="#"::Union{String, Char}
-  )::Array
-
-  push!(pushfirst!(tokens, start_end_token), start_end_token)
-  if keep_sep
-    # collect ngrams
-    ngrams = join.(collect(zip((
-      Iterators.drop(tokens, k) for k = 0:grams-1)...)), sep_token)
-  else
-    ngrams = join.(collect(zip((
-      Iterators.drop(tokens, k) for k = 0:grams-1)...)), "")
-  end
-
-  ngrams
-end
-
-"""
-  make_cue_matrix(::DataFrame, ::Pyndl_Weight_Struct) -> ::Cue_Matrix_Struct
+  make_cue_matrix(data::DataFrame, pyndl_weights::Pyndl_Weight_Struct)
 
 Make the cue matrix for pyndl mode.
 """
 function make_cue_matrix(
   data::DataFrame,
   pyndl_weights::Pyndl_Weight_Struct;
-  grams=3::Int64,
-  target_col="Words"::String,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  keep_sep=false::Bool,
-  start_end_token="#"::Union{String, Char},
-  verbose=false::Bool
-  )::Cue_Matrix_Struct
+  grams=3,
+  target_col="Words",
+  tokenized=false,
+  sep_token=nothing,
+  keep_sep=false,
+  start_end_token="#",
+  verbose=false
+  )
 
   # split tokens from words or other columns
   if tokenized && !isnothing(sep_token)
@@ -465,7 +439,7 @@ function make_cue_matrix(
 end
 
 """
-    make_combined_cue_matrix(::DataFrame, ::DataFrame) -> ::Cue_Matrix_Struct, ::Cue_Matrix_Struct
+    make_combined_cue_matrix(data_train, data_val)
 
 Make the cue matrix for training and validation datasets at the same time, where the features and adjacencies are combined.
 
@@ -511,16 +485,16 @@ cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(
 ...
 """
 function make_combined_cue_matrix(
-  data_train::DataFrame,
-  data_val::DataFrame;
-  grams=3::Int64,
-  target_col="Words"::String,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  keep_sep=false::Bool,
-  start_end_token="#"::Union{String, Char},
-  verbose=false::Bool
-  )::Tuple{Cue_Matrix_Struct, Cue_Matrix_Struct}
+  data_train,
+  data_val;
+  grams=3,
+  target_col="Words",
+  tokenized=false,
+  sep_token=nothing,
+  keep_sep=false,
+  start_end_token="#",
+  verbose=false
+  )
 
   data_combined = copy(data_train)
   append!(data_combined, data_val)
@@ -558,4 +532,30 @@ function make_combined_cue_matrix(
     verbose=verbose)
 
   cue_obj_train, cue_obj_val
+end
+
+"""
+    make_ngrams(tokens, grams=3, keep_sep=false, sep_token=nothing, start_end_token="#")
+
+Given a list of string tokens return a list of all n-grams for these tokens.
+"""
+function make_ngrams(
+  tokens,
+  grams=3,
+  keep_sep=false,
+  sep_token=nothing,
+  start_end_token="#"
+  )
+
+  push!(pushfirst!(tokens, start_end_token), start_end_token)
+  if keep_sep
+    # collect ngrams
+    ngrams = join.(collect(zip((
+      Iterators.drop(tokens, k) for k = 0:grams-1)...)), sep_token)
+  else
+    ngrams = join.(collect(zip((
+      Iterators.drop(tokens, k) for k = 0:grams-1)...)), "")
+  end
+
+  ngrams
 end

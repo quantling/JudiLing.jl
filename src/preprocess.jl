@@ -3,6 +3,11 @@ struct SplitDataException <: Exception
 end
 
 """
+Split dataset into training and validation datasets.
+"""
+function train_val_split end
+
+"""
 Leave p out cross-validation.
 """
 function lpo_cv_split end
@@ -13,7 +18,7 @@ Leave one out cross-validation.
 function loo_cv_split end
 
 """
-    lpo_cv_split(p, data_path; random_seed=314)
+    lpo_cv_split(p, data_path)
 
 Leave p out cross-validation.
 """
@@ -29,7 +34,7 @@ function lpo_cv_split(p, data_path; random_seed=314)
 end
 
 """
-    loo_cv_split(data_path; random_seed=314)
+    loo_cv_split(data_path)
 
 Leave one out cross-validation.
 """
@@ -38,21 +43,21 @@ function loo_cv_split(data_path; random_seed=314)
 end
 
 function train_val_split(
-  data_path::String,
-  output_dir_path::String,
-  n_features_columns::Vector;
-  data_prefix="data"::String,
-  max_test_data=nothing::Union{Nothing, Int64},
-  split_max_ratio=0.2::Float64,
-  n_grams_target_col=:PhonWord::Symbol,
-  n_grams_tokenized=false::Bool,
-  n_grams_sep_token=nothing::Union{Nothing, String, Char},
-  grams=3::Int64,
-  n_grams_keep_sep=false::Bool,
-  start_end_token="#"::Union{String, Char},
-  random_seed=314::Int64,
-  verbose=false::Bool
-  )::Nothing
+  data_path,
+  output_dir_path,
+  n_features_columns;
+  data_prefix="data",
+  max_test_data=nothing,
+  split_max_ratio=0.2,
+  n_grams_target_col=:PhonWord,
+  n_grams_tokenized=false,
+  n_grams_sep_token=nothing,
+  grams=3,
+  n_grams_keep_sep=false,
+  start_end_token="#",
+  random_seed=314,
+  verbose=false
+  )
 
   # read csv
   utterances = CSV.DataFrame!(CSV.File(data_path))
@@ -125,19 +130,19 @@ function train_val_split(
 end
 
 function train_val_split(
-  data_path::String,
-  output_dir_path::String;
-  data_prefix="data"::String,
-  split_max_ratio=0.2::Float64,
-  n_grams_target_col=:Word_n_grams::Symbol,
-  n_grams_tokenized=false::Bool,
-  n_grams_sep_token=nothing::Union{Nothing, String, Char},
-  n_features_col_name=:CommunicativeIntention::Symbol,
-  n_features_tokenized=false::Bool,
-  n_features_sep_token=nothing::Union{Nothing, String, Char},
-  random_seed=314::Int64,
-  verbose=false::Bool
-  )::Nothing
+  data_path,
+  output_dir_path;
+  data_prefix="data",
+  split_max_ratio=0.2,
+  n_grams_target_col=:Word_n_grams,
+  n_grams_tokenized=false,
+  n_grams_sep_token=nothing,
+  n_features_col_name=:CommunicativeIntention,
+  n_features_tokenized=false,
+  n_features_sep_token=nothing,
+  random_seed=314,
+  verbose=false
+  )
 
   # read csv
   utterances = CSV.DataFrame!(CSV.File(data_path))
@@ -192,11 +197,11 @@ function train_val_split(
 end
 
 function split_features(
-  datarow::DataFrames.DataFrameRow,
-  col_name::Symbol,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char}
-  )::Vector
+  datarow,
+  col_name,
+  tokenized=false,
+  sep_token=nothing
+  )
   if tokenized && !isnothing(sep_token)
     split(datarow[col_name], sep_token)
   else
@@ -205,8 +210,8 @@ function split_features(
 end
 
 function collect_features(
-  data::DataFrame,
-  n_features_columns::Vector
+  data,
+  n_features_columns
   )
   features = String[]
   for c in n_features_columns
@@ -228,7 +233,7 @@ function perform_split(
   n_features_col_name,
   n_features_tokenized,
   n_features_sep_token;
-  verbose=false::Bool
+  verbose=false
   )
 
   iter = 1:size(utterances, 1)
@@ -281,7 +286,7 @@ function perform_split(
   n_grams_keep_sep,
   start_end_token,
   n_features_columns;
-  verbose=false::Bool
+  verbose=false
   )
 
   if n_grams_tokenized && !isnothing(n_grams_sep_token)
@@ -320,18 +325,16 @@ function perform_split(
   end
 end
 
-function preprocess_ndl end
-
 function preprocess_ndl(
-  data_path::String,
-  save_path::String;
-  grams=3::Int64,
-  n_grams_target_col=:Word::Union{String, Symbol},
-  n_grams_tokenized=false::Bool,
-  n_grams_sep_token="-"::String,
-  n_grams_keep_sep=false::Bool,
-  n_features_columns=["Lexeme","Person","Number","Tense","Voice","Mood"]::Vector
-  )::Nothing
+  data_path,
+  save_path;
+  grams=3,
+  n_grams_target_col=:Word,
+  n_grams_tokenized=false,
+  n_grams_sep_token="-",
+  n_grams_keep_sep=false,
+  n_features_columns=["Lexeme","Person","Number","Tense","Voice","Mood"]
+  )
 
   # read csv
   data = CSV.DataFrame!(CSV.File(data_path))
@@ -360,14 +363,14 @@ function preprocess_ndl(
 end
 
 function make_cue_outcome(
-  data::DataFrame,
-  grams::Int64,
-  n_grams_target_col::Union{String, Symbol},
-  n_grams_tokenized::Bool,
-  n_grams_sep_token::String,
-  n_grams_keep_sep::Bool,
-  n_features_columns::Vector
-  )::Tuple{Vector{String}, Vector{String}}
+  data,
+  grams,
+  n_grams_target_col,
+  n_grams_tokenized,
+  n_grams_sep_token,
+  n_grams_keep_sep,
+  n_features_columns
+  )
 
   n_rows = size(data, 1)
 

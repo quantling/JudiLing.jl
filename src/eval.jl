@@ -23,7 +23,7 @@ Homophones support option is implemented.
 function eval_SC_loose end
 
 """
-    accuracy_comprehension(::Matrix, ::Matrix) -> ::Comp_Acc_Struct
+    accuracy_comprehension(S, Shat, data)
 
 Evaluate comprehension accuracy.
 
@@ -61,13 +61,13 @@ accuracy_comprehension(
 ...
 """
 function accuracy_comprehension(
-  S::Matrix,
-  Shat::Matrix,
-  data::DataFrame;
-  target_col=:Words::Union{String, Symbol},
-  base=["Lexeme"]::Vector,
-  inflections=nothing::Union{Nothing, Vector}
-  )::Comp_Acc_Struct
+  S,
+  Shat,
+  data;
+  target_col=:Words,
+  base=["Lexeme"],
+  inflections=nothing
+  )
 
   corMat = cor(Shat, S, dims=2)
   top_index = [i[2] for i in argmax(corMat, dims=2)]
@@ -97,7 +97,7 @@ function accuracy_comprehension(
 end
 
 """
-    eval_SC(SChat,SC)
+    eval_SC(SChat, SC)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and 
 C or Shat and S. Ideally the target words have highest correlations on the diagonal 
@@ -116,15 +116,14 @@ eval_SC(Shat_val, S_val)
 ```
 ...
 """
-function eval_SC(SChat,SC)
-
+function eval_SC(SChat, SC)
   rSC = cor(convert(Matrix{Float64}, SChat), convert(Matrix{Float64}, SC), dims=2)
   v = [rSC[i[1],i[1]]==rSC[i] ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)/length(v)
 end
 
 """
-    eval_SC(SChat,SC,data,target_col)
+    eval_SC(SChat, SC, data, target_col)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and 
 C or Shat and S. Ideally the target words have highest correlations on the diagonal 
@@ -143,14 +142,14 @@ eval_SC(Shat_val, S_val)
 ```
 ...
 """
-function eval_SC(SChat,SC,data,target_col)
+function eval_SC(SChat, SC, data, target_col)
   rSC = cor(convert(Matrix{Float64}, SChat), convert(Matrix{Float64}, SC), dims=2)
   v = [data[i[1],target_col] == data[i[2],target_col] ? 1 : 0 for i in argmax(rSC, dims=2)]
   sum(v)/length(v)
 end
 
 """
-    eval_SC(SChat,SC,batch_size;verbose=false)
+    eval_SC(SChat, SC, batch_size)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and 
 C or Shat and S. Ideally the target words have highest correlations on the diagonal 
@@ -173,7 +172,7 @@ eval_SC(Shat_val, S_val, latin, :Word)
 ```
 ...
 """
-function eval_SC(SChat,SC,batch_size;verbose=false)
+function eval_SC(SChat, SC, batch_size; verbose=false)
   l = size(SChat, 1)
   num_chucks = ceil(Int64, l/batch_size)
   verbose && begin pb = Progress(num_chucks) end
@@ -195,7 +194,7 @@ function eval_SC(SChat,SC,batch_size;verbose=false)
 end
 
 """
-    eval_SC(SChat,SC,data,target_col,batch_size;verbose=false)
+    eval_SC(SChat, SC, data, target_col, batch_size)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and 
 C or Shat and S. Ideally the target words have highest correlations on the diagonal 
@@ -218,7 +217,15 @@ eval_SC(Shat_val, S_val, latin, :Word, 5000)
 ```
 ...
 """
-function eval_SC(SChat,SC,data,target_col,batch_size;verbose=false)
+function eval_SC(
+  SChat,
+  SC,
+  data,
+  target_col,
+  batch_size;
+  verbose=false
+  )
+
   l = size(SChat, 1)
   num_chucks = ceil(Int64, l/batch_size)
   verbose && begin pb = Progress(num_chucks) end
@@ -299,7 +306,7 @@ function eval_SC_loose(SChat, SC, k)
 end
 
 """
-    eval_SC_loose(SChat,SC,k,data,target_col)
+    eval_SC_loose(SChat, SC, k, data, target_col)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and 
 C or Shat and S. Count it as correct if one of the top k candidates is correct. 
@@ -319,7 +326,7 @@ eval_SC_loose(Shat, S, k, latin, :Word)
 ```
 ...
 """
-function eval_SC_loose(SChat,SC,k,data,target_col)
+function eval_SC_loose(SChat, SC, k, data, target_col)
   total = size(SChat, 1)
   correct = 0
   rSC = cor(convert(Matrix{Float64}, SChat), convert(Matrix{Float64}, SC), dims=2)
@@ -339,24 +346,24 @@ function eval_SC_loose(SChat,SC,k,data,target_col)
 end
 
 """
-    eval_manual(::Array, ::DataFrame, ::Dict) -> ::Nothing
+    eval_manual(res, data, i2f)
 
 Create extensive reports for the outputs from `build_paths` and `learn_paths`.
 """
 function eval_manual(
-  res::Array,
-  data::DataFrame,
-  i2f::Dict;
-  s=1::Int64,
-  e=nothing::Union{Nothing, Int64},
-  grams=3::Int64,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  start_end_token="#"::Union{String, Char},
-  verbose=false::Bool,
-  identifier="Identifier"::String,
-  output_sep_token=""::Union{String, Char}
-  )::Nothing
+  res,
+  data,
+  i2f;
+  s=1,
+  e=nothing,
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  verbose=false,
+  identifier="Identifier",
+  output_sep_token=""
+  )
 
   # is end is not specified then it is the end of dataset
   if isnothing(e)
@@ -383,7 +390,7 @@ end
 
 
 """
-    eval_acc(::Array, ::Array) -> ::Float64
+    eval_acc(res, gold_inds)
 
 Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
 
@@ -414,10 +421,10 @@ acc_val = JudiLing.eval_acc(
 ...
 """
 function eval_acc(
-    res::Array,
-    gold_inds::Array;
-    verbose=false::Bool
-  )::Float64
+  res,
+  gold_inds;
+  verbose=false
+  )
 
   total = length(res)
   acc = 0
@@ -440,7 +447,7 @@ function eval_acc(
 end
 
 """
-    eval_acc_loose(::Array, ::Array) -> ::Float64
+    eval_acc_loose(res, gold_inds)
 
 Lenient evaluation of the accuracy of the results from `learn_paths` or `build_paths`, 
 counting a prediction as correct when the correlation of the predicted and gold 
@@ -474,10 +481,10 @@ acc_val_loose = JudiLing.eval_acc_loose(
 ...
 """
 function eval_acc_loose(
-    res::Array,
-    gold_inds::Array;
-    verbose=false::Bool
-  )::Float64
+  res,
+  gold_inds;
+  verbose=false
+  )
 
   total = length(res)
   acc = 0
@@ -506,16 +513,16 @@ function eval_acc_loose(
 end
 
 """
-    extract_gpi(::Vector{Gold_Path_Info_Struct}, ::Float64, ::Float64) -> ::Array
+    extract_gpi(gpi, threshold=0.1, tolerance=(-1000.0))
 
 Extract, using gold paths' information, how many n-grams for a gold 
 path are below the threshold but above the tolerance.
 """
 function extract_gpi(
-  gpi::Vector{Gold_Path_Info_Struct},
-  threshold=0.1::Float64,
-  tolerance=(-1000.0)::Float64
-)::Array
+  gpi,
+  threshold=0.1,
+  tolerance=(-1000.0)
+ )
   c = [count(x->threshold>=x>tolerance, g.ngrams_ind_support) for g in gpi]
 
   t_c = length(c)

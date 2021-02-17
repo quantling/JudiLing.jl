@@ -4,7 +4,7 @@ Make Yt matrix for timestep t.
 function make_Yt_matrix end
 
 """
-    make_Yt_matrix(::Int64, ::DataFrame) -> ::SparseMatrixCSC
+    make_Yt_matrix(t, data, f2i)
 
 Make Yt matrix for timestep t. A given column of the Yt matrix specifies the support 
 for the corresponding n-gram predicted for timestep t for each of the observations (rows of Yt).
@@ -28,16 +28,16 @@ JudiLing.make_Yt_matrix(2, latin)
 ...
 """
 function make_Yt_matrix(
-  t::Int64,
-  data::DataFrame,
-  f2i::Dict;
-  grams=3::Int64,
-  target_col="Words"::String,
-  tokenized=false::Bool,
-  keep_sep=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  start_end_token="#"::Union{String, Char}
-  )::SparseMatrixCSC
+  t,
+  data,
+  f2i;
+  grams=3,
+  target_col="Words",
+  tokenized=false,
+  keep_sep=false,
+  sep_token=nothing,
+  start_end_token="#"
+  )
 
   # split tokens from words or other columns
   if tokenized && !isnothing(sep_token)

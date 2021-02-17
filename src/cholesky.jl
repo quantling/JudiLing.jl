@@ -11,16 +11,16 @@ or from C to S.
 function make_transform_matrix end
 
 """
-    make_transform_fac(::SparseMatrixCSC) -> ::SuiteSparse.CHOLMOD.Factor
+    make_transform_fac(X::SparseMatrixCSC)
 
 Calculate the first step of Cholesky decomposition for sparse matrices.
 """
 function make_transform_fac(
   X::SparseMatrixCSC;
-  method=:additive::Symbol,
-  shift=0.02::Float64,
-  multiplier=1.01::Float64
-  )::SuiteSparse.CHOLMOD.Factor
+  method=:additive,
+  shift=0.02,
+  multiplier=1.01
+  )
 
   XtX = X'X
 
@@ -40,16 +40,16 @@ function make_transform_fac(
 end
 
 """
-    make_transform_fac(::Matrix) -> ::LinearAlgebra.Cholesky
+    make_transform_fac(X::Matrix)
 
 Calculate the first step of Cholesky decomposition for dense matrices.
 """
 function make_transform_fac(
   X::Matrix;
-  method=:additive::Symbol,
-  shift=0.02::Float64,
-  multiplier=1.01::Float64
-  )::LinearAlgebra.Cholesky
+  method=:additive,
+  shift=0.02,
+  multiplier=1.01
+  )
 
   XtX = X'X
 
@@ -66,7 +66,7 @@ function make_transform_fac(
 end
 
 """
-    make_transform_matrix(::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor}, ::Union{SparseMatrixCSC, Matrix}, ::Union{SparseMatrixCSC, Matrix}) -> ::Union{Matrix, SparseMatrixCSC}
+    make_transform_matrix(fac::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor}, X::Union{SparseMatrixCSC, Matrix}, Y::Union{SparseMatrixCSC, Matrix})
 
 Second step in calculating the Cholesky decomposition for the transformation matrix.
 """
@@ -74,17 +74,17 @@ function make_transform_matrix(
   fac::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor},
   X::Union{SparseMatrixCSC, Matrix},
   Y::Union{SparseMatrixCSC, Matrix};
-  output_format=:auto::Symbol,
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{Matrix, SparseMatrixCSC}
+  output_format=:auto,
+  sparse_ratio=0.2,
+  verbose=false
+  )
 
   M = fac\(X'Y)
   format_matrix(M, output_format, sparse_ratio=sparse_ratio, verbose=verbose)
 end
 
 """
-    make_transform_matrix(::SparseMatrixCSC, ::Matrix) -> ::Union{SparseMatrixCSC, Matrix}
+    make_transform_matrix(X::SparseMatrixCSC, Y::Matrix)
 
 Use Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a dense matrix.
@@ -132,13 +132,13 @@ JudiLing.make_transform_matrix(
 function make_transform_matrix(
   X::SparseMatrixCSC,
   Y::Matrix;
-  method=:additive::Symbol,
-  shift=0.02::Float64,
-  multiplier=1.01::Float64,
-  output_format=:auto::Symbol,
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{SparseMatrixCSC, Matrix}
+  method=:additive,
+  shift=0.02,
+  multiplier=1.01,
+  output_format=:auto,
+  sparse_ratio=0.2,
+  verbose=false
+  )
 
   XtX = X'X
 
@@ -159,7 +159,7 @@ function make_transform_matrix(
 end
 
 """
-    make_transform_matrix(::Matrix, ::Union{SparseMatrixCSC, Matrix}) -> ::Union{SparseMatrixCSC, Matrix}
+    make_transform_matrix(X::Matrix, Y::Union{SparseMatrixCSC, Matrix})
 
 Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
@@ -207,13 +207,13 @@ JudiLing.make_transform_matrix(
 function make_transform_matrix(
   X::Matrix,
   Y::Union{SparseMatrixCSC, Matrix};
-  method=:additive::Symbol,
-  shift=0.02::Float64,
-  multiplier=1.01::Float64,
-  output_format=:auto::Symbol,
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{SparseMatrixCSC, Matrix}
+  method=:additive,
+  shift=0.02,
+  multiplier=1.01,
+  output_format=:auto,
+  sparse_ratio=0.2,
+  verbose=false
+  )
 
   XtX = X'X
 
@@ -233,7 +233,7 @@ function make_transform_matrix(
 end
 
 """
-    make_transform_matrix(::SparseMatrixCSC, ::SparseMatrixCSC) -> ::Union{SparseMatrixCSC, Matrix}
+    make_transform_matrix(X::SparseMatrixCSC, Y::SparseMatrixCSC)
 
 Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a sparse matrix.
@@ -281,13 +281,13 @@ JudiLing.make_transform_matrix(
 function make_transform_matrix(
   X::SparseMatrixCSC,
   Y::SparseMatrixCSC;
-  method=:additive::Symbol,
-  shift=0.02::Float64,
-  multiplier=1.01::Float64,
-  output_format=:auto::Symbol,
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{SparseMatrixCSC, Matrix}
+  method=:additive,
+  shift=0.02,
+  multiplier=1.01,
+  output_format=:auto,
+  sparse_ratio=0.2,
+  verbose=false
+  )
 
   XtX = X'X
 
@@ -310,16 +310,16 @@ function make_transform_matrix(
 end
 
 """
-    format_matrix(::Union{SparseMatrixCSC, Matrix}, ::Symbol) -> ::Union{SparseMatrixCSC, Matrix}
+    format_matrix(M::Union{SparseMatrixCSC, Matrix}, output_format=:auto)
 
 Convert output matrix format to either a dense matrix or a sparse matrix.
 """
 function format_matrix(
   M::Union{SparseMatrixCSC, Matrix},
-  output_format=:auto::Symbol;
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{SparseMatrixCSC, Matrix}
+  output_format=:auto;
+  sparse_ratio=0.2,
+  verbose=false
+  )
 
   if output_format == :dense
     verbose && println("Returning a dense matrix format")

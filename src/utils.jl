@@ -2,8 +2,8 @@
 Check whether the predictions are correct.
 """
 function iscorrect(
-  gold_ind::Vector,
-  pred_ind::Vector
+  gold_ind,
+  pred_ind
   )
   gold_ind == pred_ind
 end
@@ -12,14 +12,14 @@ end
 Display prediction nicely.
 """
 function display_pred(
-  preds::Array,
-  i2f::Dict,
-  grams::Int64,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  start_end_token="#"::Union{String, Char},
-  output_sep_token=""::Union{String, Char}
-  )::Nothing
+  preds,
+  i2f,
+  grams,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token=""
+  )
 
   if length(preds) == 0
     println("No prediction for this utterance")
@@ -37,14 +37,14 @@ end
 Translate indices into words or utterances
 """
 function translate(
-  ngrams_ind::Vector,
-  i2f::Dict,
-  grams::Int64,
-  tokenized::Bool,
-  sep_token::Union{Nothing, String, Char},
-  start_end_token::Union{String, Char},
-  output_sep_token::Union{String, Char, Nothing}
-  )::String
+  ngrams_ind,
+  i2f,
+  grams,
+  tokenized,
+  sep_token,
+  start_end_token,
+  output_sep_token
+  )
 
   if isnothing(output_sep_token)
     output_sep_token = ""
@@ -71,7 +71,7 @@ function translate_path(
   ngrams_ind,
   i2f;
   sep_token=":"
-  )::String
+  )
 
   join([i2f[i] for i in ngrams_ind], sep_token)
 end
@@ -81,9 +81,9 @@ Check whether a matrix is truly sparse regardless its format, where M is origina
 """
 function is_truly_sparse(
   M::SparseMatrixCSC;
-  threshold=0.05::Float64,
-  verbose=false::Bool
-  )::Bool
+  threshold=0.05,
+  verbose=false
+  )
   verbose && println("Sparsity: $(length(M.nzval)/M.m/M.n)")
   return threshold > (length(M.nzval)/M.m/M.n)
 end
@@ -93,9 +93,9 @@ Check whether a matrix is truly sparse regardless its format, where M is origina
 """
 function is_truly_sparse(
   M::Matrix;
-  threshold=0.05::Float64,
-  verbose=false::Bool
-  )::Bool
+  threshold=0.05,
+  verbose=false
+  )
   M = sparse(M)
   verbose && println("Sparsity: $(length(M.nzval)/M.m/M.n)")
   return threshold > (length(M.nzval)/M.m/M.n)
@@ -104,10 +104,7 @@ end
 """
 Check whether a gram can attach to another gram.
 """
-function isattachable(
-  a::Array,
-  b::Array
-  )::Bool
+function isattachable(a, b)
 
   a[2:end] == b[1:end-1]
 end
@@ -115,24 +112,20 @@ end
 """
 Check whether a gram can attach to another gram.
 """
-function isattachable(
-  a::Array,
-  c::Int64,
-  Al::SparseMatrixCSC
-  )::Bool
+function isattachable(a,c,A)
 
-  convert(Bool, Al[a[end],c])
+  convert(Bool, A[a[end],c])
 end
 
 """
 Check whether a path is complete.
 """
 function iscomplete(
-  a::Array,
-  i2f::Dict;
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char}
-  )::Bool
+  a,
+  i2f;
+  tokenized=false,
+  sep_token=nothing
+  )
 
   ngram = i2f[a[end]]
 
@@ -149,11 +142,11 @@ end
 Check whether a gram can start a path.
 """
 function isstart(
-  c::Int64,
-  i2f::Dict;
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char}
-  )::Bool
+  c,
+  i2f;
+  tokenized=false,
+  sep_token=nothing
+  )
 
   ngram = i2f[c]
 
@@ -170,9 +163,9 @@ end
 Check whether a predicted path is in training data.
 """
 function isnovel(
-  gold_ind::Vector,
-  pred_ngrams_ind::Array
-  )::Bool
+  gold_ind,
+  pred_ngrams_ind
+  )
 
   !(pred_ngrams_ind in gold_ind)
 end
@@ -181,11 +174,11 @@ end
 Check whether there are tokens already used in dataset as n-gram components. 
 """
 function check_used_token(
-  data::DataFrame,
-  target_col::Symbol,
-  token::Union{String, Char},
-  token_name::String
-  )::Nothing
+  data,
+  target_col,
+  token,
+  token_name
+  )
   data_columns = data[:, target_col]
   res = filter(x->!isnothing(findfirst(token, x)) , data_columns)
 
@@ -198,12 +191,12 @@ end
 Calculate the max timestep given training and validation datasets.
 """
 function cal_max_timestep(
-  data_train::DataFrame,
-  data_val::DataFrame,
-  target_col::Union{Symbol, String};
-  tokenized=false::Bool,
-  sep_token=""::Union{String, Char, Nothing}
-  )::Int64
+  data_train,
+  data_val,
+  target_col;
+  tokenized=false,
+  sep_token=""
+  )
   words_train = data_train[:, target_col]
   words_val = data_val[:, target_col]
 
@@ -222,11 +215,11 @@ end
 Calculate the max timestep given training datasets only.
 """
 function cal_max_timestep(
-  data::DataFrame,
-  target_col::Union{Symbol, String};
-  tokenized=false::Bool,
-  sep_token=""::Union{String, Char}
-  )::Int64
+  data,
+  target_col;
+  tokenized=false,
+  sep_token=""
+  )
 
   words = data[:, target_col]
 

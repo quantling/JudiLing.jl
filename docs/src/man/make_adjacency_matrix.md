@@ -6,6 +6,6 @@ CurrentModule = JudiLing
 
 ```@docs
   make_adjacency_matrix
-  make_adjacency_matrix(::Dict)
-  make_combined_adjacency_matrix(::DataFrame, ::DataFrame)
+  make_adjacency_matrix(i2f)
+  make_combined_adjacency_matrix(data_train, data_val)
 ```

@@ -49,7 +49,7 @@ Make combined simulated Lexome matrix, where combined features from both trainin
 function make_combined_L_matrix end
 
 """
-    make_pS_matrix(::DataFrame) -> ::PS_Matrix_Struct
+    make_pS_matrix(utterances)
 
 Create a discrete semantic matrix given a dataframe.
 
@@ -71,10 +71,10 @@ s_obj_train = JudiLing.make_pS_matrix(
 ...
 """
 function make_pS_matrix(
-  utterances::DataFrame;
-  features_col=:CommunicativeIntention::Symbol,
-  sep_token="_"::String
-  )::PS_Matrix_Struct
+  utterances;
+  features_col=:CommunicativeIntention,
+  sep_token="_"
+  )
 
   # find out all possible features in this dataset
   features = unique(vcat(
@@ -115,7 +115,7 @@ function make_pS_matrix(
 end
 
 """
-    make_pS_matrix(::DataFrame, ::PS_Matrix_Struct) -> ::PS_Matrix_Struct
+    make_pS_matrix(utterances, utterances_train)
 
 Construct discrete semantic matrix for the validation datasets given by the 
 exemplar in the dataframe, and given the S matrix for the training datasets.
@@ -140,11 +140,11 @@ s_obj_val = JudiLing.make_pS_matrix(
 ...
 """
 function make_pS_matrix(
-  utterances::DataFrame,
-  utterances_train::PS_Matrix_Struct;
-  features_col=:CommunicativeIntention::Symbol,
-  sep_token="_"::String
-  )::PS_Matrix_Struct
+  utterances,
+  utterances_train;
+  features_col=:CommunicativeIntention,
+  sep_token="_"
+  )
 
   # find out all possible features in this dataset
   features = unique(vcat(
@@ -185,7 +185,7 @@ function make_pS_matrix(
 end
 
 """
-    make_S_matrix(::DataFrame, ::Vector, ::Vector) -> ::Matrix
+    make_S_matrix(data::DataFrame, base::Vector, inflections::Vector)
 
 Create simulated semantic matrix for the training datasets, given the input
 data of a vector specified contex lexemes and a vector specified gramatic 
@@ -256,17 +256,17 @@ function make_S_matrix(
   data::DataFrame,
   base::Vector,
   inflections::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_inflection_mean=1::Int64,
-  sd_base=4::Int64,
-  sd_inflection=4::Int64,
-  seed=314::Int64,
-  isdeep=true::Bool,
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Matrix
+  ncol=200,
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  seed=314,
+  isdeep=true,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
 
   L = make_L_matrix(
     data,
@@ -291,7 +291,7 @@ function make_S_matrix(
 end
 
 """
-    make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector) -> ::Tuple{Matrix, Matrix}
+    make_S_matrix(data_train::DataFrame, data_val::DataFrame, base::Vector, inflections::Vector)
 
 Create simulated semantic matrix for the validation datasets, given the input
 data of a vector specified contex lexemes and a vector specified gramatic 
@@ -365,17 +365,17 @@ function make_S_matrix(
   data_val::DataFrame,
   base::Vector,
   inflections::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_inflection_mean=1::Int64,
-  sd_base=4::Int64,
-  sd_inflection=4::Int64,
-  seed=314::Int64,
-  isdeep=true::Bool,
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Tuple{Matrix, Matrix}
+  ncol=200,
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  seed=314,
+  isdeep=true,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
 
   L = make_L_matrix(
     data_train,
@@ -401,7 +401,7 @@ function make_S_matrix(
 end
 
 """
-    make_S_matrix(::DataFrame, ::Vector) -> ::Matrix
+    make_S_matrix(data::DataFrame, base::Vector)
 
 Create simulated semantic matrix for the training datasets with only base 
 features, given the input data of a vector specified contex lexemes and a 
@@ -468,15 +468,15 @@ S_train = JudiLing.make_S_matrix(
 function make_S_matrix(
   data::DataFrame,
   base::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_base=4::Int64,
-  seed=314::Int64,
-  isdeep=true::Bool,
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Matrix
+  ncol=200,
+  sd_base_mean=1,
+  sd_base=4,
+  seed=314,
+  isdeep=true,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
 
   L = make_L_matrix(
     data,
@@ -497,7 +497,7 @@ function make_S_matrix(
 end
 
 """
-    make_S_matrix(::DataFrame, ::DataFrame, ::Vector) -> ::Tuple{Matrix, Matrix}
+    make_S_matrix(data_train::DataFrame, data_val::DataFrame, base::Vector)
 
 Create simulated semantic matrix for the validation datasets with only base 
 features, given the input data of a vector specified contex lexemes and a 
@@ -566,15 +566,15 @@ function make_S_matrix(
   data_train::DataFrame,
   data_val::DataFrame,
   base::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_base=4::Int64,
-  seed=314::Int64,
-  isdeep=true::Bool,
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Tuple{Matrix, Matrix}
+  ncol=200,
+  sd_base_mean=1,
+  sd_base=4,
+  seed=314,
+  isdeep=true,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
 
   L = make_L_matrix(
     data_train,
@@ -596,7 +596,7 @@ function make_S_matrix(
 end
 
 """
-    make_S_matrix(::DataFrame, ::DataFrame, ::Pyndl_Weight_Struct, ::Vector{String}) -> ::Tuple{Matrix, Matrix}
+    make_S_matrix(data_train::DataFrame, data_val::DataFrame, pyndl_weights::Pyndl_Weight_Struct, n_features_columns::Vector)
 
 Create semantic matrix for pyndl mode
 """
@@ -604,8 +604,8 @@ function make_S_matrix(
   data_train::DataFrame,
   data_val::DataFrame,
   pyndl_weights::Pyndl_Weight_Struct,
-  n_features_columns::Vector{String}
-  )::Tuple{Matrix, Matrix}
+  n_features_columns::Vector
+  )
   
   f2i = Dict(v => i for (i, v) in enumerate(pyndl_weights.outcomes))
   i2f = Dict(i => v for (i, v) in enumerate(pyndl_weights.outcomes))
@@ -630,7 +630,7 @@ function make_S_matrix(
 end
 
 """
-    make_S_matrix(::DataFrame, ::Vector, ::Vector, ::L_Matrix_Struct) -> ::Matrix
+    make_S_matrix(data_train::DataFrame, base::Vector, inflections::Vector, L::L_Matrix_Struct)
 
 Create simulated semantic matrix where lexome matrix is available.
 
@@ -666,10 +666,10 @@ function make_S_matrix(
   base::Vector,
   inflections::Vector,
   L::L_Matrix_Struct;
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Matrix
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
   
   n_train = size(data_train, 1)
   n_base = length(base)
@@ -683,7 +683,7 @@ function make_S_matrix(
 end
 
 """
-    make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::L_Matrix_Struct) -> ::Union{Matrix, Tuple{Matrix, Matrix}}
+    make_S_matrix(data_train::DataFrame, data_val::Union{DataFrame, Nothing}, base::Vector, L::L_Matrix_Struct)
 
 Create simulated semantic matrix where lexome matrix is available.
 
@@ -719,10 +719,10 @@ function make_S_matrix(
   data_val::Union{DataFrame, Nothing},
   base::Vector,
   L::L_Matrix_Struct;
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Union{Matrix, Tuple{Matrix, Matrix}}
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
   
   JudiLing.make_S_matrix(
     data_train,
@@ -738,7 +738,7 @@ function make_S_matrix(
 end
 
 """
-    make_S_matrix(::DataFrame, ::Vector, ::L_Matrix_Struct) -> ::Matrix
+    make_S_matrix(data::DataFrame, base::Vector, L::L_Matrix_Struct)
 
 Create simulated semantic matrix where lexome matrix is available.
 
@@ -771,10 +771,10 @@ function make_S_matrix(
   data::DataFrame,
   base::Vector,
   L::L_Matrix_Struct;
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Matrix
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
 
   JudiLing.make_S_matrix(
     data,
@@ -789,7 +789,7 @@ function make_S_matrix(
 end
 
 """
-    make_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector, ::L_Matrix_Struct) -> ::Union{Matrix, Tuple{Matrix, Matrix}}
+    make_S_matrix(data_train::DataFrame, data_val::DataFrame, base::Vector, inflections::Vector, L::L_Matrix_Struct)
 
 Create simulated semantic matrix where lexome matrix is available.
 
@@ -828,10 +828,10 @@ function make_S_matrix(
   base::Vector,
   inflections::Vector,
   L::L_Matrix_Struct;
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Tuple{Matrix, Matrix}
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
 
   n_train = size(data_train, 1)
   n_val = size(data_val, 1)
@@ -852,7 +852,7 @@ end
 
 
 """
-    make_L_matrix(::DataFrame, ::Vector, ::Vector) -> ::L_Matrix_Struct
+    make_L_matrix(data::DataFrame, base::Vector, inflections::Vector)
 
 Create Lexome Matrix with simulated semantic vectors.
 
@@ -886,14 +886,14 @@ function make_L_matrix(
   data::DataFrame,
   base::Vector,
   inflections::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_inflection_mean=1::Int64,
-  sd_base=4::Int64,
-  sd_inflection=4::Int64,
-  seed=314::Int64,
-  isdeep=true::Bool
-  )::L_Matrix_Struct
+  ncol=200,
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  seed=314,
+  isdeep=true
+  )
   
   # collect all features and f2i mappings
   base_f, base_f2i = process_features(data, base)
@@ -919,7 +919,7 @@ function make_L_matrix(
 end
 
 """
-    make_L_matrix(::DataFrame, ::Vector) -> ::L_Matrix_Struct
+    make_L_matrix(data::DataFrame, base::Vector)
 
 Create Lexome Matrix with simulated semantic vectors where there are only base features.
 
@@ -948,12 +948,12 @@ L = JudiLing.make_L_matrix(
 function make_L_matrix(
   data::DataFrame,
   base::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_base=4::Int64,
-  seed=314::Int64,
-  isdeep=true::Bool
-  )::L_Matrix_Struct
+  ncol=200,
+  sd_base_mean=1,
+  sd_base=4,
+  seed=314,
+  isdeep=true
+  )
   
   make_L_matrix(
     data,
@@ -968,7 +968,7 @@ function make_L_matrix(
 end
 
 """
-    make_combined_L_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector) -> ::L_Matrix_Struct
+    make_combined_L_matrix(data_train::DataFrame, data_val::DataFrame, base::Vector, inflections::Vector)
 
 Create Lexome Matrix with simulated semantic vectors, where features are 
 combined from both training datasets and validation datasets.
@@ -1006,14 +1006,14 @@ function make_combined_L_matrix(
   data_val::DataFrame,
   base::Vector,
   inflections::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_inflection_mean=1::Int64,
-  sd_base=4::Int64,
-  sd_inflection=4::Int64,
-  seed=314::Int64,
-  isdeep=true::Bool
-  )::L_Matrix_Struct
+  ncol=200,
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  seed=314,
+  isdeep=true
+  )
 
   data_combined = copy(data_train)
   append!(data_combined, data_val)
@@ -1032,7 +1032,7 @@ function make_combined_L_matrix(
 end
 
 """
-    make_combined_L_matrix(::DataFrame, ::DataFrame, ::Vector) -> ::L_Matrix_Struct
+    make_combined_L_matrix(data_train::DataFrame, data_val::DataFrame, base::Vector)
 
 Create Lexome Matrix with simulated semantic vectors, where features are 
 combined from both training datasets and validation datasets.
@@ -1067,14 +1067,14 @@ function make_combined_L_matrix(
   data_train::DataFrame,
   data_val::DataFrame,
   base::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_inflection_mean=1::Int64,
-  sd_base=4::Int64,
-  sd_inflection=4::Int64,
-  seed=314::Int64,
-  isdeep=true::Bool
-  )::L_Matrix_Struct
+  ncol=200,
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  seed=314,
+  isdeep=true
+  )
   
   make_combined_L_matrix(
     data_train,
@@ -1090,7 +1090,7 @@ function make_combined_L_matrix(
 end
 
 """
-    make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector, ::L_Matrix_Struct) -> ::Tuple{Matrix, Matrix}
+    make_combined_S_matrix(data_train::DataFrame, data_val::DataFrame, base::Vector, inflections::Vector, L::L_Matrix_Struct)
 
 Create simulated semantic matrix for the training datasets and validation 
 datasets with existing Lexome matrix, where features are combined from both 
@@ -1127,10 +1127,10 @@ function make_combined_S_matrix(
   base::Vector,
   inflections::Vector,
   L::L_Matrix_Struct;
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Tuple{Matrix, Matrix}
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
 
   make_S_matrix(
     data_train,
@@ -1145,7 +1145,7 @@ function make_combined_S_matrix(
 end
 
 """
-    make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::L_Matrix_Struct) -> ::Tuple{Matrix, Matrix}
+    make_combined_S_matrix(data_train::DataFrame, data_val::Union{DataFrame, Nothing}, base::Vector, L::L_Matrix_Struct)
 
 Create simulated semantic matrix for the training datasets and validation 
 datasets with existing Lexome matrix, where features are combined from both 
@@ -1180,10 +1180,10 @@ function make_combined_S_matrix(
   data_val::Union{DataFrame, Nothing},
   base::Vector,
   L::L_Matrix_Struct;
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Tuple{Matrix, Matrix}
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
 
   make_S_matrix(
     data_train,
@@ -1197,7 +1197,7 @@ function make_combined_S_matrix(
 end
 
 """
-    make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector, ::Vector) -> ::Tuple{Matrix, Matrix}
+    make_combined_S_matrix(  data_train::DataFrame, data_val::DataFrame, base::Vector, inflections::Vector)
 
 Create simulated semantic matrix for the training datasets and validation 
 datasets, where features are combined from both training datasets and 
@@ -1239,17 +1239,17 @@ function make_combined_S_matrix(
   data_val::DataFrame,
   base::Vector,
   inflections::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_inflection_mean=1::Int64,
-  sd_base=4::Int64,
-  sd_inflection=4::Int64,
-  seed=314::Int64,
-  isdeep=true::Bool,
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Tuple{Matrix, Matrix}
+  ncol=200,
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  seed=314,
+  isdeep=true,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
 
   L = make_combined_L_matrix(
     data_train,
@@ -1276,7 +1276,7 @@ function make_combined_S_matrix(
 end
 
 """
-    make_combined_S_matrix(::DataFrame, ::DataFrame, ::Vector) -> ::Tuple{Matrix, Matrix}
+    make_combined_S_matrix(data_train::DataFrame, data_val::DataFrame, base::Vector)
 
 Create simulated semantic matrix for the training datasets and validation 
 datasets, where features are combined from both training datasets and 
@@ -1316,17 +1316,17 @@ function make_combined_S_matrix(
   data_train::DataFrame,
   data_val::DataFrame,
   base::Vector;
-  ncol=200::Int64,
-  sd_base_mean=1::Int64,
-  sd_inflection_mean=1::Int64,
-  sd_base=4::Int64,
-  sd_inflection=4::Int64,
-  seed=314::Int64,
-  isdeep=true::Bool,
-  add_noise=true::Bool,
-  sd_noise=1::Int64,
-  normalized=false::Bool
-  )::Tuple{Matrix, Matrix}
+  ncol=200,
+  sd_base_mean=1,
+  sd_inflection_mean=1,
+  sd_base=4,
+  sd_inflection=4,
+  seed=314,
+  isdeep=true,
+  add_noise=true,
+  sd_noise=1,
+  normalized=false
+  )
 
   L = make_combined_L_matrix(
     data_train,

@@ -4,7 +4,7 @@ Make full adjacency matrix.
 function make_adjacency_matrix end
 
 """
-    make_adjacency_matrix(::Dict) -> ::SparseMatrixCSC
+    make_adjacency_matrix(i2f)
 
 Make full adjacency matrix based only on the form of n-grams regardless of whether 
 they are seen in the training data. This usually takes hours for large datasets, 
@@ -35,11 +35,11 @@ JudiLing.make_adjacency_matrix(
 ...
 """
 function make_adjacency_matrix(
-  i2f::Dict;
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  verbose=false::Bool
-  )::SparseMatrixCSC
+  i2f;
+  tokenized=false,
+  sep_token=nothing,
+  verbose=false
+  )
 
   ngrams = [i2f[i] for i in 1:length(i2f)]
 
@@ -77,7 +77,7 @@ function make_adjacency_matrix(
 end
 
 """
-    make_combined_adjacency_matrix(::DataFrame, ::DataFrame) -> ::SparseMatrixCSC
+    make_combined_adjacency_matrix(data_train, data_val)
 
 Make combined adjacency matrix.
 
@@ -109,15 +109,16 @@ JudiLing.make_combined_adjacency_matrix(
 ...
 """
 function make_combined_adjacency_matrix(
-  data_train::DataFrame,
-  data_val::DataFrame;
+  data_train,
+  data_val;
   grams=3,
   target_col=:Words,
   tokenized=false,
   sep_token=nothing,
   keep_sep=false,
   start_end_token="#",
-  verbose=false)
+  verbose=false
+  )
 
   t, v = make_combined_cue_matrix(
     data_train,

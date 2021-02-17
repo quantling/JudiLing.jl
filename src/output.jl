@@ -23,7 +23,7 @@ Load lexome matrix from csv file.
 function load_L_matrix end
 
 """
-    write2csv(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct, ::String) -> ::Nothing
+    write2csv(res, data, cue_obj_train, cue_obj_val, filename)
 
 Write results into csv file for the results from `learn_paths` and `build_paths`.
 
@@ -85,21 +85,21 @@ JudiLing.write2csv(
 ...
 """
 function write2csv(
-  res::Array{Array{Result_Path_Info_Struct,1},1},
-  data::DataFrame,
-  cue_obj_train::Cue_Matrix_Struct,
-  cue_obj_val::Cue_Matrix_Struct,
-  filename::String;
-  grams=3::Int64,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  start_end_token="#"::Union{String, Char},
-  output_sep_token=""::Union{String, Char, Nothing},
-  path_sep_token=":"::Union{String, Char},
-  target_col=:Words::Union{String, Symbol},
-  root_dir="."::String,
-  output_dir="."::String
-  )::Nothing
+  res,
+  data,
+  cue_obj_train,
+  cue_obj_val,
+  filename;
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Words,
+  root_dir=".",
+  output_dir="."
+  )
   
   output_path = joinpath(root_dir, output_dir)
   # create path if not exist
@@ -127,7 +127,7 @@ function write2csv(
 end
 
 """
-    write2csv(::Vector{Gold_Path_Info_Struct}, ::String) -> ::Nothing
+    write2csv(gpi, filename)
 
 Write results into csv file for the gold paths' information optionally returned by 
 `learn_paths` and `build_paths`.
@@ -162,11 +162,11 @@ JudiLing.write2csv(
 ...
 """
 function write2csv(
-  gpi::Vector{Gold_Path_Info_Struct},
-  filename::String;
-  root_dir="."::String,
-  output_dir="."::String
-  )::Nothing
+  gpi,
+  filename;
+  root_dir=".",
+  output_dir="."
+  )
   output_path = joinpath(root_dir, output_dir)
   # create path if not exist
   mkpath(output_path)
@@ -185,7 +185,7 @@ function write2csv(
 end
 
 """
-    write2df(::Array{Array{Result_Path_Info_Struct,1},1}, ::DataFrame, ::Cue_Matrix_Struct, ::Cue_Matrix_Struct) -> ::DataFrame
+    write2df(res, data, cue_obj_train, cue_obj_val)
 
 Reformat results into a dataframe for the results form `learn_paths` and `build_paths`
 functions.
@@ -236,18 +236,18 @@ JudiLing.write2df(
 ...
 """
 function write2df(
-  res::Array{Array{Result_Path_Info_Struct,1},1},
-  data::DataFrame,
-  cue_obj_train::Cue_Matrix_Struct,
-  cue_obj_val::Cue_Matrix_Struct;
-  grams=3::Int64,
-  tokenized=false::Bool,
-  sep_token=nothing::Union{Nothing, String, Char},
-  start_end_token="#"::Union{String, Char},
-  output_sep_token=""::Union{String, Char},
-  path_sep_token=":"::Union{String, Char},
-  target_col=:Words::Union{String, Symbol}
-  )::DataFrame
+  res,
+  data,
+  cue_obj_train,
+  cue_obj_val;
+  grams=3,
+  tokenized=false,
+  sep_token=nothing,
+  start_end_token="#",
+  output_sep_token="",
+  path_sep_token=":",
+  target_col=:Words
+  )
 
   utterance_vec = Union{Int64,Missing}[]
   identifier_vec = Union{String,Missing}[]
@@ -327,7 +327,7 @@ function write2df(
 end
 
 """
-    write2df(::gpi::Vector{Gold_Path_Info_Struct}) -> ::DataFrame
+    write2df(gpi)
 
 Write results into a dataframe for the gold paths' information optionally returned by 
 `learn_paths` and `build_paths`.
@@ -346,9 +346,7 @@ JudiLing.write2csv(gpi_val)
 ```
 ...
 """
-function write2df(
-  gpi::Vector{Gold_Path_Info_Struct}
-  )::DataFrame
+function write2df(gpi)
   
   utterance_vec = Union{Int64,Missing}[]
   weakest_support_vec = Union{Float64,Missing}[]
@@ -379,7 +377,7 @@ function write2df(
 end
 
 """
-    save_L_matrix(::L_Matrix_Struct, ::String) -> ::Nothing
+    save_L_matrix(L, filename)
 
 Save lexome matrix into csv file.
 
@@ -394,10 +392,7 @@ JudiLing.save_L_matrix(L, joinpath(@__DIR__, "L.csv"))
 ```
 ...
 """
-function save_L_matrix(
-  L::L_Matrix_Struct,
-  filename::String
-  )::Nothing
+function save_L_matrix(L, filename)
 
   L_df = convert(DataFrames.DataFrame, L.L)
   insertcols!(L_df, 1, :col_names => L.i2f)
@@ -406,7 +401,7 @@ function save_L_matrix(
 end
 
 """
-    load_L_matrix(::String) -> ::L_Matrix_Struct
+    load_L_matrix(filename)
 
 Load lexome matrix from csv file.
 
@@ -423,10 +418,7 @@ L_load = JudiLing.load_L_matrix(joinpath(@__DIR__, "L.csv"))
 ```
 ...
 """
-function load_L_matrix(
-  filename::String;
-  header=false::Bool
-  )::L_Matrix_Struct
+function load_L_matrix(filename; header)
 
   L_df = CSV.DataFrame!(CSV.File(filename, header=header))
   i2f = L_df[:, 1]
