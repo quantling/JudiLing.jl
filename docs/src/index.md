@@ -91,22 +91,22 @@ To make the C matrix, we use the make\_cue\_matrix function:
 
 ```julia
 cue_obj = JudiLing.make_cue_matrix(
-  latin,
-  grams=3,
-  target_col=:Word,
-  tokenized=false,
-  keep_sep=false
-  )
+    latin,
+    grams=3,
+    target_col=:Word,
+    tokenized=false,
+    keep_sep=false
+    )
 ```
 
 Next, we simulate the semantic matrix S using the make\_S\_matrix function:
 ```julia
 n_features = size(cue_obj.C, 2)
 S = JudiLing.make_S_matrix(
-  latin,
-  ["Lexeme"],
-  ["Person","Number","Tense","Voice","Mood"],
-  ncol=n_features)
+    latin,
+    ["Lexeme"],
+    ["Person","Number","Tense","Voice","Mood"],
+    ncol=n_features)
 ```
 For this simulation, first random vectors are assigned to every lexeme and inflectional feature, and next the vectors of those features are summed up to obtain the semantic vector of the inflected form. Similar dimensions for C and S work best. Therefore, we retrieve the number of columns from the C matrix and pass it to make\_S\_Matrix when constructing S.
 
@@ -163,35 +163,35 @@ One sequence finding algorithm used discrimination learning for the position of 
 
 ```julia
 res, gpi = JudiLing.learn_paths(
-  latin, # training dataset
-  latin, # validation dataset, in this example, it's the same as training dataset
-  cue_obj.C,
-  S,
-  F,
-  Chat,
-  A,
-  cue_obj.i2f,
-  cue_obj.f2i, # api changed in 0.3.1
-  check_gold_path=true,
-  gold_ind=cue_obj.gold_ind,
-  Shat_val=Shat,
-  max_t=max_t,
-  max_can=10,
-  grams=3,
-  threshold=0.1,
-  tokenized=false,
-  keep_sep=false,
-  target_col=:Word,
-  verbose=true)
+    latin, # training dataset
+    latin, # validation dataset, in this example, it's the same as training dataset
+    cue_obj.C,
+    S,
+    F,
+    Chat,
+    A,
+    cue_obj.i2f,
+    cue_obj.f2i, # api changed in 0.3.1
+    check_gold_path=true,
+    gold_ind=cue_obj.gold_ind,
+    Shat_val=Shat,
+    max_t=max_t,
+    max_can=10,
+    grams=3,
+    threshold=0.1,
+    tokenized=false,
+    keep_sep=false,
+    target_col=:Word,
+    verbose=true)
 ```
 
 We evaluate the accuracy on the training data as follows:
 
 ```julia
 acc = JudiLing.eval_acc(
-  res,
-  cue_obj.gold_ind,
-  verbose=false
+    res,
+    cue_obj.gold_ind,
+    verbose=false
 )
 
 println("Acc for train: $acc")
@@ -218,9 +218,9 @@ res_build = JudiLing.build_paths(
     )
 
 acc_build = JudiLing.eval_acc(
-  res_build,
-  cue_obj.gold_ind,
-  verbose=false
+    res_build,
+    cue_obj.gold_ind,
+    verbose=false
 )
 ```
 ```
@@ -231,66 +231,66 @@ After having obtained the results from the sequence functions: `learn_paths` or 
 
 ```julia
 JudiLing.write2csv(
-  res_learn,
-  latin,
-  cue_obj,
-  cue_obj,
-  "latin_learn_res.csv",
-  grams=3,
-  tokenized=false,
-  sep_token=nothing,
-  start_end_token="#",
-  output_sep_token="",
-  path_sep_token=":",
-  target_col=:Word,
-  root_dir=@__DIR__,
-  output_dir="latin_out"
-  )
+    res_learn,
+    latin,
+    cue_obj,
+    cue_obj,
+    "latin_learn_res.csv",
+    grams=3,
+    tokenized=false,
+    sep_token=nothing,
+    start_end_token="#",
+    output_sep_token="",
+    path_sep_token=":",
+    target_col=:Word,
+    root_dir=@__DIR__,
+    output_dir="latin_out"
+    )
 
 df_learn = JudiLing.write2df(
-  res_learn,
-  latin,
-  cue_obj,
-  cue_obj,
-  grams=3,
-  tokenized=false,
-  sep_token=nothing,
-  start_end_token="#",
-  output_sep_token="",
-  path_sep_token=":",
-  target_col=:Word
-  )
+    res_learn,
+    latin,
+    cue_obj,
+    cue_obj,
+    grams=3,
+    tokenized=false,
+    sep_token=nothing,
+    start_end_token="#",
+    output_sep_token="",
+    path_sep_token=":",
+    target_col=:Word
+    )
 
 JudiLing.write2csv(
-  res_build,
-  latin,
-  cue_obj,
-  cue_obj,
-  "latin_build_res.csv",
-  grams=3,
-  tokenized=false,
-  sep_token=nothing,
-  start_end_token="#",
-  output_sep_token="",
-  path_sep_token=":",
-  target_col=:Word,
-  root_dir=@__DIR__,
-  output_dir="latin_out"
-  )
+    res_build,
+    latin,
+    cue_obj,
+    cue_obj,
+    "latin_build_res.csv",
+    grams=3,
+    tokenized=false,
+    sep_token=nothing,
+    start_end_token="#",
+    output_sep_token="",
+    path_sep_token=":",
+    target_col=:Word,
+    root_dir=@__DIR__,
+    output_dir="latin_out"
+    )
 
 df_build = JudiLing.write2df(
-  res_build,
-  latin,
-  cue_obj,
-  cue_obj,
-  grams=3,
-  tokenized=false,
-  sep_token=nothing,
-  start_end_token="#",
-  output_sep_token="",
-  path_sep_token=":",
-  target_col=:Word
-  )
+    res_build,
+    latin,
+    cue_obj,
+    cue_obj,
+    grams=3,
+    tokenized=false,
+    sep_token=nothing,
+    start_end_token="#",
+    output_sep_token="",
+    path_sep_token=":",
+    target_col=:Word
+    )
 
 display(df_learn)
 display(df_build)
@@ -354,22 +354,22 @@ latin_val = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin_val.csv")))
 Then, we make the C and S matrices passing both training and validation datasets to the `make_cue_matrix` function.
 ```
 cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
-  latin_train,
-  latin_val,
-  grams=3,
-  target_col=:Word,
-  tokenized=false,
-  keep_sep=false
-  )
+    latin_train,
+    latin_val,
+    grams=3,
+    target_col=:Word,
+    tokenized=false,
+    keep_sep=false
+    )
 
 n_features = size(cue_obj_train.C, 2)
 
 S_train, S_val = JudiLing.make_S_matrix(
-  latin_train,
-  latin_val,
-  ["Lexeme"],
-  ["Person","Number","Tense","Voice","Mood"],
-  ncol=n_features)
+    latin_train,
+    latin_val,
+    ["Lexeme"],
+    ["Person","Number","Tense","Voice","Mood"],
+    ncol=n_features)
 ```
 
 After that, we make the transformation matrices, but this time we only use training dataset. We use these transformation matrices to predict the validation dataset.
@@ -395,107 +395,107 @@ A = cue_obj_train.A
 max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
 
 res_train, gpi_train = JudiLing.learn_paths(
-  latin_train,
-  latin_train,
-  cue_obj_train.C,
-  S_train,
-  F_train,
-  Chat_train,
-  A,
-  cue_obj_train.i2f,
-  cue_obj_train.f2i, # api changed in 0.3.1
-  gold_ind=cue_obj_train.gold_ind,
-  Shat_val=Shat_train,
-  check_gold_path=true,
-  max_t=max_t,
-  max_can=10,
-  grams=3,
-  threshold=0.1,
-  tokenized=false,
-  sep_token="_",
-  keep_sep=false,
-  target_col=:Word,
-  issparse=:dense,
-  verbose=true)
+    latin_train,
+    latin_train,
+    cue_obj_train.C,
+    S_train,
+    F_train,
+    Chat_train,
+    A,
+    cue_obj_train.i2f,
+    cue_obj_train.f2i, # api changed in 0.3.1
+    gold_ind=cue_obj_train.gold_ind,
+    Shat_val=Shat_train,
+    check_gold_path=true,
+    max_t=max_t,
+    max_can=10,
+    grams=3,
+    threshold=0.1,
+    tokenized=false,
+    sep_token="_",
+    keep_sep=false,
+    target_col=:Word,
+    issparse=:dense,
+    verbose=true)
 
 res_val, gpi_val = JudiLing.learn_paths(
-  latin_train,
-  latin_val,
-  cue_obj_train.C,
-  S_val,
-  F_train,
-  Chat_val,
-  A,
-  cue_obj_train.i2f,
-  cue_obj_train.f2i, # api changed in 0.3.1
-  gold_ind=cue_obj_val.gold_ind,
-  Shat_val=Shat_val,
-  check_gold_path=true,
-  max_t=max_t,
-  max_can=10,
-  grams=3,
-  threshold=0.1,
-  is_tolerant=true,
-  tolerance=-0.1,
-  max_tolerance=2,
-  tokenized=false,
-  sep_token="-",
-  keep_sep=false,
-  target_col=:Word,
-  issparse=:dense,
-  verbose=true)
+    latin_train,
+    latin_val,
+    cue_obj_train.C,
+    S_val,
+    F_train,
+    Chat_val,
+    A,
+    cue_obj_train.i2f,
+    cue_obj_train.f2i, # api changed in 0.3.1
+    gold_ind=cue_obj_val.gold_ind,
+    Shat_val=Shat_val,
+    check_gold_path=true,
+    max_t=max_t,
+    max_can=10,
+    grams=3,
+    threshold=0.1,
+    is_tolerant=true,
+    tolerance=-0.1,
+    max_tolerance=2,
+    tokenized=false,
+    sep_token="-",
+    keep_sep=false,
+    target_col=:Word,
+    issparse=:dense,
+    verbose=true)
 
 acc_train = JudiLing.eval_acc(
-  res_train,
-  cue_obj_train.gold_ind,
-  verbose=false
+    res_train,
+    cue_obj_train.gold_ind,
+    verbose=false
 )
 acc_val = JudiLing.eval_acc(
-  res_val,
-  cue_obj_val.gold_ind,
-  verbose=false
+    res_val,
+    cue_obj_val.gold_ind,
+    verbose=false
 )
 
 @show acc_train
 @show acc_val
 
 res_train = JudiLing.build_paths(
-  latin_train,
-  cue_obj_train.C,
-  S_train,
-  F_train,
-  Chat_train,
-  A,
-  cue_obj_train.i2f,
-  cue_obj_train.gold_ind,
-  max_t=max_t,
-  n_neighbors=3,
-  verbose=true
-  )
+    latin_train,
+    cue_obj_train.C,
+    S_train,
+    F_train,
+    Chat_train,
+    A,
+    cue_obj_train.i2f,
+    cue_obj_train.gold_ind,
+    max_t=max_t,
+    n_neighbors=3,
+    verbose=true
+    )
 
 res_val = JudiLing.build_paths(
-  latin_val,
-  cue_obj_train.C,
-  S_val,
-  F_train,
-  Chat_val,
-  A,
-  cue_obj_train.i2f,
-  cue_obj_train.gold_ind,
-  max_t=max_t,
-  n_neighbors=20,
-  verbose=true
-  )
+    latin_val,
+    cue_obj_train.C,
+    S_val,
+    F_train,
+    Chat_val,
+    A,
+    cue_obj_train.i2f,
+    cue_obj_train.gold_ind,
+    max_t=max_t,
+    n_neighbors=20,
+    verbose=true
+    )
 
 acc_train = JudiLing.eval_acc(
-  res_train,
-  cue_obj_train.gold_ind,
-  verbose=false
+    res_train,
+    cue_obj_train.gold_ind,
+    verbose=false
 )
 acc_val = JudiLing.eval_acc(
-  res_val,
-  cue_obj_val.gold_ind,
-  verbose=false
+    res_val,
+    cue_obj_val.gold_ind,
+    verbose=false
 )
 
 @show acc_train
@@ -506,19 +506,19 @@ Alternatively, we  have a wrapper function incorporating all above functionaliti
 
 ```julia
 JudiLing.test_combo(
-  joinpath("data", "latin.csv"),
-  # joinpath("latin_out"), # api changed, this is moved as output_dir_path
-  ["Lexeme","Person","Number","Tense","Voice","Mood"],
-  ["Lexeme"],
-  ["Person","Number","Tense","Voice","Mood"],
-  output_dir_path=joinpath("latin_out"),
-  n_grams_target_col=:Word,
-  grams=3,
-  path_method=:learn_paths,
-  train_threshold=0.1,
-  val_threshold=0.01,
-  csv_dir="latin_out",
-  verbose=true)
+    joinpath("data", "latin.csv"),
+    # joinpath("latin_out"), # api changed, this is moved as output_dir_path
+    ["Lexeme","Person","Number","Tense","Voice","Mood"],
+    ["Lexeme"],
+    ["Person","Number","Tense","Voice","Mood"],
+    output_dir_path=joinpath("latin_out"),
+    n_grams_target_col=:Word,
+    grams=3,
+    path_method=:learn_paths,
+    train_threshold=0.1,
+    val_threshold=0.01,
+    csv_dir="latin_out",
+    verbose=true)
 ```
 
 With this function, you can quickly explore datasets with different parameter settings.

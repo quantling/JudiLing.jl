@@ -5,5 +5,5 @@ CurrentModule = JudiLing
 # Test Combo
 
 ```@docs
-  test_combo
+    test_combo
 ```
