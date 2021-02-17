@@ -18,14 +18,14 @@ load pickle from python pickle file
 function myunpickle end
 
 function mypickle(filename, obj)
-    out = open(filename,"w")
+    out = open(filename, "w")
     pickle.dump(obj, out)
     close(out)
- end
+end
 
 function myunpickle(filename)
     r = nothing
-    @pywith pybuiltin("open")(filename,"rb") as f begin
+    @pywith pybuiltin("open")(filename, "rb") as f begin
         r = pickle.load(f)
     end
     return r

@@ -5,6 +5,6 @@ CurrentModule = JudiLing
 # Make Yt Matrix
 
 ```@docs
-  make_Yt_matrix
-  make_Yt_matrix(::Int64, ::DataFrame, ::Dict)
+    make_Yt_matrix
+    make_Yt_matrix(t, data, f2i)
 ```

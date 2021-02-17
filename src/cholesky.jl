@@ -1,90 +1,95 @@
 """
-The first part of make transform matrix, usually used by the `learn_paths` function to 
+The first part of make transform matrix, usually used by the `learn_paths` function to
 save time and computing resources.
 """
 function make_transform_fac end
 
 """
-Using Cholesky decomposition to calculate the transformation matrix from S to C 
+Using Cholesky decomposition to calculate the transformation matrix from S to C
 or from C to S.
 """
 function make_transform_matrix end
 
 """
-    make_transform_fac(::SparseMatrixCSC) -> ::SuiteSparse.CHOLMOD.Factor
+    make_transform_fac(X::SparseMatrixCSC)
 
 Calculate the first step of Cholesky decomposition for sparse matrices.
 """
 function make_transform_fac(
-  X::SparseMatrixCSC;
-  method=:additive::Symbol,
-  shift=0.02::Float64,
-  multiplier=1.01::Float64
-  )::SuiteSparse.CHOLMOD.Factor
+    X::SparseMatrixCSC;
+    method = :additive,
+    shift = 0.02,
+    multiplier = 1.01,
+)
 
-  XtX = X'X
+    XtX = X'X
 
-  if method == :additive
-    fac = cholesky(XtX, shift=shift)
-  else
-    # convert value to Float64
-    # otherwise multiplier would raise error
-    XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
-    for i in 1:size(XtX,2)
-      XtX[i,i] *= multiplier
+    if method == :additive
+        fac = cholesky(XtX, shift = shift)
+    else
+        # convert value to Float64
+        # otherwise multiplier would raise error
+        XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
+        for i = 1:size(XtX, 2)
+            XtX[i, i] *= multiplier
+        end
+        fac = cholesky(XtX)
     end
-    fac = cholesky(XtX)
-  end
 
-  fac
+    fac
 end
 
 """
-    make_transform_fac(::Matrix) -> ::LinearAlgebra.Cholesky
+    make_transform_fac(X::Matrix)
 
 Calculate the first step of Cholesky decomposition for dense matrices.
 """
 function make_transform_fac(
-  X::Matrix;
-  method=:additive::Symbol,
-  shift=0.02::Float64,
-  multiplier=1.01::Float64
-  )::LinearAlgebra.Cholesky
+    X::Matrix;
+    method = :additive,
+    shift = 0.02,
+    multiplier = 1.01,
+)
 
-  XtX = X'X
+    XtX = X'X
 
-  if method == :additive
-    fac = cholesky(XtX + shift * I)
-  else
-    for i in 1:size(XtX,2)
-      XtX[i,i] *= multiplier
+    if method == :additive
+        fac = cholesky(XtX + shift * I)
+    else
+        for i = 1:size(XtX, 2)
+            XtX[i, i] *= multiplier
+        end
+        fac = cholesky(XtX)
     end
-    fac = cholesky(XtX)
-  end
 
-  fac
+    fac
 end
 
 """
-    make_transform_matrix(::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor}, ::Union{SparseMatrixCSC, Matrix}, ::Union{SparseMatrixCSC, Matrix}) -> ::Union{Matrix, SparseMatrixCSC}
+    make_transform_matrix(fac::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor}, X::Union{SparseMatrixCSC, Matrix}, Y::Union{SparseMatrixCSC, Matrix})
 
 Second step in calculating the Cholesky decomposition for the transformation matrix.
 """
 function make_transform_matrix(
-  fac::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor},
-  X::Union{SparseMatrixCSC, Matrix},
-  Y::Union{SparseMatrixCSC, Matrix};
-  output_format=:auto::Symbol,
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{Matrix, SparseMatrixCSC}
+    fac::Union{LinearAlgebra.Cholesky,SuiteSparse.CHOLMOD.Factor},
+    X::Union{SparseMatrixCSC,Matrix},
+    Y::Union{SparseMatrixCSC,Matrix};
+    output_format = :auto,
+    sparse_ratio = 0.2,
+    verbose = false,
+)
 
-  M = fac\(X'Y)
-  format_matrix(M, output_format, sparse_ratio=sparse_ratio, verbose=verbose)
+    M = fac \ (X'Y)
+    format_matrix(
+        M,
+        output_format,
+        sparse_ratio = sparse_ratio,
+        verbose = verbose,
+    )
 end
 
 """
-    make_transform_matrix(::SparseMatrixCSC, ::Matrix) -> ::Union{SparseMatrixCSC, Matrix}
+    make_transform_matrix(X::SparseMatrixCSC, Y::Matrix)
 
 Use Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a dense matrix.
@@ -106,60 +111,65 @@ where X is a sparse matrix and Y is a dense matrix.
 ```julia
 # additive mode
 JudiLing.make_transform_matrix(
-  C,
-  S,
-  method=:additive,
-  shift=0.02,
-  verbose=false)
+    C,
+    S,
+    method=:additive,
+    shift=0.02,
+    verbose=false)
 
 # multiplicative mode
 JudiLing.make_transform_matrix(
-  C,
-  S,
-  method=:multiplicative,
-  multiplier=1.01,
-  verbose=false)
+    C,
+    S,
+    method=:multiplicative,
+    multiplier=1.01,
+    verbose=false)
 ```
 
 # further control of sparsity ratio
 JudiLing.make_transform_matrix(
   ...
-  output_format=:auto,
-  sparse_ratio=0.2,
+    output_format=:auto,
+    sparse_ratio=0.2,
   ...)
 ...
 """
 function make_transform_matrix(
-  X::SparseMatrixCSC,
-  Y::Matrix;
-  method=:additive::Symbol,
-  shift=0.02::Float64,
-  multiplier=1.01::Float64,
-  output_format=:auto::Symbol,
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{SparseMatrixCSC, Matrix}
+    X::SparseMatrixCSC,
+    Y::Matrix;
+    method = :additive,
+    shift = 0.02,
+    multiplier = 1.01,
+    output_format = :auto,
+    sparse_ratio = 0.2,
+    verbose = false,
+)
 
-  XtX = X'X
+    XtX = X'X
 
-  if method == :additive
-    fac = cholesky(XtX, shift=shift)
-  else
-    XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
-    for i in 1:size(XtX,2)
-      XtX[i,i] *= multiplier
+    if method == :additive
+        fac = cholesky(XtX, shift = shift)
+    else
+        XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
+        for i = 1:size(XtX, 2)
+            XtX[i, i] *= multiplier
+        end
+        fac = cholesky(XtX)
     end
-    fac = cholesky(XtX)
-  end
 
-  # M is in sparse format
-  # but sometimes it is actually a dense matrix
-  M = fac\(X'Y)
-  format_matrix(M, output_format, sparse_ratio=sparse_ratio, verbose=verbose)
+    # M is in sparse format
+    # but sometimes it is actually a dense matrix
+    M = fac \ (X'Y)
+    format_matrix(
+        M,
+        output_format,
+        sparse_ratio = sparse_ratio,
+        verbose = verbose,
+    )
 end
 
 """
-    make_transform_matrix(::Matrix, ::Union{SparseMatrixCSC, Matrix}) -> ::Union{SparseMatrixCSC, Matrix}
+    make_transform_matrix(X::Matrix, Y::Union{SparseMatrixCSC, Matrix})
 
 Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
@@ -181,59 +191,64 @@ where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
 ```julia
 # additive mode
 JudiLing.make_transform_matrix(
-  C,
-  S,
-  method=:additive,
-  shift=0.02,
-  verbose=false)
+    C,
+    S,
+    method=:additive,
+    shift=0.02,
+    verbose=false)
 
 # multiplicative mode
 JudiLing.make_transform_matrix(
-  C,
-  S,
-  method=:multiplicative,
-  multiplier=1.01,
-  verbose=false)
+    C,
+    S,
+    method=:multiplicative,
+    multiplier=1.01,
+    verbose=false)
 
 # further control of sparsity ratio
 JudiLing.make_transform_matrix(
-  ...
-  output_format=:auto,
-  sparse_ratio=0.2,
-  ...)
+    ...
+    output_format=:auto,
+    sparse_ratio=0.2,
+    ...)
 ```
 ...
 """
 function make_transform_matrix(
-  X::Matrix,
-  Y::Union{SparseMatrixCSC, Matrix};
-  method=:additive::Symbol,
-  shift=0.02::Float64,
-  multiplier=1.01::Float64,
-  output_format=:auto::Symbol,
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{SparseMatrixCSC, Matrix}
+    X::Matrix,
+    Y::Union{SparseMatrixCSC,Matrix};
+    method = :additive,
+    shift = 0.02,
+    multiplier = 1.01,
+    output_format = :auto,
+    sparse_ratio = 0.2,
+    verbose = false,
+)
 
-  XtX = X'X
+    XtX = X'X
 
-  if method == :additive
-    fac = cholesky(XtX + shift * I)
-  else
-    for i in 1:size(XtX,2)
-      XtX[i,i] *= multiplier
+    if method == :additive
+        fac = cholesky(XtX + shift * I)
+    else
+        for i = 1:size(XtX, 2)
+            XtX[i, i] *= multiplier
+        end
+        fac = cholesky(XtX)
     end
-    fac = cholesky(XtX)
-  end
 
-  # M is in sparse format
-  # but sometimes it is actually a dense matrix
-  M = fac\(X'Y)
-  format_matrix(M, output_format, sparse_ratio=sparse_ratio, verbose=verbose)
+    # M is in sparse format
+    # but sometimes it is actually a dense matrix
+    M = fac \ (X'Y)
+    format_matrix(
+        M,
+        output_format,
+        sparse_ratio = sparse_ratio,
+        verbose = verbose,
+    )
 end
 
 """
-    make_transform_matrix(::SparseMatrixCSC, ::SparseMatrixCSC) -> ::Union{SparseMatrixCSC, Matrix}
+    make_transform_matrix(X::SparseMatrixCSC, Y::SparseMatrixCSC)
 
 Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a sparse matrix.
@@ -255,86 +270,91 @@ where X is a sparse matrix and Y is a sparse matrix.
 ```julia
 # additive mode
 JudiLing.make_transform_matrix(
-  C,
-  S,
-  method=:additive,
-  shift=0.02,
-  verbose=false)
+    C,
+    S,
+    method=:additive,
+    shift=0.02,
+    verbose=false)
 
 # multiplicative mode
 JudiLing.make_transform_matrix(
-  C,
-  S,
-  method=:multiplicative,
-  multiplier=1.01,
-  verbose=false)
+    C,
+    S,
+    method=:multiplicative,
+    multiplier=1.01,
+    verbose=false)
 
 # further control of sparsity ratio
 JudiLing.make_transform_matrix(
-  ...
-  output_format=:auto,
-  sparse_ratio=0.2,
-  ...)
+    ...
+    output_format=:auto,
+    sparse_ratio=0.2,
+    ...)
 ```
 ...
 """
 function make_transform_matrix(
-  X::SparseMatrixCSC,
-  Y::SparseMatrixCSC;
-  method=:additive::Symbol,
-  shift=0.02::Float64,
-  multiplier=1.01::Float64,
-  output_format=:auto::Symbol,
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{SparseMatrixCSC, Matrix}
+    X::SparseMatrixCSC,
+    Y::SparseMatrixCSC;
+    method = :additive,
+    shift = 0.02,
+    multiplier = 1.01,
+    output_format = :auto,
+    sparse_ratio = 0.2,
+    verbose = false,
+)
 
-  XtX = X'X
+    XtX = X'X
 
-  if method == :additive
-    fac = cholesky(XtX, shift=shift)
-  else
-    # convert value to Float64
-    # otherwise multiplier would raise error
-    XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
-    for i in 1:size(XtX,2)
-      XtX[i,i] *= multiplier
+    if method == :additive
+        fac = cholesky(XtX, shift = shift)
+    else
+        # convert value to Float64
+        # otherwise multiplier would raise error
+        XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
+        for i = 1:size(XtX, 2)
+            XtX[i, i] *= multiplier
+        end
+        fac = cholesky(XtX)
     end
-    fac = cholesky(XtX)
-  end
 
-  # M is in sparse format
-  # but sometimes it is actually a dense matrix
-  M = fac\(X'Y)
-  format_matrix(M, output_format, sparse_ratio=sparse_ratio, verbose=verbose)
+    # M is in sparse format
+    # but sometimes it is actually a dense matrix
+    M = fac \ (X'Y)
+    format_matrix(
+        M,
+        output_format,
+        sparse_ratio = sparse_ratio,
+        verbose = verbose,
+    )
 end
 
 """
-    format_matrix(::Union{SparseMatrixCSC, Matrix}, ::Symbol) -> ::Union{SparseMatrixCSC, Matrix}
+    format_matrix(M::Union{SparseMatrixCSC, Matrix}, output_format=:auto)
 
 Convert output matrix format to either a dense matrix or a sparse matrix.
 """
 function format_matrix(
-  M::Union{SparseMatrixCSC, Matrix},
-  output_format=:auto::Symbol;
-  sparse_ratio=0.2::Float64,
-  verbose=false::Bool
-  )::Union{SparseMatrixCSC, Matrix}
+    M::Union{SparseMatrixCSC,Matrix},
+    output_format = :auto;
+    sparse_ratio = 0.2,
+    verbose = false,
+)
 
-  if output_format == :dense
-    verbose && println("Returning a dense matrix format")
-    Array(M)
-  elseif output_format == :sparse
-    verbose && println("Returning a sparse matrix format")
-    sparse(M)
-  else
-    verbose && print("Auto mode: ")
-    if is_truly_sparse(M, threshold=sparse_ratio, verbose=verbose)
-      verbose && println("Returning a sparse matrix format")
-      return M
+    if output_format == :dense
+        verbose && println("Returning a dense matrix format")
+        Array(M)
+    elseif output_format == :sparse
+        verbose && println("Returning a sparse matrix format")
+        sparse(M)
     else
-      verbose && println("Returning a dense matrix format")
-      return Array(M)
+        verbose && print("Auto mode: ")
+        if is_truly_sparse(M, threshold = sparse_ratio, verbose = verbose)
+            verbose && println("Returning a sparse matrix format")
+            return M
+        else
+            verbose && println("Returning a dense matrix format")
+            return Array(M)
+        end
     end
-  end
 end
