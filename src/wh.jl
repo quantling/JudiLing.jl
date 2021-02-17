@@ -1,12 +1,12 @@
 function wh_learn(
-    X::Union{Matrix,SparseMatrixCSC},
-    Y::Union{Matrix,SparseMatrixCSC};
-    eta = 0.01::Float64,
-    n_epochs = 1::Int64,
-    weights = nothing::Union{Matrix{Float64},Nothing},
-    learn_seq = nothing::Union{Nothing,Vector{Int64}},
-    verbose = false::Bool,
-)::Matrix{Float64}
+    X,
+    Y;
+    eta = 0.01,
+    n_epochs = 1,
+    weights = nothing,
+    learn_seq = nothing,
+    verbose = false,
+    )
 
     X = Array(X)
     Y = Array(Y)
@@ -35,11 +35,11 @@ function wh_learn(
     for j = 1:n_epochs # 100 epochs
         for i in learn_seq # for each events
             # pred = X[i:i, :]*W
-            mul!(pred, X[i:i, :], W)
+            mul!(pred, view(X, i:i, :), W)
             # obsv = Y[i:i, :]-pred
-            broadcast!(-, pred, Y[i:i, :], pred)
+            broadcast!(-, pred, view(Y, i:i, :), pred)
             # inputT = X[i:i, :]'
-            transpose!(inputT, X[i:i, :])
+            transpose!(inputT, view(X, i:i, :))
             # update = inputT*obsv
             mul!(deltaW, inputT, pred)
             # deltaW = eta*update
@@ -52,11 +52,7 @@ function wh_learn(
     W
 end
 
-function make_learn_seq(
-    freq::Vector{Int64};
-    random_seed = 314::Int64,
-)::Vector{Int64}
-
+function make_learn_seq(freq; random_seed = 314)
     learn_seq = [repeat([i], n) for (i, n) in enumerate(freq)]
     learn_seq = collect(Iterators.flatten(learn_seq))
     rng = MersenneTwister(random_seed)
