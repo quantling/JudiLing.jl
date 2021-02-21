@@ -51,7 +51,7 @@ We first download and read the csv file into Julia:
 ```julia
 download("https://osf.io/2ejfu/download", "latin.csv")
 
-latin = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin.csv")));
+latin = DataFrame(CSV.File(joinpath(@__DIR__, "latin.csv")));
 ```
 
 and we can inspect the latin dataframe:
@@ -347,8 +347,8 @@ The model also provides functionality for cross-validation. Here, you can downlo
 download("https://osf.io/2ejfu/download", "latin_train.csv")
 download("https://osf.io/bm7y6/download", "latin_val.csv")
 
-latin_train = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin_train.csv")))
-latin_val = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "latin_val.csv")))
+latin_train = DataFrame(CSV.File(joinpath(@__DIR__, "latin_train.csv")))
+latin_val = DataFrame(CSV.File(joinpath(@__DIR__, "latin_val.csv")))
 ```
 
 Then, we make the C and S matrices passing both training and validation datasets to the `make_cue_matrix` function.

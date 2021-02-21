@@ -24,7 +24,7 @@ Leave p out cross-validation.
 """
 function lpo_cv_split(p, data_path; random_seed = 314)
     # read csv
-    data = CSV.DataFrame!(CSV.File(data_path))
+    data = DataFrame(CSV.File(data_path))
 
     # shuffle data
     rng = MersenneTwister(random_seed)
@@ -60,7 +60,7 @@ function train_val_split(
 )
 
     # read csv
-    utterances = CSV.DataFrame!(CSV.File(data_path))
+    utterances = DataFrame(CSV.File(data_path))
 
     # shuffle data
     rng = MersenneTwister(random_seed)
@@ -160,7 +160,7 @@ function train_val_split(
 )
 
     # read csv
-    utterances = CSV.DataFrame!(CSV.File(data_path))
+    utterances = DataFrame(CSV.File(data_path))
     num_utterances = size(utterances, 1)
 
     # shuffle data
@@ -385,7 +385,7 @@ function preprocess_ndl(
 )
 
     # read csv
-    data = CSV.DataFrame!(CSV.File(data_path))
+    data = DataFrame(CSV.File(data_path))
 
     io = GZip.open(joinpath(save_path), "w")
 

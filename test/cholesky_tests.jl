@@ -2,6 +2,7 @@ using JudiLing
 using CSV
 using Test
 using SparseArrays
+using DataFrames
 
 @testset "cholesky transformation matrix" begin
     try
@@ -35,7 +36,7 @@ end
 @testset "cholesky transformation matrix for latin" begin
     try
         latin_train =
-            CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
+            DataFrame(CSV.File(joinpath("data", "latin_mini.csv")))
         cue_obj_train = JudiLing.make_cue_matrix(
             latin_train,
             grams = 3,

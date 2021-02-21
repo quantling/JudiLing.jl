@@ -3,9 +3,9 @@ using CSV # read csv files into dataframes
 
 # load estonian file
 estonian_train =
-    CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "estonian_train.csv")))
+    DataFrame(CSV.File(joinpath(@__DIR__, "data", "estonian_train.csv")))
 estonian_val =
-    CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "estonian_val.csv")))
+    DataFrame(CSV.File(joinpath(@__DIR__, "data", "estonian_val.csv")))
 
 # create C matrixes for training and validation datasets
 cue_obj_train = JudiLing.make_cue_matrix(

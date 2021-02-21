@@ -193,11 +193,11 @@ function test_combo(
 
     # load data
     verbose && println("Loading CSV...")
-    data_train = CSV.DataFrame!(CSV.File(joinpath(
+    data_train = DataFrame(CSV.File(joinpath(
         output_dir_path,
         "$(data_prefix)_train.csv",
     )))
-    data_val = CSV.DataFrame!(CSV.File(joinpath(
+    data_val = DataFrame(CSV.File(joinpath(
         output_dir_path,
         "$(data_prefix)_val.csv",
     )))

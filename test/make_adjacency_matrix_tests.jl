@@ -1,6 +1,7 @@
 using JudiLing
 using CSV
 using Test
+using DataFrames
 
 @testset "make full adjacency matrix" begin
     try
@@ -14,7 +15,7 @@ end
 
 @testset "make combined adjacency matrix" begin
     try
-        latin_full = CSV.DataFrame!(CSV.File(joinpath(
+        latin_full = DataFrame(CSV.File(joinpath(
             @__DIR__,
             "data",
             "latin_mini.csv",
