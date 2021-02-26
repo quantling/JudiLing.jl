@@ -57,6 +57,10 @@ function wh_learn(
 end
 
 function make_learn_seq(freq; random_seed = 314)
+    if isnothing(freq)
+        return nothing
+    end
+
     learn_seq = [repeat([i], n) for (i, n) in enumerate(freq)]
     learn_seq = collect(Iterators.flatten(learn_seq))
     rng = MersenneTwister(random_seed)

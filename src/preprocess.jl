@@ -42,6 +42,135 @@ function loo_cv_split(data_path; random_seed = 314)
     lpo_cv_split(1, data_path)
 end
 
+function train_val_random_split(
+    data_path,
+    test_sample_size,
+    output_dir_path,
+    data_prefix;
+    max_val = 0,
+    max_val_ratio = 0.0,
+    random_seed = 314,
+    verbose = false,
+    )
+    
+    data = DataFrame(CSV.File(data_path))
+    n_data = size(data, 1)
+
+    if test_sample_size != 0
+        data = data[1:test_sample_size,:]
+        n_data = test_sample_size
+    end
+
+    rng = MersenneTwister(random_seed)
+    data = data[shuffle(rng, 1:n_data), :]
+
+    max_val = cal_max_val(n_data, max_val, max_val_ratio)
+
+    data_train = data[max_val+1:end,:]
+    data_val = data[1:max_val,:]
+    
+    write_split_data(output_dir_path, data_prefix, data_train, data_val)
+
+    verbose && begin
+        println("Successfully randomly split data into $(size(data_train, 1))" * 
+            " training data and $(size(data_val, 1)) validation data")
+    end
+
+    nothing
+end
+
+function train_val_carefully_split(
+    data_path,
+    test_sample_size,
+    output_dir_path,
+    n_features_columns;
+    data_prefix = "data",
+    max_val = 0,
+    max_val_ratio = 0.0,
+    n_grams_target_col = :PhonWord,
+    n_grams_tokenized = false,
+    n_grams_sep_token = nothing,
+    grams = 3,
+    n_grams_keep_sep = false,
+    start_end_token = "#",
+    random_seed = 314,
+    verbose = false,
+    )
+    
+    data = DataFrame(CSV.File(data_path))
+    n_data = size(data, 1)
+
+    if test_sample_size != 0
+        data = data[1:test_sample_size,:]
+        n_data = test_sample_size
+    end
+
+    rng = MersenneTwister(random_seed)
+    data = data[shuffle(rng, 1:n_data), :]
+
+    max_val = cal_max_val(n_data, max_val, max_val_ratio)
+
+    init_num_train = round(Int64, (n_data - max_val) * 0.5)
+    data_train = data[1:init_num_train, :]
+
+    if n_grams_tokenized && !isnothing(n_grams_sep_token)
+        tokens =
+            split.(data_train[:, n_grams_target_col], n_grams_sep_token)
+    else
+        tokens = split.(data_train[:, n_grams_target_col], "")
+    end
+
+    verbose && println("Calculating data_train_ngrams ...")
+    data_train_ngrams = String[]
+
+    for i = 1:init_num_train
+        push!(
+            data_train_ngrams,
+            make_ngrams(
+                tokens[i],
+                grams,
+                n_grams_keep_sep,
+                n_grams_sep_token,
+                start_end_token,
+            )...,
+        )
+    end
+    data_train_ngrams = unique(data_train_ngrams)
+    data_train_features =
+        collect_features(data[1:init_num_train, :], n_features_columns)
+    data_val = DataFrame()
+
+    perform_split(
+        data[init_num_train+1:end, :],
+        data_train_ngrams,
+        data_train_features,
+        data_train,
+        data_val,
+        max_val,
+        grams,
+        n_grams_target_col,
+        n_grams_tokenized,
+        n_grams_sep_token,
+        n_grams_keep_sep,
+        start_end_token,
+        n_features_columns,
+        verbose = verbose,
+        )
+
+    if size(data_train, 1) <= 0 || size(data_val, 1) <= 0
+        throw(SplitDataException("Failed to split data automaticly"))
+    end
+
+    write_split_data(output_dir_path, data_prefix, data_train, data_val)
+
+    verbose && begin
+        println("Successfully carefully split data into $(size(data_train, 1))" * 
+            " training data and $(size(data_val, 1)) validation data")
+    end
+
+    nothing
+end
+
 function train_val_split(
     data_path,
     output_dir_path,
@@ -57,7 +186,7 @@ function train_val_split(
     start_end_token = "#",
     random_seed = 314,
     verbose = false,
-)
+    )
 
     # read csv
     utterances = DataFrame(CSV.File(data_path))
@@ -72,8 +201,9 @@ function train_val_split(
 
     num_utterances = size(utterances, 1)
 
-    init_num_train = round(Int64, num_utterances * 0.4)
     max_num_val = round(Int64, num_utterances * split_max_ratio)
+    init_num_train = round(Int64, (num_utterances - max_num_val) * 0.5)
+
     utterances_train = utterances[1:init_num_train, :]
 
     if n_grams_tokenized && !isnothing(n_grams_sep_token)
@@ -124,18 +254,7 @@ function train_val_split(
         throw(SplitDataException("Could not split data automaticly"))
     end
 
-    mkpath(output_dir_path)
-
-    CSV.write(
-        joinpath(output_dir_path, "$(data_prefix)_train.csv"),
-        utterances_train,
-        quotestrings = true,
-    )
-    CSV.write(
-        joinpath(output_dir_path, "$(data_prefix)_val.csv"),
-        utterances_val,
-        quotestrings = true,
-    )
+    write_split_data(output_dir_path, data_prefix, data_train, data_val)
 
     verbose && begin
         println("Successfully split data into $(size(utterances_train, 1)) training data and $(size(utterances_val, 1)) validation data")
@@ -212,16 +331,7 @@ function train_val_split(
         throw(SplitDataException("Could not split data automaticly"))
     end
 
-    mkpath(output_dir_path)
-
-    CSV.write(
-        joinpath(output_dir_path, "$(data_prefix)_train.csv"),
-        utterances_train,
-    )
-    CSV.write(
-        joinpath(output_dir_path, "$(data_prefix)_val.csv"),
-        utterances_val,
-    )
+    write_split_data(output_dir_path, data_prefix, data_train, data_val)
 
     verbose && begin
         println("Successfully split data into $(size(utterances_train, 1)) training data and $(size(utterances_val, 1)) validation data")
@@ -448,4 +558,35 @@ function make_cue_outcome(
     end
 
     cues, outcomes
+end
+
+function cal_max_val(n_data, max_val, max_val_ratio)
+    if max_val == 0
+        if max_val_ratio == 0.0
+            throw(ArgumentError("You haven't specify :max_val or " * 
+                " :max_val_ratio yet!"))
+        end
+        max_val = round(Int64, n_data * max_val_ratio)
+    else
+        if max_val_ratio != 0.0
+            @warn "You have specified both :max_val and :max_val_ratio. Only" *
+            ":max_val will be used!"
+        end
+    end
+    return max_val
+end
+
+function write_split_data(output_dir_path, data_prefix, data_train, data_val)
+    mkpath(output_dir_path)
+
+    CSV.write(
+        joinpath(output_dir_path, "$(data_prefix)_train.csv"),
+        data_train,
+        quotestrings = true,
+    )
+    CSV.write(
+        joinpath(output_dir_path, "$(data_prefix)_val.csv"),
+        data_val,
+        quotestrings = true,
+    )
 end
