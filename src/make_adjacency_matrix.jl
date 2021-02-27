@@ -1,7 +1,7 @@
 """
 Make full adjacency matrix.
 """
-function make_adjacency_matrix end
+function make_full_adjacency_matrix end
 
 """
     make_adjacency_matrix(i2f)
@@ -34,7 +34,7 @@ JudiLing.make_adjacency_matrix(
 ```
 ...
 """
-function make_adjacency_matrix(
+function make_full_adjacency_matrix(
     i2f;
     tokenized = false,
     sep_token = nothing,
