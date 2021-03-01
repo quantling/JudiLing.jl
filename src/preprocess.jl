@@ -37,6 +37,11 @@ function loo_cv_split(data_path; random_seed = 314)
     lpo_cv_split(1, data_path)
 end
 
+"""
+    train_val_random_split(data_path, output_dir_path, data_prefix)
+
+Randomly split dataset.
+"""
 function train_val_random_split(
     data_path,
     output_dir_path,
@@ -74,11 +79,16 @@ function train_val_random_split(
     nothing
 end
 
+"""
+    train_val_carefully_split(data_path, output_dir_path, data_prefix, n_features_columns)
+
+Carefully split dataset.
+"""
 function train_val_carefully_split(
     data_path,
     output_dir_path,
+    data_prefix,
     n_features_columns;
-    data_prefix = "data",
     train_sample_size = 0,
     val_sample_size = 0,
     val_ratio = 0.0,

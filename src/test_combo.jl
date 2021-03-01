@@ -763,8 +763,8 @@ function loading_data_carefully_split(
     train_val_carefully_split(
         data_path,
         output_dir_path,
+        data_prefix,
         n_features_columns,
-        data_prefix = data_prefix,
         train_sample_size = train_sample_size,
         val_sample_size = val_sample_size,
         val_ratio = val_ratio,
