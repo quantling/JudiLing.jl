@@ -424,7 +424,7 @@ L_load = JudiLing.load_L_matrix(joinpath(@__DIR__, "L.csv"))
 """
 function load_L_matrix(filename; header = false)
 
-    L_df = CSV.DataFrame!(CSV.File(filename, header = header))
+    L_df = DataFrame(CSV.File(filename, header = header))
     i2f = L_df[:, 1]
     f2i = Dict(v => i for (i, v) in enumerate(i2f))
     ncol = size(L_df, 2) - 1

@@ -5,7 +5,7 @@ using DataFrames
 
 @testset "make prelinguistic semantic matrix for utterance" begin
     try
-        utterance = CSV.DataFrame!(CSV.File(joinpath(
+        utterance = DataFrame(CSV.File(joinpath(
             @__DIR__,
             "data",
             "utterance_mini.csv",

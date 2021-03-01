@@ -5,7 +5,7 @@ mkpath(joinpath(@__DIR__, "data"))
 download("https://osf.io/2ejfu/download", "latin.csv")
 mv("latin.csv", joinpath(@__DIR__, "data", "latin.csv"), force = true)
 # load latin file
-latin = CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin.csv")))
+latin = DataFrame(CSV.File(joinpath(@__DIR__, "data", "latin.csv")))
 display(latin)
 
 # create C matrixes for training datasets
@@ -171,9 +171,9 @@ mv(
 mv("latin_val.csv", joinpath(@__DIR__, "data", "latin_val.csv"), force = true)
 # cross-validation
 latin_train =
-    CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin_train.csv")))
+    DataFrame(CSV.File(joinpath(@__DIR__, "data", "latin_train.csv")))
 latin_val =
-    CSV.DataFrame!(CSV.File(joinpath(@__DIR__, "data", "latin_val.csv")))
+    DataFrame(CSV.File(joinpath(@__DIR__, "data", "latin_val.csv")))
 
 # create C matrices for both training and validation datasets
 cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(

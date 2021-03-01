@@ -1,11 +1,12 @@
 using JudiLing
 using CSV
 using Test
+using DataFrames
 
 @testset "output tests for latin" begin
     try
         latin_train =
-            CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
+            DataFrame(CSV.File(joinpath("data", "latin_mini.csv")))
         cue_obj_train = JudiLing.make_cue_matrix(
             latin_train,
             grams = 3,
@@ -193,7 +194,7 @@ end
 @testset "output tests for lexome matrix" begin
     try
         mkpath(joinpath(@__DIR__, "test_out"))
-        latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
+        latin = DataFrame(CSV.File(joinpath("data", "latin_mini.csv")))
 
         L1 = JudiLing.make_L_matrix(
             latin,

@@ -1,10 +1,11 @@
 using JudiLing
 using Test
 using CSV
+using DataFrames
 
 @testset "make cue matrix for latin" begin
     try
-        latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
+        latin = DataFrame(CSV.File(joinpath("data", "latin_mini.csv")))
         cue_obj = JudiLing.make_cue_matrix(
             latin,
             grams = 3,

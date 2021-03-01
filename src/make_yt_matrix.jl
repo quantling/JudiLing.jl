@@ -22,7 +22,7 @@ for the corresponding n-gram predicted for timestep t for each of the observatio
 
 # Examples
 ```julia
-latin = CSV.DataFrame!(CSV.File(joinpath("data", "latin_mini.csv")))
+latin = DataFrame(CSV.File(joinpath("data", "latin_mini.csv")))
 JudiLing.make_Yt_matrix(2, latin)
 ```
 ...
