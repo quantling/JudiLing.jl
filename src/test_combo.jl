@@ -318,7 +318,7 @@ function test_combo(test_mode;kwargs...)
         n_features_base, n_features_inflections,
         n_features, sd_base_mean, sd_inflection_mean, sd_base,
         sd_inflection, isdeep, add_noise, sd_noise,
-        normalized, verbose)
+        normalized, if_combined, verbose)
 
     # temporary fix, S_val is not valid using :train_only
     # add noise don't apply to both S
@@ -403,7 +403,8 @@ function test_combo(test_mode;kwargs...)
 
     if max_t == 0
         max_t = cal_max_timestep(data_train, data_val, 
-            n_grams_target_col)
+            n_grams_target_col, tokenized = n_grams_tokenized,
+            sep_token = n_grams_sep_token)
     end
 
     # choose A
@@ -851,23 +852,41 @@ end
 function make_S_train_val(data_train, data_val,
     n_features_base, n_features_inflections,
     ncol, sd_base_mean, sd_inflection_mean, sd_base, sd_inflection,
-    isdeep, add_noise, sd_noise, normalized, verbose)
+    isdeep, add_noise, sd_noise, normalized, if_combined, verbose)
     verbose && println("Making S matrix...")
-    make_S_matrix(
-        data_train,
-        data_val,
-        n_features_base,
-        n_features_inflections,
-        ncol = ncol,
-        sd_base_mean = sd_base_mean,
-        sd_inflection_mean = sd_inflection_mean,
-        sd_base = sd_base,
-        sd_inflection = sd_inflection,
-        isdeep = isdeep,
-        add_noise = add_noise,
-        sd_noise = sd_noise,
-        normalized = normalized
-    )
+    if if_combined
+        make_combined_S_matrix(
+            data_train,
+            data_val,
+            n_features_base,
+            n_features_inflections,
+            ncol = ncol,
+            sd_base_mean = sd_base_mean,
+            sd_inflection_mean = sd_inflection_mean,
+            sd_base = sd_base,
+            sd_inflection = sd_inflection,
+            isdeep = isdeep,
+            add_noise = add_noise,
+            sd_noise = sd_noise,
+            normalized = normalized
+        )
+    else
+        make_S_matrix(
+            data_train,
+            data_val,
+            n_features_base,
+            n_features_inflections,
+            ncol = ncol,
+            sd_base_mean = sd_base_mean,
+            sd_inflection_mean = sd_inflection_mean,
+            sd_base = sd_base,
+            sd_inflection = sd_inflection,
+            isdeep = isdeep,
+            add_noise = add_noise,
+            sd_noise = sd_noise,
+            normalized = normalized
+        )
+    end
 end
 
 function get_kwarg(kwargs, kw; required=false)
