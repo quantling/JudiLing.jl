@@ -18,6 +18,53 @@ struct Gold_Path_Info_Struct
     support::Float64
 end
 
+function learn_paths(
+    data,
+    cue_obj,
+    S_val,
+    F_train,
+    Chat_val;
+    threshold = 0.1,
+    is_tolerant = false,
+    tolerance = (-1000.0),
+    max_tolerance = 3,
+    grams = 3,
+    tokenized = true,
+    sep_token = "_",
+    keep_sep = true,
+    target_col = :Verb_syll,
+    verbose = true)
+    
+    max_t = JudiLing.cal_max_timestep(data, target_col)
+
+    learn_paths(
+        data,
+        data,
+        cue_obj.C,
+        S_val,
+        F_train,
+        Chat_val,
+        cue_obj.A,
+        cue_obj.i2f,
+        cue_obj.f2i;
+        gold_ind = nothing,
+        Shat_val = nothing,
+        check_gold_path = false,
+        max_t = max_t,
+        max_can = 10,
+        threshold = threshold,
+        is_tolerant = is_tolerant,
+        tolerance = tolerance,
+        max_tolerance = max_tolerance,
+        grams = grams,
+        tokenized = tokenized,
+        sep_token = sep_token,
+        keep_sep = keep_sep,
+        target_col = target_col,
+        verbose = verbose,
+    )
+end
+
 """
 learn_paths(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
 

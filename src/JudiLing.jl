@@ -24,5 +24,6 @@ include("output.jl")
 include("preprocess.jl")
 include("pickle.jl")
 include("test_combo.jl")
+include("display.jl")
 
 end
