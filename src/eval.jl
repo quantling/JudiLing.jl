@@ -129,9 +129,10 @@ function eval_SC(SChat, SC; digits=4, R=false)
     v = [rSC[i[1], i[1]] == rSC[i] ? 1 : 0 for i in argmax(rSC, dims = 2)]
     acc = round(sum(v) / length(v), digits=digits)
     if R
-        acc, rSC
+        return acc, rSC
     else
-        acc
+        return acc
+    end
 end
 
 """
@@ -166,9 +167,10 @@ function eval_SC(SChat, SC, data, target_col; digits=4, R=false)
     ]
     acc = round(sum(v) / length(v), digits=digits)
     if R
-        acc, rSC
+        return acc, rSC
     else
-        acc
+        return acc
+    end
 end
 
 """
