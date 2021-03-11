@@ -120,14 +120,18 @@ eval_SC(Shat_val, S_val)
 ```
 ...
 """
-function eval_SC(SChat, SC)
+function eval_SC(SChat, SC; digits=4, R=false)
     rSC = cor(
         convert(Matrix{Float64}, SChat),
         convert(Matrix{Float64}, SC),
         dims = 2,
     )
     v = [rSC[i[1], i[1]] == rSC[i] ? 1 : 0 for i in argmax(rSC, dims = 2)]
-    sum(v) / length(v)
+    acc = round(sum(v) / length(v), digits=digits)
+    if R
+        acc, rSC
+    else
+        acc
 end
 
 """
@@ -150,7 +154,7 @@ eval_SC(Shat_val, S_val)
 ```
 ...
 """
-function eval_SC(SChat, SC, data, target_col)
+function eval_SC(SChat, SC, data, target_col; digits=4, R=false)
     rSC = cor(
         convert(Matrix{Float64}, SChat),
         convert(Matrix{Float64}, SC),
@@ -160,7 +164,11 @@ function eval_SC(SChat, SC, data, target_col)
         data[i[1], target_col] == data[i[2], target_col] ? 1 : 0
         for i in argmax(rSC, dims = 2)
     ]
-    sum(v) / length(v)
+    acc = round(sum(v) / length(v), digits=digits)
+    if R
+        acc, rSC
+    else
+        acc
 end
 
 """
@@ -187,7 +195,7 @@ eval_SC(Shat_val, S_val, latin, :Word)
 ```
 ...
 """
-function eval_SC(SChat, SC, batch_size; verbose = false)
+function eval_SC(SChat, SC, batch_size; digits=4, verbose = false)
     l = size(SChat, 1)
     num_chucks = ceil(Int64, l / batch_size)
     verbose && begin
@@ -218,7 +226,7 @@ function eval_SC(SChat, SC, batch_size; verbose = false)
     )
     verbose && ProgressMeter.next!(pb)
 
-    correct / l
+    round(correct / l, digits=digits)
 end
 
 """
@@ -245,7 +253,7 @@ eval_SC(Shat_val, S_val, latin, :Word, 5000)
 ```
 ...
 """
-function eval_SC(SChat, SC, data, target_col, batch_size; verbose = false)
+function eval_SC(SChat, SC, data, target_col, batch_size; digits=4, verbose = false)
 
     l = size(SChat, 1)
     num_chucks = ceil(Int64, l / batch_size)
@@ -281,7 +289,7 @@ function eval_SC(SChat, SC, data, target_col, batch_size; verbose = false)
     )
     verbose && ProgressMeter.next!(pb)
 
-    correct / l
+    round(correct / l, digits=digits)
 end
 
 function eval_SC_chucks(SChat, SC, s, e, batch_size)
@@ -332,7 +340,7 @@ eval_SC_loose(Shat, S, k)
 ```
 ...
 """
-function eval_SC_loose(SChat, SC, k)
+function eval_SC_loose(SChat, SC, k; digits=4)
     total = size(SChat, 1)
     correct = 0
     rSC = cor(
@@ -348,7 +356,7 @@ function eval_SC_loose(SChat, SC, k)
             correct += 1
         end
     end
-    return correct / total
+    round(correct / total, digits=digits)
 end
 
 """
@@ -372,7 +380,7 @@ eval_SC_loose(Shat, S, k, latin, :Word)
 ```
 ...
 """
-function eval_SC_loose(SChat, SC, k, data, target_col)
+function eval_SC_loose(SChat, SC, k, data, target_col; digits=4)
     total = size(SChat, 1)
     correct = 0
     rSC = cor(
@@ -392,7 +400,7 @@ function eval_SC_loose(SChat, SC, k, data, target_col)
             end
         end
     end
-    return correct / total
+    round(correct / total, digits=digits)
 end
 
 """
@@ -472,7 +480,7 @@ acc_val = JudiLing.eval_acc(
 ```
 ...
 """
-function eval_acc(res, gold_inds; verbose = false)
+function eval_acc(res, gold_inds; digits=4, verbose = false)
 
     total = length(res)
     acc = 0
@@ -492,7 +500,7 @@ function eval_acc(res, gold_inds; verbose = false)
         end
     end
 
-    acc / total
+    round(acc / total, digits=digits)
 end
 
 """
@@ -529,7 +537,7 @@ acc_val_loose = JudiLing.eval_acc_loose(
 ```
 ...
 """
-function eval_acc_loose(res, gold_inds; verbose = false)
+function eval_acc_loose(res, gold_inds; digits=4, verbose = false)
 
     total = length(res)
     acc = 0
@@ -555,7 +563,7 @@ function eval_acc_loose(res, gold_inds; verbose = false)
         end
     end
 
-    acc / total
+    round(acc / total, digits=4)
 end
 
 """
