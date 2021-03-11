@@ -22,6 +22,12 @@ Load lexome matrix from csv file.
 """
 function load_L_matrix end
 
+function save_S_matrix end
+
+
+function load_S_matrix end
+
+
 """
     write2csv(res, data, cue_obj_train, cue_obj_val, filename)
 
@@ -431,4 +437,21 @@ function load_L_matrix(filename; header = false)
     L = Array(select(L_df, Not(1)))
 
     L_Matrix_Struct(L, f2i, i2f, ncol)
+end
+
+function save_S_matrix(S, filename, data, target_col; sep=" ")
+
+    S_df = convert(DataFrames.DataFrame, S)
+    insertcols!(S_df, 1, :col_names => data[:,target_col])
+    CSV.write(filename, S_df, quotestrings = true, header = false, delim=sep)
+    nothing
+end
+
+function load_S_matrix(filename; header = false, sep=" ")
+
+    S_df = DataFrame(CSV.File(filename, header = header, delim = sep))
+    words = S_df[:, 1]
+    S = Array(select(S_df, Not(1)))
+
+    S, words
 end
