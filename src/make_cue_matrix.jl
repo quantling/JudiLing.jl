@@ -12,6 +12,12 @@ struct Cue_Matrix_Struct
     i2f::Dict
     gold_ind::Vector{Vector{Int64}}
     A::SparseMatrixCSC
+    grams::Int64
+    target_col::Symbol
+    tokenized::Bool
+    sep_token::Union{String, Nothing}
+    keep_sep::Bool
+    start_end_token::String
 end
 
 """
@@ -160,7 +166,8 @@ function make_cue_matrix(
 
     A = sparse(I, J, V, length(f2i), length(f2i))
 
-    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A)
+    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A, grams, target_col, 
+        tokenized, sep_token, keep_sep, start_end_token)
 end
 
 """
@@ -260,7 +267,8 @@ function make_cue_matrix(
     cue = sparse(I, J, V, m, n, *)
     ngrams_ind = [[f2i[x] for x in y] for y in ngrams]
 
-    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, cue_obj.A)
+    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, cue_obj.A, grams, target_col, 
+        tokenized, sep_token, keep_sep, start_end_token)
 end
 
 """
@@ -437,7 +445,8 @@ function make_cue_matrix(
 
     A = sparse(I, J, V, length(f2i), length(f2i))
 
-    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A)
+    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A, grams, target_col, 
+        tokenized, sep_token, keep_sep, start_end_token)
 end
 
 """

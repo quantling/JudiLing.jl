@@ -24,18 +24,15 @@ function learn_paths(
     S_val,
     F_train,
     Chat_val;
+    Shat_val = nothing,
+    check_gold_path = false,
     threshold = 0.1,
     is_tolerant = false,
     tolerance = (-1000.0),
     max_tolerance = 3,
-    grams = 3,
-    tokenized = true,
-    sep_token = "_",
-    keep_sep = true,
-    target_col = :Verb_syll,
     verbose = true)
     
-    max_t = JudiLing.cal_max_timestep(data, target_col)
+    max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col)
 
     learn_paths(
         data,
@@ -47,20 +44,20 @@ function learn_paths(
         cue_obj.A,
         cue_obj.i2f,
         cue_obj.f2i;
-        gold_ind = nothing,
-        Shat_val = nothing,
-        check_gold_path = false,
+        gold_ind = cue_obj.gold_ind,
+        Shat_val = Shat_val,
+        check_gold_path = check_gold_path,
         max_t = max_t,
         max_can = 10,
         threshold = threshold,
         is_tolerant = is_tolerant,
         tolerance = tolerance,
         max_tolerance = max_tolerance,
-        grams = grams,
-        tokenized = tokenized,
-        sep_token = sep_token,
-        keep_sep = keep_sep,
-        target_col = target_col,
+        grams = cue_obj.grams,
+        tokenized = cue_obj.tokenized,
+        sep_token = cue_obj.sep_token,
+        keep_sep = cue_obj.keep_sep,
+        target_col = cue_obj.target_col,
         verbose = verbose,
     )
 end
