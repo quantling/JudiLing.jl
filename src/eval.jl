@@ -482,7 +482,7 @@ acc_val = JudiLing.eval_acc(
 ```
 ...
 """
-function eval_acc(res, gold_inds; digits=4, verbose = false)
+function eval_acc(res, gold_inds::Array; digits=4, verbose = false)
 
     total = length(res)
     acc = 0
@@ -503,6 +503,10 @@ function eval_acc(res, gold_inds; digits=4, verbose = false)
     end
 
     round(acc / total, digits=digits)
+end
+
+function eval_acc(res, cue_obj::Cue_Matrix_Struct; digits = 4, verbose = false)
+    eval_acc(res, cue_obj.gold_ind, digits = digits, verbose = verbose)
 end
 
 """
