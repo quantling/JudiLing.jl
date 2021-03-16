@@ -230,6 +230,7 @@ function make_transform_matrix(
     if method == :additive
         fac = cholesky(XtX + shift * I)
     else
+        XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
         for i = 1:size(XtX, 2)
             XtX[i, i] *= multiplier
         end
