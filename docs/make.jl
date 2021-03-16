@@ -23,6 +23,7 @@ makedocs(;
             "Evaluation" => "man/eval.md",
             "Output" => "man/output.md",
             "Test Combo" => "man/test_combo.md",
+            "Display" => "man/display.md",
             "Utils" => "man/utils.md"
         ],
         "All Manual index" => "man/all_manual.md"
