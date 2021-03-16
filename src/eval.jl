@@ -35,7 +35,7 @@ Evaluate comprehension accuracy.
 
 # Optional Arguments
 - `target_col::Union{String, Symbol}=:Words`: the column name for target strings
-- `base::Vector=["Lexeme"]`: base features (typically a lexeme)
+- `base::Vector=nothing`: base features (typically a lexeme)
 - `inflections::Union{Nothing, Vector}=nothing`: other features (typically in inflectional features)
 
 # Examples
@@ -45,8 +45,8 @@ accuracy_comprehension(
     Shat_train,
     latin_val,
     target_col=:Words,
-    base=["Lexeme"],
-    inflections=["Person","Number","Tense","Voice","Mood"]
+    base=[:Lexeme],
+    inflections=[:Person, :Number, :Tense, :Voice, :Mood]
     )
 
 accuracy_comprehension(
@@ -55,7 +55,7 @@ accuracy_comprehension(
     latin_train,
     target_col=:Words,
     base=["Lexeme"],
-    inflections=["Person","Number","Tense","Voice","Mood"]
+    inflections=[:Person, :Number, :Tense, :Voice, :Mood]
     )
 ```
 ...
@@ -65,7 +65,7 @@ function accuracy_comprehension(
     Shat,
     data;
     target_col = :Words,
-    base = ["Lexeme"],
+    base = nothing,
     inflections = nothing,
 )
 
@@ -112,6 +112,10 @@ of the pertinent correlation matrices.
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
 
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `R::Bool=false`: if true, pairwise correlation matrix R is return
+
 ```julia
 eval_SC(Chat_train, cue_obj_train.C)
 eval_SC(Chat_val, cue_obj_val.C)
@@ -146,6 +150,10 @@ of the pertinent correlation matrices. Support for homophones.
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
+
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `R::Bool=false`: if true, pairwise correlation matrix R is return
 
 ```julia
 eval_SC(Chat_train, cue_obj_train.C)
@@ -188,6 +196,10 @@ process evaluation in chucks.
 - `batch_size`: batch size
 - `data`: datasets
 - `target_col`: target column name
+
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `verbose::Bool=false`: if true, more information is printed
 
 ```julia
 eval_SC(Chat_train, cue_obj_train.C, latin, :Word)
@@ -246,6 +258,10 @@ process evaluation in chucks. Support homophones.
 - `batch_size`: batch size
 - `data`: datasets
 - `target_col`: target column name
+
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `verbose::Bool=false`: if true, more information is printed
 
 ```julia
 eval_SC(Chat_train, cue_obj_train.C, latin, :Word, 5000)
@@ -336,6 +352,9 @@ C or Shat and S. Count it as correct if one of the top k candidates is correct.
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
 - `k`: top k candidates
 
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+
 ```julia
 eval_SC_loose(Chat, cue_obj.C, k)
 eval_SC_loose(Shat, S, k)
@@ -375,6 +394,9 @@ Support for homophones.
 - `k`: top k candidates
 - `data`: datasets
 - `target_col`: target column name
+
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
 
 ```julia
 eval_SC_loose(Chat, cue_obj.C, k, latin, :Word)
@@ -462,6 +484,7 @@ Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
 - `gold_inds::Array`: the gold paths' indices
 
 # Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
 - `verbose::Bool=false`: if true, more information is printed
 
 # Examples
@@ -523,6 +546,7 @@ standard semantic vectors is among the n top correlations, where n is equal to
 - `gold_inds::Array`: the gold paths' indices
 
 # Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
 - `verbose::Bool=false`: if true, more information is printed
 
 # Examples
