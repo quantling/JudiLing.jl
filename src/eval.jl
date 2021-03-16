@@ -452,7 +452,7 @@ end
 
 
 """
-    eval_acc(res, gold_inds)
+    eval_acc(res, gold_inds::Array; digits=4, verbose = false)
 
 Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
 
