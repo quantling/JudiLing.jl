@@ -11,7 +11,7 @@ or from C to S.
 function make_transform_matrix end
 
 """
-    make_transform_fac(X::SparseMatrixCSC)
+make_transform_fac(X::SparseMatrixCSC)
 
 Calculate the first step of Cholesky decomposition for sparse matrices.
 """
@@ -40,7 +40,7 @@ function make_transform_fac(
 end
 
 """
-    make_transform_fac(X::Matrix)
+make_transform_fac(X::Matrix)
 
 Calculate the first step of Cholesky decomposition for dense matrices.
 """
@@ -66,7 +66,7 @@ function make_transform_fac(
 end
 
 """
-    make_transform_matrix(fac::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor}, X::Union{SparseMatrixCSC, Matrix}, Y::Union{SparseMatrixCSC, Matrix})
+make_transform_matrix(fac::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor}, X::Union{SparseMatrixCSC, Matrix}, Y::Union{SparseMatrixCSC, Matrix})
 
 Second step in calculating the Cholesky decomposition for the transformation matrix.
 """
@@ -89,7 +89,7 @@ function make_transform_matrix(
 end
 
 """
-    make_transform_matrix(X::SparseMatrixCSC, Y::Matrix)
+make_transform_matrix(X::SparseMatrixCSC, Y::Matrix)
 
 Use Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a dense matrix.
@@ -169,7 +169,7 @@ function make_transform_matrix(
 end
 
 """
-    make_transform_matrix(X::Matrix, Y::Union{SparseMatrixCSC, Matrix})
+make_transform_matrix(X::Matrix, Y::Union{SparseMatrixCSC, Matrix})
 
 Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
@@ -249,7 +249,7 @@ function make_transform_matrix(
 end
 
 """
-    make_transform_matrix(X::SparseMatrixCSC, Y::SparseMatrixCSC)
+make_transform_matrix(X::SparseMatrixCSC, Y::SparseMatrixCSC)
 
 Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a sparse matrix.
@@ -331,7 +331,7 @@ function make_transform_matrix(
 end
 
 """
-    format_matrix(M::Union{SparseMatrixCSC, Matrix}, output_format=:auto)
+format_matrix(M::Union{SparseMatrixCSC, Matrix}, output_format=:auto)
 
 Convert output matrix format to either a dense matrix or a sparse matrix.
 """

@@ -1,5 +1,5 @@
 """
-    display_matrix(M, rownames, colnames)
+display_matrix(M, rownames, colnames)
 
 Display matrix with rownames and colnames.
 """
@@ -18,7 +18,7 @@ function display_matrix(M, rownames, colnames; nrow=6, ncol=6)
 end
 
 """
-    display_matrix(data, target_col, cue_obj, M, M_type)
+display_matrix(data, target_col, cue_obj, M, M_type)
 
 Display matrix with rownames and colnames.
 
