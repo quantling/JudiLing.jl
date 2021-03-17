@@ -11,7 +11,7 @@ or from C to S.
 function make_transform_matrix end
 
 """
-make_transform_fac(X::SparseMatrixCSC)
+    make_transform_fac(X::SparseMatrixCSC)
 
 Calculate the first step of Cholesky decomposition for sparse matrices.
 """
@@ -40,7 +40,7 @@ function make_transform_fac(
 end
 
 """
-make_transform_fac(X::Matrix)
+    make_transform_fac(X::Matrix)
 
 Calculate the first step of Cholesky decomposition for dense matrices.
 """
@@ -66,7 +66,7 @@ function make_transform_fac(
 end
 
 """
-make_transform_matrix(fac::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor}, X::Union{SparseMatrixCSC, Matrix}, Y::Union{SparseMatrixCSC, Matrix})
+    make_transform_matrix(fac::Union{LinearAlgebra.Cholesky, SuiteSparse.CHOLMOD.Factor}, X::Union{SparseMatrixCSC, Matrix}, Y::Union{SparseMatrixCSC, Matrix})
 
 Second step in calculating the Cholesky decomposition for the transformation matrix.
 """
@@ -89,12 +89,11 @@ function make_transform_matrix(
 end
 
 """
-make_transform_matrix(X::SparseMatrixCSC, Y::Matrix)
+    make_transform_matrix(X::SparseMatrixCSC, Y::Matrix)
 
 Use Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a dense matrix.
 
-...
 # Obligatory Arguments
 - `X::SparseMatrixCSC`: the X matrix, where X is a sparse matrix
 - `Y::Matrix`: the Y matrix, where Y is a dense matrix
@@ -124,7 +123,6 @@ JudiLing.make_transform_matrix(
     method = :multiplicative,
     multiplier = 1.01,
     verbose = false)
-```
 
 # further control of sparsity ratio
 JudiLing.make_transform_matrix(
@@ -132,7 +130,7 @@ JudiLing.make_transform_matrix(
     output_format = :auto,
     sparse_ratio = 0.2,
   ...)
-...
+```
 """
 function make_transform_matrix(
     X::SparseMatrixCSC,
@@ -169,12 +167,11 @@ function make_transform_matrix(
 end
 
 """
-make_transform_matrix(X::Matrix, Y::Union{SparseMatrixCSC, Matrix})
+    make_transform_matrix(X::Matrix, Y::Union{SparseMatrixCSC, Matrix})
 
 Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
 
-...
 # Obligatory Arguments
 - `X::Matrix`: the X matrix, where X is a dense matrix
 - `Y::Union{SparseMatrixCSC, Matrix}`: the Y matrix, where Y is either a sparse or a dense matrix
@@ -212,7 +209,6 @@ JudiLing.make_transform_matrix(
     sparse_ratio = 0.2,
     ...)
 ```
-...
 """
 function make_transform_matrix(
     X::Matrix,
@@ -249,12 +245,11 @@ function make_transform_matrix(
 end
 
 """
-make_transform_matrix(X::SparseMatrixCSC, Y::SparseMatrixCSC)
+    make_transform_matrix(X::SparseMatrixCSC, Y::SparseMatrixCSC)
 
 Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a sparse matrix.
 
-...
 # Obligatory Arguments
 - `X::SparseMatrixCSC`: the X matrix, where X is a sparse matrix
 - `Y::SparseMatrixCSC`: the Y matrix, where Y is a sparse matrix
@@ -292,7 +287,6 @@ JudiLing.make_transform_matrix(
     sparse_ratio = 0.2,
     ...)
 ```
-...
 """
 function make_transform_matrix(
     X::SparseMatrixCSC,
@@ -331,7 +325,7 @@ function make_transform_matrix(
 end
 
 """
-format_matrix(M::Union{SparseMatrixCSC, Matrix}, output_format=:auto)
+    format_matrix(M::Union{SparseMatrixCSC, Matrix}, output_format=:auto)
 
 Convert output matrix format to either a dense matrix or a sparse matrix.
 """

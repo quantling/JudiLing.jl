@@ -1,5 +1,5 @@
 """
-display_matrix(M, rownames, colnames)
+    display_matrix(M, rownames, colnames)
 
 Display matrix with rownames and colnames.
 """
@@ -18,11 +18,10 @@ function display_matrix(M, rownames, colnames; nrow=6, ncol=6)
 end
 
 """
-display_matrix(data, target_col, cue_obj, M, M_type)
+    display_matrix(data, target_col, cue_obj, M, M_type)
 
 Display matrix with rownames and colnames.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 - `target_col::Union{String, Symbol}`: the target column name
@@ -45,7 +44,6 @@ JudiLing.display_matrix(latin, :Word, cue_obj, Shat, :Shat)
 JudiLing.display_matrix(latin, :Word, cue_obj, A, :A)
 JudiLing.display_matrix(latin, :Word, cue_obj, R, :R)
 ```
-...
 """
 function display_matrix(
     data,

@@ -34,12 +34,11 @@ correlation with the target semantic vector (through synthesis by analysis) is s
 function build_paths end
 
 """
-learn_paths(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
+    learn_paths(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
 
 A sequence finding algorithm using discrimination learning to predict, for a given
 word, which n-grams are best supported for a given position in the sequence of n-grams.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -190,7 +189,6 @@ pca_eval_M=Fo,
 verbose=true);
 
 ```
-...
 """
 function learn_paths(
     data_train,
@@ -452,12 +450,11 @@ function learn_paths(
 end
 
 """
-learn_paths(data, cue_obj, S_val, F_train, Chat_val)
+    learn_paths(data, cue_obj, S_val, F_train, Chat_val)
 
 A high-level wrapper function for learn_paths with much less control. It aims 
 for users who is very new to JudiLing and learn_paths function.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the training dataset
 - `cue_obj::Cue_Matrix_Struct`: the C matrix object containing all information with C
@@ -478,7 +475,6 @@ for users who is very new to JudiLing and learn_paths function.
 ```julia
 res = learn_paths(latin, cue_obj, S, F, Chat)
 ```
-...
 """
 function learn_paths(
     data,
@@ -525,7 +521,7 @@ function learn_paths(
 end
 
 """
-build_paths(data_val, C_train, S_val, F_train, Chat_val, A, i2f, C_train_ind)
+    build_paths(data_val, C_train, S_val, F_train, Chat_val, A, i2f, C_train_ind)
 
 The build_paths function constructs paths by only considering those n-grams that are
 close to the target. It first takes the predicted c-hat vector and finds the
@@ -533,7 +529,6 @@ closest n neighbors in the C matrix. Then it selects all n-grams of these neighb
 and constructs all valid paths with those n-grams. The path producing the best
 correlation with the target semantic vector (through synthesis by analysis) is selected.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -607,7 +602,6 @@ res_build = JudiLing.build_paths(
     verbose=true
     )
 ```
-...
 """
 function build_paths(
     data_val,
@@ -724,7 +718,7 @@ function build_paths(
 end
 
 """
-eval_can(candidates, S, F, i2f, max_can, if_pca, pca_eval_M)
+    eval_can(candidates, S, F, i2f, max_can, if_pca, pca_eval_M)
 
 Calculate for each candidate path the correlation between predicted semantic
 vector and the gold standard semantic vector, and select as target for production
@@ -778,7 +772,7 @@ function eval_can(
 end
 
 """
-find_top_feature_indices(rC, C_train_ind)
+    find_top_feature_indices(rC, C_train_ind)
 
 Find all indices for the n-grams of the top n closest neighbors of
 a given target.

@@ -23,11 +23,10 @@ Homophones support option is implemented.
 function eval_SC_loose end
 
 """
-accuracy_comprehension(S, Shat, data)
+    accuracy_comprehension(S, Shat, data)
 
 Evaluate comprehension accuracy.
 
-...
 # Obligatory Arguments
 - `S::Matrix`: the (gold standard) S matrix
 - `Shat::Matrix`: the (predicted) Shat matrix
@@ -58,7 +57,6 @@ accuracy_comprehension(
     inflections=[:Person, :Number, :Tense, :Voice, :Mood]
     )
 ```
-...
 """
 function accuracy_comprehension(
     S,
@@ -101,13 +99,12 @@ function accuracy_comprehension(
 end
 
 """
-eval_SC(SChat, SC)
+    eval_SC(SChat, SC)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
 of the pertinent correlation matrices.
 
-...
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
@@ -122,7 +119,6 @@ eval_SC(Chat_val, cue_obj_val.C)
 eval_SC(Shat_train, S_train)
 eval_SC(Shat_val, S_val)
 ```
-...
 """
 function eval_SC(SChat, SC; digits=4, R=false)
     rSC = cor(
@@ -140,13 +136,12 @@ function eval_SC(SChat, SC; digits=4, R=false)
 end
 
 """
-eval_SC(SChat, SC, data, target_col)
+    eval_SC(SChat, SC, data, target_col)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
 of the pertinent correlation matrices. Support for homophones.
 
-...
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
@@ -161,7 +156,6 @@ eval_SC(Chat_val, cue_obj_val.C)
 eval_SC(Shat_train, S_train)
 eval_SC(Shat_val, S_val)
 ```
-...
 """
 function eval_SC(SChat, SC, data, target_col; digits=4, R=false)
     rSC = cor(
@@ -182,14 +176,13 @@ function eval_SC(SChat, SC, data, target_col; digits=4, R=false)
 end
 
 """
-eval_SC(SChat, SC, batch_size)
+    eval_SC(SChat, SC, batch_size)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
 of the pertinent correlation matrices. For large datasets, pass batch_size to
 process evaluation in chucks.
 
-...
 # Obligatory Arguments
 - `SChat`: the Chat or Shat matrix
 - `SC`: the C or S matrix
@@ -207,7 +200,6 @@ eval_SC(Chat_val, cue_obj_val.C, latin, :Word)
 eval_SC(Shat_train, S_train, latin, :Word)
 eval_SC(Shat_val, S_val, latin, :Word)
 ```
-...
 """
 function eval_SC(SChat, SC, batch_size; digits=4, verbose = false)
     l = size(SChat, 1)
@@ -244,14 +236,13 @@ function eval_SC(SChat, SC, batch_size; digits=4, verbose = false)
 end
 
 """
-eval_SC(SChat, SC, data, target_col, batch_size)
+    eval_SC(SChat, SC, data, target_col, batch_size)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
 of the pertinent correlation matrices. For large datasets, pass batch_size to
 process evaluation in chucks. Support homophones.
 
-...
 # Obligatory Arguments
 - `SChat`: the Chat or Shat matrix
 - `SC`: the C or S matrix
@@ -269,7 +260,6 @@ eval_SC(Chat_val, cue_obj_val.C, latin, :Word, 5000)
 eval_SC(Shat_train, S_train, latin, :Word, 5000)
 eval_SC(Shat_val, S_val, latin, :Word, 5000)
 ```
-...
 """
 function eval_SC(SChat, SC, data, target_col, batch_size; digits=4, verbose = false)
 
@@ -341,12 +331,11 @@ function eval_SC_chucks(SChat, SC, s, batch_size, data, target_col)
 end
 
 """
-eval_SC_loose(SChat, SC, k)
+    eval_SC_loose(SChat, SC, k)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Count it as correct if one of the top k candidates is correct.
 
-...
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
@@ -359,7 +348,6 @@ C or Shat and S. Count it as correct if one of the top k candidates is correct.
 eval_SC_loose(Chat, cue_obj.C, k)
 eval_SC_loose(Shat, S, k)
 ```
-...
 """
 function eval_SC_loose(SChat, SC, k; digits=4)
     total = size(SChat, 1)
@@ -381,13 +369,12 @@ function eval_SC_loose(SChat, SC, k; digits=4)
 end
 
 """
-eval_SC_loose(SChat, SC, k, data, target_col)
+    eval_SC_loose(SChat, SC, k, data, target_col)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Count it as correct if one of the top k candidates is correct.
 Support for homophones.
 
-...
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
@@ -402,7 +389,6 @@ Support for homophones.
 eval_SC_loose(Chat, cue_obj.C, k, latin, :Word)
 eval_SC_loose(Shat, S, k, latin, :Word)
 ```
-...
 """
 function eval_SC_loose(SChat, SC, k, data, target_col; digits=4)
     total = size(SChat, 1)
@@ -428,7 +414,7 @@ function eval_SC_loose(SChat, SC, k, data, target_col; digits=4)
 end
 
 """
-eval_manual(res, data, i2f)
+    eval_manual(res, data, i2f)
 
 Create extensive reports for the outputs from `build_paths` and `learn_paths`.
 """
@@ -474,11 +460,10 @@ end
 
 
 """
-eval_acc(res, gold_inds::Array)
+    eval_acc(res, gold_inds::Array)
 
 Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
 
-...
 # Obligatory Arguments
 - `res::Array`: the results from `learn_paths` or `build_paths`
 - `gold_inds::Array`: the gold paths' indices
@@ -503,7 +488,6 @@ acc_val = JudiLing.eval_acc(
     verbose=false
 )
 ```
-...
 """
 function eval_acc(res, gold_inds::Array; digits=4, verbose = false)
 
@@ -529,11 +513,10 @@ function eval_acc(res, gold_inds::Array; digits=4, verbose = false)
 end
 
 """
-eval_acc(res, cue_obj::Cue_Matrix_Struct)
+    eval_acc(res, cue_obj::Cue_Matrix_Struct)
 
 Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
 
-...
 # Obligatory Arguments
 - `res::Array`: the results from `learn_paths` or `build_paths`
 - `cue_obj::Cue_Matrix_Struct`: the C matrix object
@@ -546,21 +529,19 @@ Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
 ```julia
 acc = JudiLing.eval_acc(res, cue_obj)
 ```
-...
 """
 function eval_acc(res, cue_obj::Cue_Matrix_Struct; digits = 4, verbose = false)
     eval_acc(res, cue_obj.gold_ind, digits = digits, verbose = verbose)
 end
 
 """
-eval_acc_loose(res, gold_inds)
+    eval_acc_loose(res, gold_inds)
 
 Lenient evaluation of the accuracy of the results from `learn_paths` or `build_paths`,
 counting a prediction as correct when the correlation of the predicted and gold
 standard semantic vectors is among the n top correlations, where n is equal to
 `max_can` in the 'learn_paths' or `build_paths` function.
 
-...
 # Obligatory Arguments
 - `res::Array`: the results from `learn_paths` or `build_paths`
 - `gold_inds::Array`: the gold paths' indices
@@ -585,7 +566,6 @@ acc_val_loose = JudiLing.eval_acc_loose(
     verbose=false
 )
 ```
-...
 """
 function eval_acc_loose(res, gold_inds; digits=4, verbose = false)
 
