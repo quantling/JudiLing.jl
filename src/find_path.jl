@@ -18,49 +18,20 @@ struct Gold_Path_Info_Struct
     support::Float64
 end
 
-function learn_paths(
-    data,
-    cue_obj,
-    S_val,
-    F_train,
-    Chat_val;
-    Shat_val = nothing,
-    check_gold_path = false,
-    threshold = 0.1,
-    is_tolerant = false,
-    tolerance = (-1000.0),
-    max_tolerance = 3,
-    verbose = true)
-    
-    max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col)
+"""
+A sequence finding algorithm using discrimination learning to predict, for a given
+word, which n-grams are best supported for a given position in the sequence of n-grams.
+"""
+function learn_paths end
 
-    learn_paths(
-        data,
-        data,
-        cue_obj.C,
-        S_val,
-        F_train,
-        Chat_val,
-        cue_obj.A,
-        cue_obj.i2f,
-        cue_obj.f2i;
-        gold_ind = cue_obj.gold_ind,
-        Shat_val = Shat_val,
-        check_gold_path = check_gold_path,
-        max_t = max_t,
-        max_can = 10,
-        threshold = threshold,
-        is_tolerant = is_tolerant,
-        tolerance = tolerance,
-        max_tolerance = max_tolerance,
-        grams = cue_obj.grams,
-        tokenized = cue_obj.tokenized,
-        sep_token = cue_obj.sep_token,
-        keep_sep = cue_obj.keep_sep,
-        target_col = cue_obj.target_col,
-        verbose = verbose,
-    )
-end
+"""
+The build_paths function constructs paths by only considering those n-grams that are
+close to the target. It first takes the predicted c-hat vector and finds the
+closest n neighbors in the C matrix. Then it selects all n-grams of these neighbors,
+and constructs all valid paths with those n-grams. The path producing the best
+correlation with the target semantic vector (through synthesis by analysis) is selected.
+"""
+function build_paths end
 
 """
 learn_paths(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
@@ -72,10 +43,10 @@ word, which n-grams are best supported for a given position in the sequence of n
 # Obligatory Arguments
 - `data::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
-- `C_train::SparseMatrixCSC`: the C matrix for training dataset
+- `C_train::Union{SparseMatrixCSC, Matrix}`: the C matrix for training dataset
 - `S_val::Union{SparseMatrixCSC, Matrix}`: the S matrix for validation dataset
 - `F_train::Union{SparseMatrixCSC, Matrix}`: the F matrix for training dataset
-- `Chat_val::Matrix`: the Chat matrix for validation dataset
+- `Chat_val::Union{SparseMatrixCSC, Matrix}`: the Chat matrix for validation dataset
 - `A::SparseMatrixCSC`: the adjacency matrix
 - `i2f::Dict`: the dictionary returning features given indices
 - `f2i::Dict`: the dictionary returning indices given features
@@ -481,9 +452,82 @@ function learn_paths(
 end
 
 """
+learn_paths(data, cue_obj, S_val, F_train, Chat_val)
+
+A high-level wrapper function for learn_paths with much less control. It aims 
+for users who is very new to JudiLing and learn_paths function.
+
+...
+# Obligatory Arguments
+- `data::DataFrame`: the training dataset
+- `cue_obj::Cue_Matrix_Struct`: the C matrix object containing all information with C
+- `S_val::Union{SparseMatrixCSC, Matrix}`: the S matrix for validation dataset
+- `F_train::Union{SparseMatrixCSC, Matrix}`: the F matrix for training dataset
+- `Chat_val::Union{SparseMatrixCSC, Matrix}`: the Chat matrix for validation dataset
+
+# Optional Arguments
+- `Shat_val::Union{Nothing, Matrix}=nothing`: the Shat matrix for the validation dataset
+- `check_gold_path::Bool=false`: if true, return a list of support values for the gold path; this information is returned as second output value
+- `threshold::Float64=0.1`:the value set for the support such that if the support of an n-gram is higher than this value, the n-gram will be taking into consideration
+- `is_tolerant::Bool=false`: if true, select a specified number (given by `max_tolerance`) of n-grams whose supports are below threshold but above a second tolerance threshold to be added to the path
+- `tolerance::Float64=(-1000.0)`: the value set for the second threshold (in tolerant mode) such that if the support for an n-gram is in between this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path
+- `max_tolerance::Int64=4`: maximum number of n-grams allowed in a path
+- `verbose::Bool=false`: if true, more information is printed
+
+# Examples
+```julia
+res = learn_paths(latin, cue_obj, S, F, Chat)
+```
+...
+"""
+function learn_paths(
+    data,
+    cue_obj,
+    S_val,
+    F_train,
+    Chat_val;
+    Shat_val = nothing,
+    check_gold_path = false,
+    threshold = 0.1,
+    is_tolerant = false,
+    tolerance = (-1000.0),
+    max_tolerance = 3,
+    verbose = true)
+    
+    max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col)
+
+    learn_paths(
+        data,
+        data,
+        cue_obj.C,
+        S_val,
+        F_train,
+        Chat_val,
+        cue_obj.A,
+        cue_obj.i2f,
+        cue_obj.f2i;
+        gold_ind = cue_obj.gold_ind,
+        Shat_val = Shat_val,
+        check_gold_path = check_gold_path,
+        max_t = max_t,
+        max_can = 10,
+        threshold = threshold,
+        is_tolerant = is_tolerant,
+        tolerance = tolerance,
+        max_tolerance = max_tolerance,
+        grams = cue_obj.grams,
+        tokenized = cue_obj.tokenized,
+        sep_token = cue_obj.sep_token,
+        keep_sep = cue_obj.keep_sep,
+        target_col = cue_obj.target_col,
+        verbose = verbose,
+    )
+end
+
+"""
 build_paths(data_val, C_train, S_val, F_train, Chat_val, A, i2f, C_train_ind)
 
-the build_paths function constructs paths by only considering those n-grams that are
+The build_paths function constructs paths by only considering those n-grams that are
 close to the target. It first takes the predicted c-hat vector and finds the
 closest n neighbors in the C matrix. Then it selects all n-grams of these neighbors,
 and constructs all valid paths with those n-grams. The path producing the best
