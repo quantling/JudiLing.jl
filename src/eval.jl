@@ -23,7 +23,7 @@ Homophones support option is implemented.
 function eval_SC_loose end
 
 """
-    accuracy_comprehension(S, Shat, data)
+accuracy_comprehension(S, Shat, data)
 
 Evaluate comprehension accuracy.
 
@@ -101,7 +101,7 @@ function accuracy_comprehension(
 end
 
 """
-    eval_SC(SChat, SC)
+eval_SC(SChat, SC)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
@@ -140,7 +140,7 @@ function eval_SC(SChat, SC; digits=4, R=false)
 end
 
 """
-    eval_SC(SChat, SC, data, target_col)
+eval_SC(SChat, SC, data, target_col)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
@@ -182,7 +182,7 @@ function eval_SC(SChat, SC, data, target_col; digits=4, R=false)
 end
 
 """
-    eval_SC(SChat, SC, batch_size)
+eval_SC(SChat, SC, batch_size)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
@@ -244,7 +244,7 @@ function eval_SC(SChat, SC, batch_size; digits=4, verbose = false)
 end
 
 """
-    eval_SC(SChat, SC, data, target_col, batch_size)
+eval_SC(SChat, SC, data, target_col, batch_size)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
@@ -341,7 +341,7 @@ function eval_SC_chucks(SChat, SC, s, batch_size, data, target_col)
 end
 
 """
-    eval_SC_loose(SChat, SC, k)
+eval_SC_loose(SChat, SC, k)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Count it as correct if one of the top k candidates is correct.
@@ -381,7 +381,7 @@ function eval_SC_loose(SChat, SC, k; digits=4)
 end
 
 """
-    eval_SC_loose(SChat, SC, k, data, target_col)
+eval_SC_loose(SChat, SC, k, data, target_col)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Count it as correct if one of the top k candidates is correct.
@@ -428,7 +428,7 @@ function eval_SC_loose(SChat, SC, k, data, target_col; digits=4)
 end
 
 """
-    eval_manual(res, data, i2f)
+eval_manual(res, data, i2f)
 
 Create extensive reports for the outputs from `build_paths` and `learn_paths`.
 """
@@ -474,7 +474,7 @@ end
 
 
 """
-    eval_acc(res, gold_inds::Array; digits=4, verbose = false)
+eval_acc(res, gold_inds::Array)
 
 Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
 
@@ -528,12 +528,32 @@ function eval_acc(res, gold_inds::Array; digits=4, verbose = false)
     round(acc / total, digits=digits)
 end
 
+"""
+eval_acc(res, cue_obj::Cue_Matrix_Struct)
+
+Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
+
+...
+# Obligatory Arguments
+- `res::Array`: the results from `learn_paths` or `build_paths`
+- `cue_obj::Cue_Matrix_Struct`: the C matrix object
+
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `verbose::Bool=false`: if true, more information is printed
+
+# Examples
+```julia
+acc = JudiLing.eval_acc(res, cue_obj)
+```
+...
+"""
 function eval_acc(res, cue_obj::Cue_Matrix_Struct; digits = 4, verbose = false)
     eval_acc(res, cue_obj.gold_ind, digits = digits, verbose = verbose)
 end
 
 """
-    eval_acc_loose(res, gold_inds)
+eval_acc_loose(res, gold_inds)
 
 Lenient evaluation of the accuracy of the results from `learn_paths` or `build_paths`,
 counting a prediction as correct when the correlation of the predicted and gold
@@ -597,7 +617,7 @@ function eval_acc_loose(res, gold_inds; digits=4, verbose = false)
 end
 
 """
-    extract_gpi(gpi, threshold=0.1, tolerance=(-1000.0))
+extract_gpi(gpi, threshold=0.1, tolerance=(-1000.0))
 
 Extract, using gold paths' information, how many n-grams for a gold
 path are below the threshold but above the tolerance.

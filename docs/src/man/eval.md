@@ -2,7 +2,7 @@
 CurrentModule = JudiLing
 ```
 
-# Find Paths
+# Evaluation
 
 ```@docs
     Comp_Acc_Struct
@@ -16,7 +16,8 @@ CurrentModule = JudiLing
     eval_SC_loose(SChat, SC, k)
     eval_SC_loose(SChat, SC, k, data, target_col)
     eval_manual(res, data, i2f)
-    eval_acc(res, gold_inds::Array; digits=4, verbose = false)
+    eval_acc(res, gold_inds::Array)
+    eval_acc(res, cue_obj::Cue_Matrix_Struct)
     eval_acc_loose(res, gold_inds)
     extract_gpi(gpi, threshold=0.1, tolerance=(-1000.0))
 ```
