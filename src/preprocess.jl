@@ -1,16 +1,9 @@
+"""
+Split Data Exception
+"""
 struct SplitDataException <: Exception
     msg::String
 end
-
-"""
-Leave p out cross-validation.
-"""
-function lpo_cv_split end
-
-"""
-Leave one out cross-validation.
-"""
-function loo_cv_split end
 
 """
     lpo_cv_split(p, data_path)
@@ -34,7 +27,7 @@ end
 Leave one out cross-validation.
 """
 function loo_cv_split(data_path; random_seed = 314)
-    lpo_cv_split(1, data_path)
+    lpo_cv_split(1, data_path, random_seed=random_seed)
 end
 
 """
