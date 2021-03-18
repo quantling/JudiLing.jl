@@ -5,6 +5,6 @@ CurrentModule = JudiLing
 # Utils
 
 ```@docs
-    mypickle
-    myunpickle
+    save_pickle
+    load_pickle
 ```
