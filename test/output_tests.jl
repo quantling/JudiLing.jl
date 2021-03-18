@@ -181,10 +181,8 @@ using DataFrames
         JudiLing.write2df(gpi_train)
 
         JudiLing.write2df(gpi_val)
-
-        @test true
-    catch e
-        @test e == false
+    catch
+        @test false
     finally
         path = joinpath(".", "test_out")
         rm(path, force = true, recursive = true)
