@@ -9,7 +9,6 @@ function make_Yt_matrix end
 Make Yt matrix for timestep t. A given column of the Yt matrix specifies the support
 for the corresponding n-gram predicted for timestep t for each of the observations (rows of Yt).
 
-...
 # Obligatory Arguments
 - `t::Int64`: the timestep t
 - `data::DataFrame`: the dataset
@@ -25,7 +24,6 @@ for the corresponding n-gram predicted for timestep t for each of the observatio
 latin = DataFrame(CSV.File(joinpath("data", "latin_mini.csv")))
 JudiLing.make_Yt_matrix(2, latin)
 ```
-...
 """
 function make_Yt_matrix(
     t,
