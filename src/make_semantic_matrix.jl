@@ -53,7 +53,6 @@ function make_combined_L_matrix end
 
 Create a discrete semantic matrix given a dataframe.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 
@@ -68,7 +67,6 @@ s_obj_train = JudiLing.make_pS_matrix(
     features_col=:CommunicativeIntention,
     sep_token="_")
 ```
-...
 """
 function make_pS_matrix(
     utterances;
@@ -119,7 +117,6 @@ end
 Construct discrete semantic matrix for the validation datasets given by the
 exemplar in the dataframe, and given the S matrix for the training datasets.
 
-...
 # Obligatory Arguments
 - `utterances::DataFrame`: the dataset
 - `utterances_train::PS_Matrix_Struct`: training PS object
@@ -136,7 +133,6 @@ s_obj_val = JudiLing.make_pS_matrix(
     features_col=:CommunicativeIntention,
     sep_token="_")
 ```
-...
 """
 function make_pS_matrix(
     utterances,
@@ -190,7 +186,6 @@ data of a vector specified contex lexemes and a vector specified gramatic
 lexemes. The semantic vector of a word form is constructed summing semantic
 vectors of content and gramatic lexemes.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 - `base::Vector`: context lexemes
@@ -248,7 +243,6 @@ S_train = JudiLing.make_S_matrix(
     sd_noise=1,
     ...)
 ```
-...
 """
 function make_S_matrix(
     data::DataFrame,
@@ -298,7 +292,6 @@ data of a vector specified contex lexemes and a vector specified gramatic
 lexemes. The semantic vector of a word form is constructed summing semantic
 vectors of content and gramatic lexemes.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -358,7 +351,6 @@ S_train, S_val = JudiLing.make_S_matrix(
     sd_noise=1,
     ...)
 ```
-...
 """
 function make_S_matrix(
     data_train::DataFrame,
@@ -410,7 +402,6 @@ features, given the input data of a vector specified contex lexemes and a
 vector specified gramatic lexemes. The semantic vector of a word form is
 constructed summing semantic vectors of content and gramatic lexemes.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 - `base::Vector`: context lexemes
@@ -465,7 +456,6 @@ S_train = JudiLing.make_S_matrix(
     sd_noise=1,
     ...)
 ```
-...
 """
 function make_S_matrix(
     data::DataFrame,
@@ -508,7 +498,6 @@ features, given the input data of a vector specified contex lexemes and a
 vector specified gramatic lexemes. The semantic vector of a word form is
 constructed summing semantic vectors of content and gramatic lexemes.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -564,7 +553,6 @@ S_train, S_val = JudiLing.make_S_matrix(
     sd_noise=1,
     ...)
 ```
-...
 """
 function make_S_matrix(
     data_train::DataFrame,
@@ -640,7 +628,6 @@ end
 
 Create simulated semantic matrix where lexome matrix is available.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 - `base::Vector`: context lexemes
@@ -665,7 +652,6 @@ S1 = JudiLing.make_S_matrix(
     normalized=false
     )
 ```
-...
 """
 function make_S_matrix(
     data_train::DataFrame,
@@ -693,7 +679,6 @@ end
 
 Create simulated semantic matrix where lexome matrix is available.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -718,7 +703,6 @@ S1, S2 = JudiLing.make_S_matrix(
     normalized=false
     )
 ```
-...
 """
 function make_S_matrix(
     data_train::DataFrame,
@@ -748,7 +732,6 @@ end
 
 Create simulated semantic matrix where lexome matrix is available.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 - `base::Vector`: context lexemes
@@ -771,7 +754,6 @@ S1 = JudiLing.make_S_matrix(
     normalized=false
     )
 ```
-...
 """
 function make_S_matrix(
     data::DataFrame,
@@ -799,7 +781,6 @@ end
 
 Create simulated semantic matrix where lexome matrix is available.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -826,7 +807,6 @@ S1, S2 = JudiLing.make_S_matrix(
     normalized=false
     )
 ```
-...
 """
 function make_S_matrix(
     data_train::DataFrame,
@@ -862,7 +842,6 @@ end
 
 Create Lexome Matrix with simulated semantic vectors.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 - `base::Vector`: context lexemes
@@ -886,7 +865,6 @@ L = JudiLing.make_L_matrix(
     ["Person","Number","Tense","Voice","Mood"],
     ncol=200)
 ```
-...
 """
 function make_L_matrix(
     data::DataFrame,
@@ -950,7 +928,6 @@ end
 
 Create Lexome Matrix with simulated semantic vectors where there are only base features.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 - `base::Vector`: context lexemes
@@ -970,7 +947,6 @@ L = JudiLing.make_L_matrix(
     ["Lexeme"],
     ncol=200)
 ```
-...
 """
 function make_L_matrix(
     data::DataFrame,
@@ -1000,7 +976,6 @@ end
 Create Lexome Matrix with simulated semantic vectors, where features are
 combined from both training datasets and validation datasets.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -1026,7 +1001,6 @@ L = JudiLing.make_combined_L_matrix(
     ["Person","Number","Tense","Voice","Mood"],
     ncol=n_features)
 ```
-...
 """
 function make_combined_L_matrix(
     data_train::DataFrame,
@@ -1064,7 +1038,6 @@ end
 Create Lexome Matrix with simulated semantic vectors, where features are
 combined from both training datasets and validation datasets.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -1088,7 +1061,6 @@ L = JudiLing.make_combined_L_matrix(
     ["Lexeme"],
     ncol=n_features)
 ```
-...
 """
 function make_combined_L_matrix(
     data_train::DataFrame,
@@ -1123,7 +1095,6 @@ Create simulated semantic matrix for the training datasets and validation
 datasets with existing Lexome matrix, where features are combined from both
 training datasets and validation datasets.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -1146,7 +1117,6 @@ S_train, S_val = JudiLing.make_combined_S_matrix(
     ["Person","Number","Tense","Voice","Mood"],
     L)
 ```
-...
 """
 function make_combined_S_matrix(
     data_train::DataFrame,
@@ -1178,7 +1148,6 @@ Create simulated semantic matrix for the training datasets and validation
 datasets with existing Lexome matrix, where features are combined from both
 training datasets and validation datasets.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -1200,7 +1169,6 @@ S_train, S_val = JudiLing.make_combined_S_matrix(
     ["Person","Number","Tense","Voice","Mood"],
     L)
 ```
-...
 """
 function make_combined_S_matrix(
     data_train::DataFrame,
@@ -1230,7 +1198,6 @@ Create simulated semantic matrix for the training datasets and validation
 datasets, where features are combined from both training datasets and
 validation datasets.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -1259,7 +1226,6 @@ S_train, S_val = JudiLing.make_combined_S_matrix(
     ["Person","Number","Tense","Voice","Mood"],
     ncol=n_features)
 ```
-...
 """
 function make_combined_S_matrix(
     data_train::DataFrame,
@@ -1309,7 +1275,6 @@ Create simulated semantic matrix for the training datasets and validation
 datasets, where features are combined from both training datasets and
 validation datasets.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -1337,7 +1302,6 @@ S_train, S_val = JudiLing.make_combined_S_matrix(
     ["Person","Number","Tense","Voice","Mood"],
     ncol=n_features)
 ```
-...
 """
 function make_combined_S_matrix(
     data_train::DataFrame,
