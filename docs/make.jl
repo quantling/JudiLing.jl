@@ -24,7 +24,9 @@ makedocs(;
             "Output" => "man/output.md",
             "Test Combo" => "man/test_combo.md",
             "Display" => "man/display.md",
-            "Utils" => "man/utils.md"
+            "Utils" => "man/utils.md",
+            "Pickle" => "man/pickle.md",
+            "Pyndl" => "man/pyndl.md"
         ],
         "All Manual index" => "man/all_manual.md"
     ],
