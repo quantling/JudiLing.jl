@@ -65,7 +65,7 @@ JudiLing.test_combo(
     val_sample_size = 100,
     data_path = joinpath(@__DIR__, "data", "latin.csv"),
     data_prefix = "latin",
-    output_dir_path = joinpath(@__DIR__, "data"),
+    data_output_dir = joinpath(@__DIR__, "data"),
     n_features_columns = ["Lexeme","Person","Number","Tense","Voice","Mood"],
     n_grams_target_col = :Word,
     n_grams_tokenized = false,
@@ -78,7 +78,7 @@ JudiLing.test_combo(
 # if you have a pre split dataset
 JudiLing.test_combo(
     :pre_split,
-    data_dir_path=joinpath(@__DIR__, "data"),
+    data_output_dir=joinpath(@__DIR__, "data"),
     data_prefix="estonian",
     n_features_columns=["Lexeme","Case","Number"],
     n_grams_target_col=:Word,
@@ -105,7 +105,7 @@ JudiLing.test_combo(
     val_sample_size = 100,
     data_path = joinpath(@__DIR__, "data", "french.csv"),
     data_prefix = "french",
-    output_dir_path = joinpath(@__DIR__, "data"),
+    data_output_dir = joinpath(@__DIR__, "data"),
     n_features_columns = ["Lexeme","Tense","Aspect","Person","Number","Gender","Class","Mood"],
     n_grams_target_col = :Syllables,
     n_grams_tokenized = true,
@@ -133,7 +133,7 @@ JudiLing.test_combo(
     val_sample_size = 100,
     data_path = joinpath(@__DIR__, "data", "french.csv"),
     data_prefix = "french",
-    output_dir_path = joinpath(@__DIR__, "data"),
+    data_output_dir = joinpath(@__DIR__, "data"),
     n_features_columns = ["Lexeme","Tense","Aspect","Person","Number","Gender","Class","Mood"],
     n_grams_target_col = :Syllables,
     n_grams_tokenized = true,
@@ -177,7 +177,7 @@ JudiLing.test_combo(
     val_sample_size = 100,
     data_path = joinpath(@__DIR__, "data", "latin.csv"),
     data_prefix = "latin",
-    output_dir_path = joinpath(@__DIR__, "data"),
+    data_output_dir = joinpath(@__DIR__, "data"),
     n_features_columns = ["Lexeme","Person","Number","Tense","Voice","Mood"],
     n_grams_target_col = :Word,
     n_grams_tokenized = false,
@@ -211,21 +211,21 @@ function test_combo(test_mode;kwargs...)
             train_sample_size = train_sample_size, 
             val_sample_size = val_sample_size)
     elseif test_mode == :pre_split
-        data_dir_path = get_kwarg(kwargs, :data_dir_path, required=true)
+        data_output_dir = get_kwarg(kwargs, :data_output_dir, required=true)
         data_prefix = get_kwarg(kwargs, :data_prefix, required=true)
         extension = get_kwarg(kwargs, :extension, required=false)
         data_train, data_val = loading_data_pre_split(
-            data_dir_path, data_prefix, 
+            data_output_dir, data_prefix, 
             train_sample_size = train_sample_size, 
             val_sample_size = val_sample_size, extension=extension)
     elseif test_mode == :random_split
         data_path = get_kwarg(kwargs, :data_path, required=true)
-        output_dir_path = get_kwarg(kwargs, :output_dir_path, required=true)
+        data_output_dir = get_kwarg(kwargs, :data_output_dir, required=true)
         data_prefix = get_kwarg(kwargs, :data_prefix, required=true)
 
         data_train, data_val = loading_data_randomly_split(
             data_path,
-            output_dir_path,
+            data_output_dir,
             data_prefix,
             train_sample_size = train_sample_size,
             val_sample_size = val_sample_size,
@@ -235,13 +235,13 @@ function test_combo(test_mode;kwargs...)
     elseif test_mode == :carefully_split
         data_path = get_kwarg(kwargs, :data_path, required=true)
         data_prefix = get_kwarg(kwargs, :data_prefix, required=true)
-        output_dir_path = get_kwarg(kwargs, :output_dir_path, required=true)
+        data_output_dir = get_kwarg(kwargs, :data_output_dir, required=true)
         n_features_columns = get_kwarg(kwargs, :n_features_columns, required=true)
 
         data_train, data_val = loading_data_carefully_split(
             data_path,
             data_prefix,
-            output_dir_path,
+            data_output_dir,
             n_features_columns,
             train_sample_size = train_sample_size,
             val_sample_size = val_sample_size,
@@ -697,14 +697,14 @@ function loading_data_train_only(
 end
 
 function loading_data_pre_split(
-    data_dir_path,
+    data_output_dir,
     data_prefix;
     train_sample_size = 0,
     val_sample_size = 0,
     extension=".csv")
 
-    train_path = joinpath(data_dir_path, data_prefix * "_train" * extension)
-    val_path = joinpath(data_dir_path, data_prefix * "_val" * extension)
+    train_path = joinpath(data_output_dir, data_prefix * "_train" * extension)
+    val_path = joinpath(data_output_dir, data_prefix * "_val" * extension)
     data_train = DataFrame(CSV.File(train_path))
     data_val = DataFrame(CSV.File(val_path))
 
