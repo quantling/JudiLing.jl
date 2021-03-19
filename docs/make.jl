@@ -26,7 +26,8 @@ makedocs(;
             "Display" => "man/display.md",
             "Utils" => "man/utils.md",
             "Pickle" => "man/pickle.md",
-            "Pyndl" => "man/pyndl.md"
+            "Pyndl" => "man/pyndl.md",
+            "Widrow-Hoff Learning" => "man/wh.md",
         ],
         "All Manual index" => "man/all_manual.md"
     ],
