@@ -1,14 +1,22 @@
+"""
+Pyndl object.
+"""
 struct Pyndl_Weight_Struct
     cues::Vector{String}
     outcomes::Vector{String}
     weight::Matrix{Float64}
 end
 
+"""
+    pyndl(data_path)
+
+Perform pyndl.
+"""
 function pyndl(
-    data_path::String;
-    alpha = 0.1::Float64,
-    betas = (0.1, 0.1)::Tuple{Float64,Float64},
-)::Pyndl_Weight_Struct
+    data_path;
+    alpha = 0.1,
+    betas = (0.1, 0.1),
+)
 
     ndl = pyimport("pyndl.ndl")
 
@@ -24,7 +32,7 @@ function pyndl(
 
 end
 
-function unwrap_xarray(weights::PyObject)Tuple{Vector,Vector,Matrix}
+function unwrap_xarray(weights)
     coords = weights.coords.to_dataset()
     cues = [i for i in coords.cues.data]
     outcomes = [i for i in coords.outcomes.data]
