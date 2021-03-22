@@ -13,6 +13,7 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Test Combo Introduction" => "test_combo_intro.md",
         "Manual" => Any[
             "Make Cue Matrix" => "man/make_cue_matrix.md",
             "Make Semantic Matrix" => "man/make_semantic_matrix.md",
@@ -23,7 +24,11 @@ makedocs(;
             "Evaluation" => "man/eval.md",
             "Output" => "man/output.md",
             "Test Combo" => "man/test_combo.md",
-            "Utils" => "man/utils.md"
+            "Display" => "man/display.md",
+            "Utils" => "man/utils.md",
+            "Pickle" => "man/pickle.md",
+            "Pyndl" => "man/pyndl.md",
+            "Widrow-Hoff Learning" => "man/wh.md",
         ],
         "All Manual index" => "man/all_manual.md"
     ],

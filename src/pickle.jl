@@ -8,22 +8,22 @@ pickle = pyimport("pickle")
 
 
 """
-save pickle from python pickle file
+Save pickle from python pickle file.
 """
-function mypickle end
+function save_pickle end
 
 """
-load pickle from python pickle file
+Load pickle from python pickle file.
 """
-function myunpickle end
+function load_pickle end
 
-function mypickle(filename, obj)
+function save_pickle(filename, obj)
     out = open(filename, "w")
     pickle.dump(obj, out)
     close(out)
 end
 
-function myunpickle(filename)
+function load_pickle(filename)
     r = nothing
     @pywith pybuiltin("open")(filename, "rb") as f begin
         r = pickle.load(f)

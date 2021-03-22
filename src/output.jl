@@ -13,21 +13,10 @@ that is optionally returned as second output result.
 function write2df end
 
 """
-Save lexome matrix into csv file.
-"""
-function save_L_matrix end
-
-"""
-Load lexome matrix from csv file.
-"""
-function load_L_matrix end
-
-"""
     write2csv(res, data, cue_obj_train, cue_obj_val, filename)
 
 Write results into csv file for the results from `learn_paths` and `build_paths`.
 
-...
 # Obligatory Arguments
 - `res::Array{Array{Result_Path_Info_Struct,1},1}`: the results from `learn_paths` or `build_paths`
 - `data::DataFrame`: the dataset
@@ -82,7 +71,6 @@ JudiLing.write2csv(
     root_dir=".",
     output_dir="test_out")
 ```
-...
 """
 function write2csv(
     res,
@@ -133,7 +121,6 @@ end
 Write results into csv file for the gold paths' information optionally returned by
 `learn_paths` and `build_paths`.
 
-...
 # Obligatory Arguments
 - `gpi::Vector{Gold_Path_Info_Struct}`: the gold paths' information
 - `filename::String`: the filename
@@ -160,7 +147,6 @@ JudiLing.write2csv(
     output_dir="test_out"
     )
 ```
-...
 """
 function write2csv(gpi, filename; root_dir = ".", output_dir = ".")
     output_path = joinpath(root_dir, output_dir)
@@ -192,7 +178,6 @@ end
 Reformat results into a dataframe for the results form `learn_paths` and `build_paths`
 functions.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 
@@ -235,7 +220,6 @@ JudiLing.write2df(
     path_sep_token=":",
     target_col=:Word)
 ```
-...
 """
 function write2df(
     res,
@@ -336,7 +320,6 @@ end
 Write results into a dataframe for the gold paths' information optionally returned by
 `learn_paths` and `build_paths`.
 
-...
 # Obligatory Arguments
 - `gpi::Vector{Gold_Path_Info_Struct}`: the gold paths' information
 
@@ -348,7 +331,6 @@ JudiLing.write2csv(gpi_train)
 # write gold standard paths to df for validation data
 JudiLing.write2csv(gpi_val)
 ```
-...
 """
 function write2df(gpi)
 
@@ -385,7 +367,6 @@ end
 
 Save lexome matrix into csv file.
 
-...
 # Obligatory Arguments
 - `L::L_Matrix_Struct`: the lexome matrix struct
 - `filename::String`: the filename/filepath
@@ -394,7 +375,6 @@ Save lexome matrix into csv file.
 ```julia
 JudiLing.save_L_matrix(L, joinpath(@__DIR__, "L.csv"))
 ```
-...
 """
 function save_L_matrix(L, filename)
 
@@ -409,18 +389,16 @@ end
 
 Load lexome matrix from csv file.
 
-...
 # Obligatory Arguments
 - `filename::String`: the filename/filepath
 
 # Optional Arguments
-- `header::Bool`: header in csv
+- `header::Bool=false`: header in csv
 
 # Examples
 ```julia
 L_load = JudiLing.load_L_matrix(joinpath(@__DIR__, "L.csv"))
 ```
-...
 """
 function load_L_matrix(filename; header = false)
 
@@ -431,4 +409,56 @@ function load_L_matrix(filename; header = false)
     L = Array(select(L_df, Not(1)))
 
     L_Matrix_Struct(L, f2i, i2f, ncol)
+end
+
+"""
+    save_S_matrix(S, filename, data, target_col)
+
+Save S matrix into a csv file.
+
+# Obligatory Arguments
+- `S::Matrix`: the S matrix
+- `filename::String`: the filename/filepath
+- `data::DataFrame`: the data
+- `target_col::Symbol`: the name of target column
+
+# Optional Arguments
+- `sep::Bool=" "`: separator in CSV file
+
+# Examples
+```julia
+JudiLing.save_S_matrix(S, joinpath(@__DIR__, "L.csv"), latin, :Word)
+```
+"""
+function save_S_matrix(S, filename, data, target_col; sep=" ")
+    S_df = convert(DataFrames.DataFrame, S)
+    insertcols!(S_df, 1, :col_names => data[:,target_col])
+    CSV.write(filename, S_df, quotestrings = true, header = false, delim=sep)
+    nothing
+end
+
+"""
+    load_S_matrix(filename)
+
+Load S matrix from a csv file.
+
+# Obligatory Arguments
+- `filename::String`: the filename/filepath
+
+# Optional Arguments
+- `header::Bool=false`: header in csv
+- `sep::Bool=" "`: separator in CSV file
+
+# Examples
+```julia
+JudiLing.load_S_matrix(joinpath(@__DIR__, "L.csv"))
+```
+"""
+function load_S_matrix(filename; header = false, sep=" ")
+
+    S_df = DataFrame(CSV.File(filename, header = header, delim = sep))
+    words = S_df[:, 1]
+    S = Array(select(S_df, Not(1)))
+
+    S, words
 end

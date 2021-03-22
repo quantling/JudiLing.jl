@@ -1,3 +1,8 @@
+"""
+    wh_learn(X, Y)
+
+Widrow-Hoff Learning.
+"""
 function wh_learn(
     X,
     Y;
@@ -56,6 +61,11 @@ function wh_learn(
     W
 end
 
+"""
+    make_learn_seq(freq)
+
+Make Widrow-Hoff learning sequence.
+"""
 function make_learn_seq(freq; random_seed = 314)
     if isnothing(freq)
         return nothing

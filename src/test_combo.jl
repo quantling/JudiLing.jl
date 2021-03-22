@@ -53,140 +53,7 @@ KWARGS_DEFAULT = Dict([
 """
     test_combo(test_mode;kwargs...)
 
-A wrapper function for a full model for a specific combination of parameters.
-
-# Examples
-```julia
-# only evaluate training dataset
-# by specifing val_sample_size
-# only partial training data being evaluated
-JudiLing.test_combo(
-    :train_only,
-    val_sample_size = 100,
-    data_path = joinpath(@__DIR__, "data", "latin.csv"),
-    data_prefix = "latin",
-    output_dir_path = joinpath(@__DIR__, "data"),
-    n_features_columns = ["Lexeme","Person","Number","Tense","Voice","Mood"],
-    n_grams_target_col = :Word,
-    n_grams_tokenized = false,
-    grams = 3,
-    n_features_base = ["Lexeme"],
-    n_features_inflections = ["Person","Number","Tense","Voice","Mood"],
-    verbose = true
-    )
-
-# if you have a pre split dataset
-JudiLing.test_combo(
-    :pre_split,
-    data_dir_path=joinpath(@__DIR__, "data"),
-    data_prefix="estonian",
-    n_features_columns=["Lexeme","Case","Number"],
-    n_grams_target_col=:Word,
-    n_grams_tokenized=false,
-    grams=3,
-    n_features_base = ["Lexeme"],
-    n_features_inflections = ["Lexeme","Case","Number"],
-    if_combined = false,
-    A_mode = :train_only,
-    threshold_train = 0.1,
-    is_tolerant_train = false,
-    threshold_val = 0.1,
-    is_tolerant_val = true,
-    tolerance_val = -0.1,
-    max_tolerance_val = 3,
-    verbose = true)
-
-# random split dataset into training and validation
-# usually you need turn on combined mode
-# otherwise there will be unseen cues and others
-JudiLing.test_combo(
-    :random_split,
-    train_sample_size = 3000,
-    val_sample_size = 100,
-    data_path = joinpath(@__DIR__, "data", "french.csv"),
-    data_prefix = "french",
-    output_dir_path = joinpath(@__DIR__, "data"),
-    n_features_columns = ["Lexeme","Tense","Aspect","Person","Number","Gender","Class","Mood"],
-    n_grams_target_col = :Syllables,
-    n_grams_tokenized = true,
-    n_grams_sep_token = "-",
-    n_grams_keep_sep = true,
-    grams = 2,
-    n_features_base = ["Lexeme"],
-    n_features_inflections = ["Tense","Aspect","Person","Number","Gender","Class","Mood"],
-    if_combined = true,
-    threshold_train = 0.1,
-    is_tolerant_train = false,
-    is_tolerant_val = true,
-    threshold_val = 0.1,
-    tolerance_val = (-0.1),
-    max_tolerance_train = 3,
-    output_dir = joinpath(@__DIR__, "out"),
-    verbose = true
-    )
-
-# or you can carefully split the data
-# so that no unseen cues and others
-JudiLing.test_combo(
-    :carefully_split,
-    train_sample_size = 3000,
-    val_sample_size = 100,
-    data_path = joinpath(@__DIR__, "data", "french.csv"),
-    data_prefix = "french",
-    output_dir_path = joinpath(@__DIR__, "data"),
-    n_features_columns = ["Lexeme","Tense","Aspect","Person","Number","Gender","Class","Mood"],
-    n_grams_target_col = :Syllables,
-    n_grams_tokenized = true,
-    n_grams_sep_token = "-",
-    n_grams_keep_sep = true,
-    grams = 2,
-    n_features_base = ["Lexeme"],
-    n_features_inflections = ["Tense","Aspect","Person","Number","Gender","Class","Mood"],
-    threshold_train = 0.1,
-    is_tolerant_train = false,
-    is_tolerant_val = true,
-    threshold_val = 0.1,
-    tolerance_val = (-0.1),
-    max_tolerance_train = 3,
-    output_dir = joinpath(@__DIR__, "out"),
-    verbose = true
-    )
-
-# wh learning rules is also possible
-JudiLing.test_combo(
-    :train_only,
-    val_sample_size = 100,
-    data_path = joinpath(@__DIR__, "data", "latin.csv"),
-    data_prefix = "latin",
-    output_dir_path = joinpath(@__DIR__, "data"),
-    n_features_columns = ["Lexeme","Person","Number","Tense","Voice","Mood"],
-    n_grams_target_col = :Word,
-    n_grams_tokenized = false,
-    grams = 3,
-    n_features_base = ["Lexeme"],
-    n_features_inflections = ["Person","Number","Tense","Voice","Mood"],
-    learn_mode = :wh,
-    eta = 0.0001,
-    n_epochs = 100,
-    verbose = true
-    )
-
-# output is configured by output_dir
-JudiLing.test_combo(
-    :train_only,
-    val_sample_size = 100,
-    data_path = joinpath(@__DIR__, "data", "latin.csv"),
-    data_prefix = "latin",
-    output_dir_path = joinpath(@__DIR__, "data"),
-    n_features_columns = ["Lexeme","Person","Number","Tense","Voice","Mood"],
-    n_grams_target_col = :Word,
-    n_grams_tokenized = false,
-    grams = 3,
-    n_features_base = ["Lexeme"],
-    n_features_inflections = ["Person","Number","Tense","Voice","Mood"],
-    output_dir = joinpath(@__DIR__, "latin_out"),
-    verbose = true
-    )
+A wrapper function for a full model for a specific combination of parameters. A detailed introduction is in [Test Combo Introduction](@ref)
 ```
 """
 function test_combo(test_mode;kwargs...)
@@ -211,37 +78,37 @@ function test_combo(test_mode;kwargs...)
             train_sample_size = train_sample_size, 
             val_sample_size = val_sample_size)
     elseif test_mode == :pre_split
-        data_dir_path = get_kwarg(kwargs, :data_dir_path, required=true)
+        data_path = get_kwarg(kwargs, :data_path, required=true)
         data_prefix = get_kwarg(kwargs, :data_prefix, required=true)
         extension = get_kwarg(kwargs, :extension, required=false)
         data_train, data_val = loading_data_pre_split(
-            data_dir_path, data_prefix, 
+            data_path, data_prefix, 
             train_sample_size = train_sample_size, 
             val_sample_size = val_sample_size, extension=extension)
     elseif test_mode == :random_split
         data_path = get_kwarg(kwargs, :data_path, required=true)
-        output_dir_path = get_kwarg(kwargs, :output_dir_path, required=true)
+        data_output_dir = get_kwarg(kwargs, :data_output_dir, required=true)
         data_prefix = get_kwarg(kwargs, :data_prefix, required=true)
 
         data_train, data_val = loading_data_randomly_split(
             data_path,
-            output_dir_path,
+            data_output_dir,
             data_prefix,
             train_sample_size = train_sample_size,
             val_sample_size = val_sample_size,
             val_ratio = val_ratio,
             verbose = verbose)
 
-    elseif test_mode == :carefully_split
+    elseif test_mode == :careful_split
         data_path = get_kwarg(kwargs, :data_path, required=true)
         data_prefix = get_kwarg(kwargs, :data_prefix, required=true)
-        output_dir_path = get_kwarg(kwargs, :output_dir_path, required=true)
+        data_output_dir = get_kwarg(kwargs, :data_output_dir, required=true)
         n_features_columns = get_kwarg(kwargs, :n_features_columns, required=true)
 
-        data_train, data_val = loading_data_carefully_split(
+        data_train, data_val = loading_data_careful_split(
             data_path,
             data_prefix,
-            output_dir_path,
+            data_output_dir,
             n_features_columns,
             train_sample_size = train_sample_size,
             val_sample_size = val_sample_size,
@@ -324,7 +191,7 @@ function test_combo(test_mode;kwargs...)
     # add noise don't apply to both S
     if test_mode == :train_only
         if val_sample_size == 0
-            val_sample_size = size(data_train, 1)
+            val_sample_size = 2
         end
         S_val = S_train[1:val_sample_size, :]
     end
@@ -690,21 +557,21 @@ function loading_data_train_only(
     end
 
     if val_sample_size == 0
-        val_sample_size = size(data, 1)
+        val_sample_size = 2
     end
 
     data, data[1:val_sample_size, :]
 end
 
 function loading_data_pre_split(
-    data_dir_path,
+    data_output_dir,
     data_prefix;
     train_sample_size = 0,
     val_sample_size = 0,
     extension=".csv")
 
-    train_path = joinpath(data_dir_path, data_prefix * "_train" * extension)
-    val_path = joinpath(data_dir_path, data_prefix * "_val" * extension)
+    train_path = joinpath(data_output_dir, data_prefix * "_train" * extension)
+    val_path = joinpath(data_output_dir, data_prefix * "_val" * extension)
     data_train = DataFrame(CSV.File(train_path))
     data_val = DataFrame(CSV.File(val_path))
 
@@ -744,7 +611,7 @@ function loading_data_randomly_split(
     loading_data_pre_split(output_dir_path, data_prefix)
 end
 
-function loading_data_carefully_split(
+function loading_data_careful_split(
     data_path,
     data_prefix,
     output_dir_path,
@@ -761,7 +628,7 @@ function loading_data_carefully_split(
     verbose = false)
 
     verbose && println("Spliting data...")
-    train_val_carefully_split(
+    train_val_careful_split(
         data_path,
         output_dir_path,
         data_prefix,

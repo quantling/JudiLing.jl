@@ -1,16 +1,10 @@
 """
-Make full adjacency matrix.
-"""
-function make_full_adjacency_matrix end
-
-"""
     make_adjacency_matrix(i2f)
 
 Make full adjacency matrix based only on the form of n-grams regardless of whether
 they are seen in the training data. This usually takes hours for large datasets,
 as all possible combinations are considered.
 
-...
 # Obligatory Arguments
 - `i2f::Dict`: the dictionary returning features given indices
 
@@ -32,7 +26,6 @@ JudiLing.make_adjacency_matrix(
     tokenized=true,
     sep_token="-")
 ```
-...
 """
 function make_full_adjacency_matrix(
     i2f;
@@ -81,7 +74,6 @@ end
 
 Make combined adjacency matrix.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: training dataset
 - `data_val::DataFrame`: validation dataset
@@ -106,7 +98,6 @@ JudiLing.make_combined_adjacency_matrix(
     keep_sep=false
     )
 ```
-...
 """
 function make_combined_adjacency_matrix(
     data_train,

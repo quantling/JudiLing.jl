@@ -4,7 +4,13 @@ C is the cue matrix;
 f2i is a dictionary returning the indices for features;
 i2f is a dictionary returning the features for indices;
 gold_ind is a list of indices of gold paths;
-A is the adjacency matrix.
+A is the adjacency matrix;
+grams is the number of grams for cues;
+target_col is the column name for target strings;
+tokenized is whether the dataset target is tokenized;
+sep_token is the separator;
+keep_sep is whether to keep separators in cues;
+start_end_token is the start and end token in boundary cues.
 """
 struct Cue_Matrix_Struct
     C::Union{Matrix,SparseMatrixCSC}
@@ -12,6 +18,12 @@ struct Cue_Matrix_Struct
     i2f::Dict
     gold_ind::Vector{Vector{Int64}}
     A::SparseMatrixCSC
+    grams::Int64
+    target_col::Symbol
+    tokenized::Bool
+    sep_token::Union{String, Nothing}
+    keep_sep::Bool
+    start_end_token::String
 end
 
 """
@@ -35,7 +47,6 @@ function make_ngrams end
 Make the cue matrix for training datasets and corresponding indices as well as the adjacency matrix
 and gold paths given a dataset in a form of dataframe.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 
@@ -74,7 +85,6 @@ cue_obj_train = JudiLing.make_cue_matrix(
     verbose=false
     )
 ```
-...
 """
 function make_cue_matrix(
     data::DataFrame;
@@ -160,7 +170,8 @@ function make_cue_matrix(
 
     A = sparse(I, J, V, length(f2i), length(f2i))
 
-    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A)
+    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A, grams, target_col, 
+        tokenized, sep_token, keep_sep, start_end_token)
 end
 
 """
@@ -169,7 +180,6 @@ end
 Make the cue matrix for validation datasets and corresponding indices as well as the adjacency matrix
 and gold paths given a dataset in a form of dataframe.
 
-...
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 - `cue_obj::Cue_Matrix_Struct`: training cue object
@@ -211,7 +221,6 @@ cue_obj_val = JudiLing.make_cue_matrix(
     verbose=false
     )
 ```
-...
 """
 function make_cue_matrix(
     data::DataFrame,
@@ -260,7 +269,8 @@ function make_cue_matrix(
     cue = sparse(I, J, V, m, n, *)
     ngrams_ind = [[f2i[x] for x in y] for y in ngrams]
 
-    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, cue_obj.A)
+    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, cue_obj.A, grams, target_col, 
+        tokenized, sep_token, keep_sep, start_end_token)
 end
 
 """
@@ -268,7 +278,6 @@ end
 
 Make the cue matrix for traiing and validation datasets at the same time.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -307,7 +316,6 @@ cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
     verbose=false
     )
 ```
-...
 """
 function make_cue_matrix(
     data_train::DataFrame,
@@ -437,7 +445,8 @@ function make_cue_matrix(
 
     A = sparse(I, J, V, length(f2i), length(f2i))
 
-    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A)
+    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A, grams, target_col, 
+        tokenized, sep_token, keep_sep, start_end_token)
 end
 
 """
@@ -445,7 +454,6 @@ end
 
 Make the cue matrix for training and validation datasets at the same time, where the features and adjacencies are combined.
 
-...
 # Obligatory Arguments
 - `data_train::DataFrame`: the training dataset
 - `data_val::DataFrame`: the validation dataset
@@ -484,7 +492,6 @@ cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(
     verbose=false
     )
 ```
-...
 """
 function make_combined_cue_matrix(
     data_train,
@@ -540,16 +547,16 @@ function make_combined_cue_matrix(
 end
 
 """
-    make_ngrams(tokens, grams=3, keep_sep=false, sep_token=nothing, start_end_token="#")
+    make_ngrams(tokens, grams, keep_sep, sep_token, start_end_token)
 
 Given a list of string tokens return a list of all n-grams for these tokens.
 """
 function make_ngrams(
     tokens,
-    grams = 3,
-    keep_sep = false,
-    sep_token = nothing,
-    start_end_token = "#",
+    grams,
+    keep_sep,
+    sep_token,
+    start_end_token,
 )
 
     push!(pushfirst!(tokens, start_end_token), start_end_token)

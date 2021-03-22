@@ -94,18 +94,17 @@ end
 Use Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a dense matrix.
 
-...
 # Obligatory Arguments
 - `X::SparseMatrixCSC`: the X matrix, where X is a sparse matrix
 - `Y::Matrix`: the Y matrix, where Y is a dense matrix
 
 # Optional Arguments
-- `method::Symbol=:additive`: whether :additive or :multiplicative decomposition is required
-- `shift::Float64=0.02`: shift value for :additive decomposition
-- `multiplier::Float64=1.01`: multiplier value for :multiplicative decomposition
-- `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
-- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
-- `verbose::Bool=false`: if true, more information will be printed out
+- `method::Symbol = :additive`: whether :additive or :multiplicative decomposition is required
+- `shift::Float64 = 0.02`: shift value for :additive decomposition
+- `multiplier::Float64 = 1.01`: multiplier value for :multiplicative decomposition
+- `output_format::Symbol = :auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
+- `sparse_ratio::Float64 = 0.2`: the ratio to decide whether a matrix is sparse
+- `verbose::Bool = false`: if true, more information will be printed out
 
 # Examples
 ```julia
@@ -113,26 +112,25 @@ where X is a sparse matrix and Y is a dense matrix.
 JudiLing.make_transform_matrix(
     C,
     S,
-    method=:additive,
-    shift=0.02,
-    verbose=false)
+    method = :additive,
+    shift = 0.02,
+    verbose = false)
 
 # multiplicative mode
 JudiLing.make_transform_matrix(
     C,
     S,
-    method=:multiplicative,
-    multiplier=1.01,
-    verbose=false)
-```
+    method = :multiplicative,
+    multiplier = 1.01,
+    verbose = false)
 
 # further control of sparsity ratio
 JudiLing.make_transform_matrix(
   ...
-    output_format=:auto,
-    sparse_ratio=0.2,
+    output_format = :auto,
+    sparse_ratio = 0.2,
   ...)
-...
+```
 """
 function make_transform_matrix(
     X::SparseMatrixCSC,
@@ -174,18 +172,17 @@ end
 Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
 
-...
 # Obligatory Arguments
 - `X::Matrix`: the X matrix, where X is a dense matrix
 - `Y::Union{SparseMatrixCSC, Matrix}`: the Y matrix, where Y is either a sparse or a dense matrix
 
 # Optional Arguments
-- `method::Symbol=:additive`: whether :additive or :multiplicative decomposition is required
-- `shift::Float64=0.02`: shift value for :additive decomposition
-- `multiplier::Float64=1.01`: multiplier value for :multiplicative decomposition
-- `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
-- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
-- `verbose::Bool=false`: if true, more information will be printed out
+- `method::Symbol = :additive`: whether :additive or :multiplicative decomposition is required
+- `shift::Float64 = 0.02`: shift value for :additive decomposition
+- `multiplier::Float64 = 1.01`: multiplier value for :multiplicative decomposition
+- `output_format::Symbol = :auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
+- `sparse_ratio::Float64 = 0.2`: the ratio to decide whether a matrix is sparse
+- `verbose::Bool = false`: if true, more information will be printed out
 
 # Examples
 ```julia
@@ -193,26 +190,25 @@ where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
 JudiLing.make_transform_matrix(
     C,
     S,
-    method=:additive,
-    shift=0.02,
-    verbose=false)
+    method = :additive,
+    shift = 0.02,
+    verbose = false)
 
 # multiplicative mode
 JudiLing.make_transform_matrix(
     C,
     S,
     method=:multiplicative,
-    multiplier=1.01,
-    verbose=false)
+    multiplier = 1.01,
+    verbose = false)
 
 # further control of sparsity ratio
 JudiLing.make_transform_matrix(
     ...
-    output_format=:auto,
-    sparse_ratio=0.2,
+    output_format = :auto,
+    sparse_ratio = 0.2,
     ...)
 ```
-...
 """
 function make_transform_matrix(
     X::Matrix,
@@ -230,6 +226,7 @@ function make_transform_matrix(
     if method == :additive
         fac = cholesky(XtX + shift * I)
     else
+        XtX = convert(SparseMatrixCSC{Float64,Int64}, XtX)
         for i = 1:size(XtX, 2)
             XtX[i, i] *= multiplier
         end
@@ -253,18 +250,17 @@ end
 Use the Cholesky decomposition to calculate the transformation matrix from X to Y,
 where X is a sparse matrix and Y is a sparse matrix.
 
-...
 # Obligatory Arguments
 - `X::SparseMatrixCSC`: the X matrix, where X is a sparse matrix
 - `Y::SparseMatrixCSC`: the Y matrix, where Y is a sparse matrix
 
 # Optional Arguments
-- `method::Symbol=:additive`: whether :additive or :multiplicative decomposition is required
-- `shift::Float64=0.02`: shift value for :additive decomposition
-- `multiplier::Float64=1.01`: multiplier value for :multiplicative decomposition
-- `output_format::Symbol=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
-- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
-- `verbose::Bool=false`: if true, more information will be printed out
+- `method::Symbol = :additive`: whether :additive or :multiplicative decomposition is required
+- `shift::Float64 = 0.02`: shift value for :additive decomposition
+- `multiplier::Float64 = 1.01`: multiplier value for :multiplicative decomposition
+- `output_format::Symbol = :auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
+- `sparse_ratio::Float64 = 0.2`: the ratio to decide whether a matrix is sparse
+- `verbose::Bool = false`: if true, more information will be printed out
 
 # Examples
 ```julia
@@ -272,26 +268,25 @@ where X is a sparse matrix and Y is a sparse matrix.
 JudiLing.make_transform_matrix(
     C,
     S,
-    method=:additive,
-    shift=0.02,
-    verbose=false)
+    method = :additive,
+    shift = 0.02,
+    verbose = false)
 
 # multiplicative mode
 JudiLing.make_transform_matrix(
     C,
     S,
-    method=:multiplicative,
-    multiplier=1.01,
-    verbose=false)
+    method = :multiplicative,
+    multiplier = 1.01,
+    verbose = false)
 
 # further control of sparsity ratio
 JudiLing.make_transform_matrix(
     ...
-    output_format=:auto,
-    sparse_ratio=0.2,
+    output_format = :auto,
+    sparse_ratio = 0.2,
     ...)
 ```
-...
 """
 function make_transform_matrix(
     X::SparseMatrixCSC,

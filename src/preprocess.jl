@@ -1,16 +1,9 @@
+"""
+Split Data Exception
+"""
 struct SplitDataException <: Exception
     msg::String
 end
-
-"""
-Leave p out cross-validation.
-"""
-function lpo_cv_split end
-
-"""
-Leave one out cross-validation.
-"""
-function loo_cv_split end
 
 """
     lpo_cv_split(p, data_path)
@@ -34,7 +27,7 @@ end
 Leave one out cross-validation.
 """
 function loo_cv_split(data_path; random_seed = 314)
-    lpo_cv_split(1, data_path)
+    lpo_cv_split(1, data_path, random_seed=random_seed)
 end
 
 """
@@ -80,11 +73,11 @@ function train_val_random_split(
 end
 
 """
-    train_val_carefully_split(data_path, output_dir_path, data_prefix, n_features_columns)
+    train_val_careful_split(data_path, output_dir_path, data_prefix, n_features_columns)
 
 Carefully split dataset.
 """
-function train_val_carefully_split(
+function train_val_careful_split(
     data_path,
     output_dir_path,
     data_prefix,

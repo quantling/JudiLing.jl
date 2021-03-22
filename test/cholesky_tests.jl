@@ -4,73 +4,64 @@ using Test
 using SparseArrays
 using DataFrames
 
-@testset "cholesky transformation matrix" begin
-    try
-        C = [1 1 1 1 0 0 0 0; 1 0 1 0 1 0 1 0; 0 0 0 0 1 1 1 1]
-        S = [1 0 1 0; 1 1 0 0; 0 0 1 1]
+@testset "cholesky" begin
+    C = [1 1 1 1 0 0 0 0; 1 0 1 0 1 0 1 0; 0 0 0 0 1 1 1 1]
+    S = [1 0 1 0; 1 1 0 0; 0 0 1 1]
 
-        JudiLing.make_transform_matrix(C, S)
+    F = JudiLing.make_transform_matrix(C, S)
+    Shat = C * F
+    @test -0.05 < sum(Shat-S) < 0.05
 
-        C = sparse(C)
-        S = Matrix(S)
-        JudiLing.make_transform_matrix(C, S)
-        JudiLing.make_transform_matrix(S, C)
+    JudiLing.make_transform_matrix(C, S, method = :multiplicative)
+    Shat = C * F
+    @test -0.05 < sum(Shat-S) < 0.05
 
-        C = sparse(C)
-        S = sparse(S)
-        JudiLing.make_transform_matrix(C, S)
+    C = sparse(C)
+    S = Matrix(S)
 
-        fac_C = JudiLing.make_transform_fac(C)
-        JudiLing.make_transform_matrix(fac_C, C, S)
+    JudiLing.make_transform_matrix(C, S)
+    Shat = C * F
+    @test -0.05 < sum(Shat-S) < 0.05
 
-        C = Matrix(C)
-        fac_C = JudiLing.make_transform_fac(C)
-        JudiLing.make_transform_matrix(fac_C, C, S)
+    JudiLing.make_transform_matrix(S, C)
+    Shat = C * F
+    @test -0.05 < sum(Shat-S) < 0.05
 
-        @test true
-    catch e
-        @test e == false
-    end
-end
+    JudiLing.make_transform_matrix(C, S, method = :multiplicative)
+    Shat = C * F
+    @test -0.05 < sum(Shat-S) < 0.05
 
-@testset "cholesky transformation matrix for latin" begin
-    try
-        latin_train =
-            DataFrame(CSV.File(joinpath("data", "latin_mini.csv")))
-        cue_obj_train = JudiLing.make_cue_matrix(
-            latin_train,
-            grams = 3,
-            target_col = :Word,
-            tokenized = false,
-            keep_sep = false,
-        )
+    JudiLing.make_transform_matrix(S, C, method = :multiplicative)
+    Shat = C * F
+    @test -0.05 < sum(Shat-S) < 0.05
 
-        latin_val = latin_train[101:150, :]
-        cue_obj_val = JudiLing.make_cue_matrix(
-            latin_val,
-            cue_obj_train,
-            grams = 3,
-            target_col = :Word,
-            tokenized = false,
-            keep_sep = false,
-        )
+    C = sparse(C)
+    S = sparse(S)
 
-        n_features = size(cue_obj_train.C, 2)
+    JudiLing.make_transform_matrix(C, S)
+    Shat = C * F
+    @test -0.05 < sum(Shat-S) < 0.05
 
-        S_train, S_val = JudiLing.make_S_matrix(
-            latin_train,
-            latin_val,
-            ["Lexeme"],
-            ["Person", "Number", "Tense", "Voice", "Mood"],
-            ncol = n_features,
-        )
+    JudiLing.make_transform_matrix(C, S, method = :multiplicative)
+    Shat = C * F
+    @test -0.05 < sum(Shat-S) < 0.05
 
-        G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
+    fac_C = JudiLing.make_transform_fac(C)
 
-        F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
+    JudiLing.make_transform_matrix(fac_C, C, S)
+    Shat = C * F
+    @test -0.05 < sum(Shat-S) < 0.05
 
-        @test true
-    catch e
-        @test e == false
-    end
+    C = Matrix(C)
+    fac_C = JudiLing.make_transform_fac(C)
+
+    JudiLing.make_transform_matrix(fac_C, C, S)
+    Shat = C * F
+    @test -0.05 < sum(Shat-S) < 0.05
+
+    JudiLing.make_transform_matrix(fac_C, C, S,
+        output_format = :auto, sparse_ratio = 0.9)
+
+    JudiLing.make_transform_matrix(fac_C, C, S,
+        output_format = :sparse)
 end

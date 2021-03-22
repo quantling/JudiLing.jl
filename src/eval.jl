@@ -27,7 +27,6 @@ function eval_SC_loose end
 
 Evaluate comprehension accuracy.
 
-...
 # Obligatory Arguments
 - `S::Matrix`: the (gold standard) S matrix
 - `Shat::Matrix`: the (predicted) Shat matrix
@@ -35,7 +34,7 @@ Evaluate comprehension accuracy.
 
 # Optional Arguments
 - `target_col::Union{String, Symbol}=:Words`: the column name for target strings
-- `base::Vector=["Lexeme"]`: base features (typically a lexeme)
+- `base::Vector=nothing`: base features (typically a lexeme)
 - `inflections::Union{Nothing, Vector}=nothing`: other features (typically in inflectional features)
 
 # Examples
@@ -45,8 +44,8 @@ accuracy_comprehension(
     Shat_train,
     latin_val,
     target_col=:Words,
-    base=["Lexeme"],
-    inflections=["Person","Number","Tense","Voice","Mood"]
+    base=[:Lexeme],
+    inflections=[:Person, :Number, :Tense, :Voice, :Mood]
     )
 
 accuracy_comprehension(
@@ -55,17 +54,16 @@ accuracy_comprehension(
     latin_train,
     target_col=:Words,
     base=["Lexeme"],
-    inflections=["Person","Number","Tense","Voice","Mood"]
+    inflections=[:Person, :Number, :Tense, :Voice, :Mood]
     )
 ```
-...
 """
 function accuracy_comprehension(
     S,
     Shat,
     data;
     target_col = :Words,
-    base = ["Lexeme"],
+    base = nothing,
     inflections = nothing,
 )
 
@@ -107,10 +105,13 @@ Assess model accuracy on the basis of the correlations of row vectors of Chat an
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
 of the pertinent correlation matrices.
 
-...
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
+
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `R::Bool=false`: if true, pairwise correlation matrix R is return
 
 ```julia
 eval_SC(Chat_train, cue_obj_train.C)
@@ -118,16 +119,20 @@ eval_SC(Chat_val, cue_obj_val.C)
 eval_SC(Shat_train, S_train)
 eval_SC(Shat_val, S_val)
 ```
-...
 """
-function eval_SC(SChat, SC)
+function eval_SC(SChat, SC; digits=4, R=false)
     rSC = cor(
         convert(Matrix{Float64}, SChat),
         convert(Matrix{Float64}, SC),
         dims = 2,
     )
     v = [rSC[i[1], i[1]] == rSC[i] ? 1 : 0 for i in argmax(rSC, dims = 2)]
-    sum(v) / length(v)
+    acc = round(sum(v) / length(v), digits=digits)
+    if R
+        return acc, rSC
+    else
+        return acc
+    end
 end
 
 """
@@ -137,10 +142,13 @@ Assess model accuracy on the basis of the correlations of row vectors of Chat an
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
 of the pertinent correlation matrices. Support for homophones.
 
-...
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
+
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `R::Bool=false`: if true, pairwise correlation matrix R is return
 
 ```julia
 eval_SC(Chat_train, cue_obj_train.C)
@@ -148,9 +156,8 @@ eval_SC(Chat_val, cue_obj_val.C)
 eval_SC(Shat_train, S_train)
 eval_SC(Shat_val, S_val)
 ```
-...
 """
-function eval_SC(SChat, SC, data, target_col)
+function eval_SC(SChat, SC, data, target_col; digits=4, R=false)
     rSC = cor(
         convert(Matrix{Float64}, SChat),
         convert(Matrix{Float64}, SC),
@@ -160,7 +167,12 @@ function eval_SC(SChat, SC, data, target_col)
         data[i[1], target_col] == data[i[2], target_col] ? 1 : 0
         for i in argmax(rSC, dims = 2)
     ]
-    sum(v) / length(v)
+    acc = round(sum(v) / length(v), digits=digits)
+    if R
+        return acc, rSC
+    else
+        return acc
+    end
 end
 
 """
@@ -171,7 +183,6 @@ C or Shat and S. Ideally the target words have highest correlations on the diago
 of the pertinent correlation matrices. For large datasets, pass batch_size to
 process evaluation in chucks.
 
-...
 # Obligatory Arguments
 - `SChat`: the Chat or Shat matrix
 - `SC`: the C or S matrix
@@ -179,15 +190,18 @@ process evaluation in chucks.
 - `data`: datasets
 - `target_col`: target column name
 
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `verbose::Bool=false`: if true, more information is printed
+
 ```julia
 eval_SC(Chat_train, cue_obj_train.C, latin, :Word)
 eval_SC(Chat_val, cue_obj_val.C, latin, :Word)
 eval_SC(Shat_train, S_train, latin, :Word)
 eval_SC(Shat_val, S_val, latin, :Word)
 ```
-...
 """
-function eval_SC(SChat, SC, batch_size; verbose = false)
+function eval_SC(SChat, SC, batch_size; digits=4, verbose = false)
     l = size(SChat, 1)
     num_chucks = ceil(Int64, l / batch_size)
     verbose && begin
@@ -218,7 +232,7 @@ function eval_SC(SChat, SC, batch_size; verbose = false)
     )
     verbose && ProgressMeter.next!(pb)
 
-    correct / l
+    round(correct / l, digits=digits)
 end
 
 """
@@ -229,7 +243,6 @@ C or Shat and S. Ideally the target words have highest correlations on the diago
 of the pertinent correlation matrices. For large datasets, pass batch_size to
 process evaluation in chucks. Support homophones.
 
-...
 # Obligatory Arguments
 - `SChat`: the Chat or Shat matrix
 - `SC`: the C or S matrix
@@ -237,15 +250,18 @@ process evaluation in chucks. Support homophones.
 - `data`: datasets
 - `target_col`: target column name
 
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `verbose::Bool=false`: if true, more information is printed
+
 ```julia
 eval_SC(Chat_train, cue_obj_train.C, latin, :Word, 5000)
 eval_SC(Chat_val, cue_obj_val.C, latin, :Word, 5000)
 eval_SC(Shat_train, S_train, latin, :Word, 5000)
 eval_SC(Shat_val, S_val, latin, :Word, 5000)
 ```
-...
 """
-function eval_SC(SChat, SC, data, target_col, batch_size; verbose = false)
+function eval_SC(SChat, SC, data, target_col, batch_size; digits=4, verbose = false)
 
     l = size(SChat, 1)
     num_chucks = ceil(Int64, l / batch_size)
@@ -281,7 +297,7 @@ function eval_SC(SChat, SC, data, target_col, batch_size; verbose = false)
     )
     verbose && ProgressMeter.next!(pb)
 
-    correct / l
+    round(correct / l, digits=digits)
 end
 
 function eval_SC_chucks(SChat, SC, s, e, batch_size)
@@ -320,19 +336,20 @@ end
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Count it as correct if one of the top k candidates is correct.
 
-...
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
 - `k`: top k candidates
 
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+
 ```julia
 eval_SC_loose(Chat, cue_obj.C, k)
 eval_SC_loose(Shat, S, k)
 ```
-...
 """
-function eval_SC_loose(SChat, SC, k)
+function eval_SC_loose(SChat, SC, k; digits=4)
     total = size(SChat, 1)
     correct = 0
     rSC = cor(
@@ -348,7 +365,7 @@ function eval_SC_loose(SChat, SC, k)
             correct += 1
         end
     end
-    return correct / total
+    round(correct / total, digits=digits)
 end
 
 """
@@ -358,7 +375,6 @@ Assess model accuracy on the basis of the correlations of row vectors of Chat an
 C or Shat and S. Count it as correct if one of the top k candidates is correct.
 Support for homophones.
 
-...
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
@@ -366,13 +382,15 @@ Support for homophones.
 - `data`: datasets
 - `target_col`: target column name
 
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+
 ```julia
 eval_SC_loose(Chat, cue_obj.C, k, latin, :Word)
 eval_SC_loose(Shat, S, k, latin, :Word)
 ```
-...
 """
-function eval_SC_loose(SChat, SC, k, data, target_col)
+function eval_SC_loose(SChat, SC, k, data, target_col; digits=4)
     total = size(SChat, 1)
     correct = 0
     rSC = cor(
@@ -392,7 +410,7 @@ function eval_SC_loose(SChat, SC, k, data, target_col)
             end
         end
     end
-    return correct / total
+    round(correct / total, digits=digits)
 end
 
 """
@@ -442,16 +460,16 @@ end
 
 
 """
-    eval_acc(res, gold_inds)
+    eval_acc(res, gold_inds::Array)
 
 Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
 
-...
 # Obligatory Arguments
 - `res::Array`: the results from `learn_paths` or `build_paths`
 - `gold_inds::Array`: the gold paths' indices
 
 # Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
 - `verbose::Bool=false`: if true, more information is printed
 
 # Examples
@@ -470,9 +488,8 @@ acc_val = JudiLing.eval_acc(
     verbose=false
 )
 ```
-...
 """
-function eval_acc(res, gold_inds; verbose = false)
+function eval_acc(res, gold_inds::Array; digits=4, verbose = false)
 
     total = length(res)
     acc = 0
@@ -492,7 +509,29 @@ function eval_acc(res, gold_inds; verbose = false)
         end
     end
 
-    acc / total
+    round(acc / total, digits=digits)
+end
+
+"""
+    eval_acc(res, cue_obj::Cue_Matrix_Struct)
+
+Evaluate the accuracy of the results from `learn_paths` or `build_paths`.
+
+# Obligatory Arguments
+- `res::Array`: the results from `learn_paths` or `build_paths`
+- `cue_obj::Cue_Matrix_Struct`: the C matrix object
+
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `verbose::Bool=false`: if true, more information is printed
+
+# Examples
+```julia
+acc = JudiLing.eval_acc(res, cue_obj)
+```
+"""
+function eval_acc(res, cue_obj::Cue_Matrix_Struct; digits = 4, verbose = false)
+    eval_acc(res, cue_obj.gold_ind, digits = digits, verbose = verbose)
 end
 
 """
@@ -503,12 +542,12 @@ counting a prediction as correct when the correlation of the predicted and gold
 standard semantic vectors is among the n top correlations, where n is equal to
 `max_can` in the 'learn_paths' or `build_paths` function.
 
-...
 # Obligatory Arguments
 - `res::Array`: the results from `learn_paths` or `build_paths`
 - `gold_inds::Array`: the gold paths' indices
 
 # Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
 - `verbose::Bool=false`: if true, more information is printed
 
 # Examples
@@ -527,9 +566,8 @@ acc_val_loose = JudiLing.eval_acc_loose(
     verbose=false
 )
 ```
-...
 """
-function eval_acc_loose(res, gold_inds; verbose = false)
+function eval_acc_loose(res, gold_inds; digits=4, verbose = false)
 
     total = length(res)
     acc = 0
@@ -555,11 +593,11 @@ function eval_acc_loose(res, gold_inds; verbose = false)
         end
     end
 
-    acc / total
+    round(acc / total, digits=4)
 end
 
 """
-    extract_gpi(gpi, threshold=0.1, tolerance=(-1000.0))
+extract_gpi(gpi, threshold=0.1, tolerance=(-1000.0))
 
 Extract, using gold paths' information, how many n-grams for a gold
 path are below the threshold but above the tolerance.

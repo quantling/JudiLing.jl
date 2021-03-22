@@ -1,9 +1,9 @@
 using JudiLing # our package
-using CSV # read csv files into dataframes
+using CSV # read csv files
+using DataFrames # parse data into dataframes
 
 mkpath(joinpath(@__DIR__, "data"))
-download("https://osf.io/2ejfu/download", "latin.csv")
-mv("latin.csv", joinpath(@__DIR__, "data", "latin.csv"), force = true)
+download("https://osf.io/2ejfu/download", joinpath(@__DIR__, "data", "latin.csv"))
 # load latin file
 latin = DataFrame(CSV.File(joinpath(@__DIR__, "data", "latin.csv")))
 display(latin)
@@ -32,7 +32,6 @@ G = JudiLing.make_transform_matrix(S, cue_obj.C)
 
 # we calculate Chat matrixes by multiplying S and G
 Chat = S * G
-
 @show JudiLing.eval_SC(Chat, cue_obj.C)
 
 # we calculate F as we did for G
@@ -40,7 +39,6 @@ F = JudiLing.make_transform_matrix(cue_obj.C, S)
 
 # we calculate Shat as we did for Chat
 Shat = cue_obj.C * F
-
 @show JudiLing.eval_SC(Shat, S)
 
 # here we only use a adjacency matrix as we got it from training dataset
@@ -66,7 +64,7 @@ res_learn, gpi_learn = JudiLing.learn_paths(
     max_t = max_t,
     max_can = 10,
     grams = 3,
-    threshold = 0.1,
+    threshold = 0.05,
     tokenized = false,
     keep_sep = false,
     target_col = :Word,
@@ -161,15 +159,10 @@ df_build = JudiLing.write2df(
 display(df_learn)
 display(df_build)
 
-download("https://osf.io/2ejfu/download", "latin_train.csv")
-download("https://osf.io/bm7y6/download", "latin_val.csv")
-mv(
-    "latin_train.csv",
-    joinpath(@__DIR__, "data", "latin_train.csv"),
-    force = true,
-)
-mv("latin_val.csv", joinpath(@__DIR__, "data", "latin_val.csv"), force = true)
 # cross-validation
+download("https://osf.io/2ejfu/download", joinpath(@__DIR__, "data", "latin_train.csv"))
+download("https://osf.io/bm7y6/download", joinpath(@__DIR__, "data", "latin_val.csv"))
+
 latin_train =
     DataFrame(CSV.File(joinpath(@__DIR__, "data", "latin_train.csv")))
 latin_val =
@@ -215,7 +208,7 @@ Shat_val = cue_obj_val.C * F_train
 A = cue_obj_train.A
 max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
 
-res_train, gpi_train = JudiLing.learn_paths(
+res_learn_train, gpi_learn_train = JudiLing.learn_paths(
     latin_train,
     latin_train,
     cue_obj_train.C,
@@ -231,7 +224,7 @@ res_train, gpi_train = JudiLing.learn_paths(
     max_t = max_t,
     max_can = 10,
     grams = 3,
-    threshold = 0.1,
+    threshold = 0.05,
     tokenized = false,
     sep_token = "_",
     keep_sep = false,
@@ -240,7 +233,7 @@ res_train, gpi_train = JudiLing.learn_paths(
     verbose = true,
 )
 
-res_val, gpi_val = JudiLing.learn_paths(
+res_learn_val, gpi_learn_val = JudiLing.learn_paths(
     latin_train,
     latin_val,
     cue_obj_train.C,
@@ -256,7 +249,7 @@ res_val, gpi_val = JudiLing.learn_paths(
     max_t = max_t,
     max_can = 10,
     grams = 3,
-    threshold = 0.1,
+    threshold = 0.05,
     is_tolerant = true,
     tolerance = -0.1,
     max_tolerance = 2,
@@ -268,14 +261,11 @@ res_val, gpi_val = JudiLing.learn_paths(
     verbose = true,
 )
 
-acc_train =
-    JudiLing.eval_acc(res_train, cue_obj_train.gold_ind, verbose = false)
-acc_val = JudiLing.eval_acc(res_val, cue_obj_val.gold_ind, verbose = false)
+acc_learn_train =
+    JudiLing.eval_acc(res_learn_train, cue_obj_train.gold_ind, verbose = false)
+acc_learn_val = JudiLing.eval_acc(res_learn_val, cue_obj_val.gold_ind, verbose = false)
 
-@show acc_train
-@show acc_val
-
-res_train = JudiLing.build_paths(
+res_build_train = JudiLing.build_paths(
     latin_train,
     cue_obj_train.C,
     S_train,
@@ -289,7 +279,7 @@ res_train = JudiLing.build_paths(
     verbose = true,
 )
 
-res_val = JudiLing.build_paths(
+res_build_val = JudiLing.build_paths(
     latin_val,
     cue_obj_train.C,
     S_val,
@@ -303,30 +293,15 @@ res_val = JudiLing.build_paths(
     verbose = true,
 )
 
-acc_train =
-    JudiLing.eval_acc(res_train, cue_obj_train.gold_ind, verbose = false)
-acc_val = JudiLing.eval_acc(res_val, cue_obj_val.gold_ind, verbose = false)
+acc_build_train =
+    JudiLing.eval_acc(res_build_train, cue_obj_train.gold_ind, verbose = false)
+acc_build_val = JudiLing.eval_acc(res_build_val, cue_obj_val.gold_ind, verbose = false)
 
-@show acc_train
-@show acc_val
-
-# However, we also have a wrapper function containing all above functionalities plus cross-validation into one function
-JudiLing.test_combo(
-    joinpath("data", "latin.csv"),
-    # joinpath("latin_out"), # api changed, move to named argument
-    ["Lexeme", "Person", "Number", "Tense", "Voice", "Mood"],
-    ["Lexeme"],
-    ["Person", "Number", "Tense", "Voice", "Mood"],
-    output_dir_path = joinpath("latin_out"),
-    n_grams_target_col = :Word,
-    grams = 3,
-    path_method = :learn_paths,
-    train_threshold = 0.1,
-    val_threshold = 0.01,
-    csv_dir = "latin_out",
-    verbose = true,
-)
+@show acc_learn_train
+@show acc_learn_val
+@show acc_build_train
+@show acc_build_val
 
 # Once you are done, you may want to clean up the workspace
-path = joinpath(@__DIR__, "latin_out")
-rm(path, force = true, recursive = true)
+rm(joinpath(@__DIR__, "data"), force = true, recursive = true)
+rm(joinpath(@__DIR__, "latin_out"), force = true, recursive = true)
