@@ -19,7 +19,7 @@ struct Cue_Matrix_Struct
     gold_ind::Vector{Vector{Int64}}
     A::SparseMatrixCSC
     grams::Int64
-    target_col::Symbol
+    target_col::Union{Symbol, String}
     tokenized::Bool
     sep_token::Union{String, Nothing}
     keep_sep::Bool

@@ -122,7 +122,7 @@ function test_combo(test_mode;kwargs...)
             verbose=verbose)
     else
         throw(ArgumentError("test_mode is incorrect, using :train_only," * 
-            " :pre_split, :care_split or :random_split"))
+            " :pre_split, :careful_split or :random_split"))
     end
 
     check_used_token(

@@ -162,7 +162,12 @@ function write2csv(gpi, filename; root_dir = ".", output_dir = ".")
     )
 
     for (i, g) in enumerate(gpi)
-        ws, wst = findmin(g.ngrams_ind_support)
+        if isempty(g.ngrams_ind_support)
+            ws = missing
+            wst = missing
+        else
+            ws, wst = findmin(g.ngrams_ind_support)
+        end
         write(
             io,
             "\"$i\",\"$(ws)\",\"$(wst)\",\"$(g.support)\",\"$(g.ngrams_ind)\",\"$(g.ngrams_ind_support)\"\n",
