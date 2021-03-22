@@ -73,11 +73,11 @@ function train_val_random_split(
 end
 
 """
-    train_val_carefully_split(data_path, output_dir_path, data_prefix, n_features_columns)
+    train_val_careful_split(data_path, output_dir_path, data_prefix, n_features_columns)
 
 Carefully split dataset.
 """
-function train_val_carefully_split(
+function train_val_careful_split(
     data_path,
     output_dir_path,
     data_prefix,

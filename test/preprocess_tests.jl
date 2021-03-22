@@ -25,7 +25,7 @@ using DataFrames
         val_ratio = 0.1,
         )
 
-    JudiLing.train_val_carefully_split(
+    JudiLing.train_val_careful_split(
         data_path,
         output_dir_path,
         "latin",
@@ -40,7 +40,7 @@ using DataFrames
         start_end_token = "#",
         )
 
-    JudiLing.train_val_carefully_split(
+    JudiLing.train_val_careful_split(
         data_path,
         output_dir_path,
         "latin",

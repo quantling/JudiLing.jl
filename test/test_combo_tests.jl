@@ -39,7 +39,7 @@ using Test
         )
 
     JudiLing.test_combo(
-        :carefully_split,
+        :careful_split,
         val_sample_size = 100,
         data_path = data_path,
         data_prefix = "latin",
