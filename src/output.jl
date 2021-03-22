@@ -13,27 +13,6 @@ that is optionally returned as second output result.
 function write2df end
 
 """
-Save lexome matrix into csv file.
-"""
-function save_L_matrix end
-
-"""
-Load lexome matrix from csv file.
-"""
-function load_L_matrix end
-
-"""
-Save S matrix.
-"""
-function save_S_matrix end
-
-"""
-Load S matrix.
-"""
-function load_S_matrix end
-
-
-"""
     write2csv(res, data, cue_obj_train, cue_obj_val, filename)
 
 Write results into csv file for the results from `learn_paths` and `build_paths`.
