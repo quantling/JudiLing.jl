@@ -22,8 +22,14 @@ Load lexome matrix from csv file.
 """
 function load_L_matrix end
 
+"""
+Save S matrix.
+"""
 function save_S_matrix end
 
+"""
+Load S matrix.
+"""
 function load_S_matrix end
 
 
@@ -408,7 +414,7 @@ Load lexome matrix from csv file.
 - `filename::String`: the filename/filepath
 
 # Optional Arguments
-- `header::Bool`: header in csv
+- `header::Bool=false`: header in csv
 
 # Examples
 ```julia
@@ -426,14 +432,49 @@ function load_L_matrix(filename; header = false)
     L_Matrix_Struct(L, f2i, i2f, ncol)
 end
 
-function save_S_matrix(S, filename, data, target_col; sep=" ")
+"""
+    save_S_matrix(S, filename, data, target_col)
 
+Save S matrix into a csv file.
+
+# Obligatory Arguments
+- `S::Matrix`: the S matrix
+- `filename::String`: the filename/filepath
+- `data::DataFrame`: the data
+- `target_col::Symbol`: the name of target column
+
+# Optional Arguments
+- `sep::Bool=" "`: separator in CSV file
+
+# Examples
+```julia
+JudiLing.save_S_matrix(S, joinpath(@__DIR__, "L.csv"), latin, :Word)
+```
+"""
+function save_S_matrix(S, filename, data, target_col; sep=" ")
     S_df = convert(DataFrames.DataFrame, S)
     insertcols!(S_df, 1, :col_names => data[:,target_col])
     CSV.write(filename, S_df, quotestrings = true, header = false, delim=sep)
     nothing
 end
 
+"""
+    load_S_matrix(filename)
+
+Load S matrix from a csv file.
+
+# Obligatory Arguments
+- `filename::String`: the filename/filepath
+
+# Optional Arguments
+- `header::Bool=false`: header in csv
+- `sep::Bool=" "`: separator in CSV file
+
+# Examples
+```julia
+JudiLing.load_S_matrix(joinpath(@__DIR__, "L.csv"))
+```
+"""
 function load_S_matrix(filename; header = false, sep=" ")
 
     S_df = DataFrame(CSV.File(filename, header = header, delim = sep))
