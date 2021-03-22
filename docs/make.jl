@@ -13,6 +13,7 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Test Combo Introduction" => "test_combo_intro.md",
         "Manual" => Any[
             "Make Cue Matrix" => "man/make_cue_matrix.md",
             "Make Semantic Matrix" => "man/make_semantic_matrix.md",
