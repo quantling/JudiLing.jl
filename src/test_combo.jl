@@ -56,7 +56,7 @@ KWARGS_DEFAULT = Dict([
 A wrapper function for a full model for a specific combination of parameters. A detailed introduction is in [Test Combo Introduction](@ref)
 ```
 """
-function test_combo(test_mode;kwargs...)
+function test_combo(test_mode; kwargs...)
     verbose = get_kwarg(kwargs, :verbose, required=false)
     train_sample_size = get_kwarg(kwargs, :train_sample_size, required=false)
     val_sample_size = get_kwarg(kwargs, :val_sample_size, required=false)
