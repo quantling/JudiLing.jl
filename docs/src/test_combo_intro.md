@@ -3,14 +3,13 @@
 We implemented a high-level wrapper function that aims to provide quick and preliminary studies on multiple datasets with different parameter settings. For a sophisticated study, we suggest to build a script step by step.
 
 ## Split mode
-`test_combo` function provides four split mode. `:train_only` give the opportunity to only evaluate the model with training data or partial training data. `data_path` is the path to the CSV file and `data_output_dir` is the directory for store training and validation datasets for future analysis.
+`test_combo` function provides four split mode. `:train_only` give the opportunity to only evaluate the model with training data or partial training data. `data_path` is the path to the CSV file.
 
 ```julia
 JudiLing.test_combo(
     :train_only,
     data_path = joinpath(@__DIR__, "data", "latin.csv"),
     data_prefix = "latin",
-    data_output_dir = joinpath(@__DIR__, "data"),
     n_grams_target_col = :Word,
     n_grams_tokenized = false,
     grams = 3,
@@ -166,7 +165,6 @@ JudiLing.test_combo(
     :train_only,
     data_path = joinpath(@__DIR__, "data", "latin.csv"),
     data_prefix = "latin",
-    data_output_dir = joinpath(@__DIR__, "data"),
     n_features_columns = ["Lexeme","Person","Number","Tense","Voice","Mood"],
     n_grams_target_col = :Word,
     n_grams_tokenized = false,
@@ -222,7 +220,6 @@ JudiLing.test_combo(
     :train_only,
     data_path = joinpath(@__DIR__, "data", "latin.csv"),
     data_prefix = "latin",
-    data_output_dir = joinpath(@__DIR__, "data"),
     n_grams_target_col = :Word,
     n_grams_tokenized = false,
     grams = 3,
@@ -256,7 +253,6 @@ JudiLing.test_combo(
     :train_only,
     data_path = joinpath(@__DIR__, "data", "latin.csv"),
     data_prefix = "latin",
-    data_output_dir = joinpath(@__DIR__, "data"),
     n_grams_target_col = :Word,
     n_grams_tokenized = false,
     grams = 3,
@@ -283,7 +279,6 @@ JudiLing.test_combo(
     :train_only,
     data_path = joinpath(@__DIR__, "data", "latin.csv"),
     data_prefix = "latin",
-    data_output_dir = joinpath(@__DIR__, "data"),
     n_grams_target_col = :Word,
     n_grams_tokenized = false,
     grams = 3,
@@ -426,7 +421,6 @@ JudiLing.test_combo(
     :train_only,
     data_path = joinpath(@__DIR__, "data", "latin.csv"),
     data_prefix = "latin",
-    data_output_dir = joinpath(@__DIR__, "data"),
     n_grams_target_col = :Word,
     n_grams_tokenized = false,
     grams = 3,
