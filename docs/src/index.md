@@ -10,6 +10,18 @@ JudiLing is now on the Julia package system. You can install JudiLing by the fol
 using Pkg
 Pkg.add("JudiLing")
 ```
+For brave adventurers, install test version of JudiLing by:
+```
+julia> Pkg.add(PackageSpec(url="https://github.com/MegamindHenry/JudiLing.jl.git"))
+```
+if you are on the Julia 1.4 and in Julia 1.5 REPL, we can run:
+```
+julia> Pkg.add(url="https://github.com/MegamindHenry/JudiLing.jl.git")
+```
+Or from the Julia REPL, type `]` to enter the Pkg REPL mode and run
+```
+pkg> add https://github.com/MegamindHenry/JudiLing.jl.git
+```
 
 ## Running Julia with multiple threads
 JudiLing supports the use of multiple threads. Simply start up Julia in your terminal as follows:
