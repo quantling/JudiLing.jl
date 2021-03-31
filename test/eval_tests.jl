@@ -277,3 +277,63 @@ end
     JudiLing.eval_acc(res_train, cue_obj_train.gold_ind)
     JudiLing.eval_acc(res_train, cue_obj_train)
 end
+
+@testset "eval_SC train and val tests" begin
+    Chat_train = [
+    1 0 0
+    0 1 0
+    0 0 1
+    ]
+
+    C_train = [
+    1 0 0
+    0 1 0
+    0 0 1
+    ]
+
+    Chat_val = [
+    1 1 0
+    0 1 1
+    1 0 1
+    ]
+
+    C_val = [
+    1 1 0
+    0 1 1
+    1 0 1
+    ]
+
+    @show JudiLing.eval_SC(Chat_train, C_train)
+    @show JudiLing.eval_SC(Chat_val, C_val)
+    @show JudiLing.eval_SC(Chat_train, C_train, C_val)
+    @show JudiLing.eval_SC(Chat_val, C_val, C_train)
+
+    Chat_train = [
+    1 0 0
+    0 1 0
+    0 0 1
+    ]
+
+    C_train = [
+    1 0 0
+    0 1 0
+    0 0 1
+    ]
+
+    Chat_val = [
+    1 0 0
+    0 1 1
+    1 0 1
+    ]
+
+    C_val = [
+    0.9 0.1 0
+    0 1 1
+    1 0 1
+    ]
+
+    @show JudiLing.eval_SC(Chat_train, C_train)
+    @show JudiLing.eval_SC(Chat_val, C_val)
+    @show JudiLing.eval_SC(Chat_train, C_train, C_val)
+    @show JudiLing.eval_SC(Chat_val, C_val, C_train)
+end

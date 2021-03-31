@@ -136,7 +136,45 @@ function eval_SC(SChat::AbstractArray, SC::AbstractArray; digits=4, R=false)
 end
 
 """
-    eval_SC(SChat::AbstractArray, SC::AbstractArray, data::DataFrame, target_col::Union{String, Symbol};)
+    eval_SC(SChat::AbstractArray, SC::AbstractArray, SC_rest::AbstractArray)
+
+Assess model accuracy on the basis of the correlations of row vectors of Chat and
+C or Shat and S. Ideally the target words have highest correlations on the diagonal
+of the pertinent correlation matrices.
+
+!!! note
+    The order is important. The fist gold standard matrix has to be corresponing
+    to the SChat matrix, such as `eval_SC(Shat_train, S_train, S_val)` or `eval_SC(Shat_val, S_val, S_train)`
+
+# Obligatory Arguments
+- `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
+- `SC::Union{SparseMatrixCSC, Matrix}`: the training/validation C or S matrix
+- `SC_rest::Union{SparseMatrixCSC, Matrix}`: the validation/training C or S matrix
+
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `R::Bool=false`: if true, pairwise correlation matrix R is return
+
+```julia
+eval_SC(Chat_train, cue_obj_train.C, cue_obj_val.C)
+eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C)
+eval_SC(Shat_train, S_train, S_val)
+eval_SC(Shat_val, S_val, S_train)
+```
+"""
+function eval_SC(
+    SChat::AbstractArray,
+    SC::AbstractArray,
+    SC_rest::AbstractArray;
+    digits = 4,
+    R = false
+    )
+
+    eval_SC(SChat, vcat(SC, SC_rest); digits=digits, R=R)
+end
+
+"""
+    eval_SC(SChat::AbstractArray, SC::AbstractArray, data::DataFrame, target_col::Union{String, Symbol})
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
@@ -145,16 +183,18 @@ of the pertinent correlation matrices. Support for homophones.
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
 - `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix
+- `data::DataFrame`: datasets
+- `target_col::Union{String, Symbol}`: target column name
 
 # Optional Arguments
 - `digits`: the specified number of digits after the decimal place (or before if negative)
 - `R::Bool=false`: if true, pairwise correlation matrix R is return
 
 ```julia
-eval_SC(Chat_train, cue_obj_train.C)
-eval_SC(Chat_val, cue_obj_val.C)
-eval_SC(Shat_train, S_train)
-eval_SC(Shat_val, S_val)
+eval_SC(Chat_train, cue_obj_train.C, latin, :Word)
+eval_SC(Chat_val, cue_obj_val.C, latin, :Word)
+eval_SC(Shat_train, S_train, latin, :Word)
+eval_SC(Shat_val, S_val, latin, :Word)
 ```
 """
 function eval_SC(
@@ -162,8 +202,8 @@ function eval_SC(
     SC::AbstractArray,
     data::DataFrame,
     target_col::Union{String, Symbol};
-    digits=4,
-    R=false
+    digits = 4,
+    R = false
     )
 
     rSC = cor(
@@ -194,9 +234,9 @@ process evaluation in chucks.
 # Obligatory Arguments
 - `SChat`: the Chat or Shat matrix
 - `SC`: the C or S matrix
-- `batch_size`: batch size
 - `data`: datasets
 - `target_col`: target column name
+- `batch_size`: batch size
 
 # Optional Arguments
 - `digits`: the specified number of digits after the decimal place (or before if negative)
