@@ -303,10 +303,10 @@ end
     1 0 1
     ]
 
-    @show JudiLing.eval_SC(Chat_train, C_train)
-    @show JudiLing.eval_SC(Chat_val, C_val)
-    @show JudiLing.eval_SC(Chat_train, C_train, C_val)
-    @show JudiLing.eval_SC(Chat_val, C_val, C_train)
+    @test JudiLing.eval_SC(Chat_train, C_train) == 1
+    @test JudiLing.eval_SC(Chat_val, C_val) == 1
+    @test JudiLing.eval_SC(Chat_train, C_train, C_val) == 1
+    @test JudiLing.eval_SC(Chat_val, C_val, C_train) == 1
 
     Chat_train = [
     1 0 0
@@ -332,8 +332,54 @@ end
     1 0 1
     ]
 
-    @show JudiLing.eval_SC(Chat_train, C_train)
-    @show JudiLing.eval_SC(Chat_val, C_val)
-    @show JudiLing.eval_SC(Chat_train, C_train, C_val)
-    @show JudiLing.eval_SC(Chat_val, C_val, C_train)
+    @test JudiLing.eval_SC(Chat_train, C_train) == 1
+    @test JudiLing.eval_SC(Chat_val, C_val) == 1
+    @test JudiLing.eval_SC(Chat_train, C_train, C_val) == 1
+    @test JudiLing.eval_SC(Chat_val, C_val, C_train) == round(2/3, digits=4)
+
+    latin_train =
+        DataFrame(CSV.File(joinpath("data", "latin_mini.csv")))
+    cue_obj_train = JudiLing.make_cue_matrix(
+        latin_train,
+        grams = 3,
+        target_col = :Word,
+        tokenized = false,
+        keep_sep = false,
+    )
+
+    latin_val = latin_train[101:150, :]
+    cue_obj_val = JudiLing.make_cue_matrix(
+        latin_val,
+        cue_obj_train,
+        grams = 3,
+        target_col = :Word,
+        tokenized = false,
+        keep_sep = false,
+    )
+
+    n_features = size(cue_obj_train.C, 2)
+
+    S_train, S_val = JudiLing.make_S_matrix(
+        latin_train,
+        latin_val,
+        ["Lexeme"],
+        ["Person", "Number", "Tense", "Voice", "Mood"],
+        ncol = n_features,
+    )
+
+    G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
+
+    Chat_train = S_train * G_train
+    Chat_val = S_val * G_train
+
+    F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
+
+    Shat_train = cue_obj_train.C * F_train
+    Shat_val = cue_obj_val.C * F_train
+
+    JudiLing.eval_SC(Chat_train, cue_obj_train.C, cue_obj_val.C)
+    JudiLing.eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C)
+
+    JudiLing.eval_SC(Chat_train, cue_obj_train.C, cue_obj_val.C, latin_train, latin_val, :Word)
+    JudiLing.eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C, latin_val, latin_train, :Word)
 end

@@ -224,6 +224,61 @@ function eval_SC(
 end
 
 """
+    eval_SC(SChat::AbstractArray, SC::AbstractArray, SC_rest::AbstractArray, data::DataFrame, data_rest::DataFrame, target_col::Union{String, Symbol})
+
+Assess model accuracy on the basis of the correlations of row vectors of Chat and
+C or Shat and S. Ideally the target words have highest correlations on the diagonal
+of the pertinent correlation matrices.
+
+!!! note
+    The order is important. The fist gold standard matrix has to be corresponing
+    to the SChat matrix, such as `eval_SC(Shat_train, S_train, S_val, latin, :Word)`
+    or `eval_SC(Shat_val, S_val, S_train, latin, :Word)`
+
+# Obligatory Arguments
+- `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
+- `SC::Union{SparseMatrixCSC, Matrix}`: the training/validation C or S matrix
+- `SC_rest::Union{SparseMatrixCSC, Matrix}`: the validation/training C or S matrix
+- `data::DataFrame`: the training/validation datasets
+- `data_rest::DataFrame`: the validation/training datasets
+- `target_col::Union{String, Symbol}`: target column name
+
+# Optional Arguments
+- `digits`: the specified number of digits after the decimal place (or before if negative)
+- `R::Bool=false`: if true, pairwise correlation matrix R is return
+
+```julia
+eval_SC(Chat_train, cue_obj_train.C, cue_obj_val.C, latin, :Word)
+eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C, latin, :Word)
+eval_SC(Shat_train, S_train, S_val, latin, :Word)
+eval_SC(Shat_val, S_val, S_train, latin, :Word)
+```
+"""
+function eval_SC(
+    SChat::AbstractArray,
+    SC::AbstractArray,
+    SC_rest::AbstractArray,
+    data::DataFrame,
+    data_rest::DataFrame,
+    target_col::Union{String, Symbol};
+    digits = 4,
+    R = false
+    )
+
+    data_combined = copy(data)
+    append!(data_combined, data_rest)
+
+    eval_SC(
+        SChat,
+        vcat(SC, SC_rest),
+        data_combined,
+        target_col,
+        digits = digits,
+        R = R
+        )
+end
+
+"""
     eval_SC(SChat::AbstractArray, SC::AbstractArray, batch_size::Int64)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and

@@ -12,6 +12,7 @@ CurrentModule = JudiLing
     eval_SC(SChat::AbstractArray, SC::AbstractArray)
     eval_SC(SChat::AbstractArray, SC::AbstractArray, SC_rest::AbstractArray)
     eval_SC(SChat::AbstractArray, SC::AbstractArray, data::DataFrame, target_col::Union{String, Symbol})
+    eval_SC(SChat::AbstractArray, SC::AbstractArray, SC_rest::AbstractArray, data::DataFrame, data_rest::DataFrame, target_col::Union{String, Symbol})
     eval_SC(SChat::AbstractArray, SC::AbstractArray, batch_size::Int64)
     eval_SC(SChat::AbstractArray, SC::AbstractArray, data::DataFrame, target_col::Union{String, Symbol}, batch_size::Int64)
     eval_SC_loose(SChat, SC, k)
