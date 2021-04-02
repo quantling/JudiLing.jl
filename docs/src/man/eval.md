@@ -9,10 +9,12 @@ CurrentModule = JudiLing
     eval_SC
     eval_SC_loose
     accuracy_comprehension(S, Shat, data)
-    eval_SC(SChat, SC)
-    eval_SC(SChat, SC, data, target_col)
-    eval_SC(SChat, SC, batch_size)
-    eval_SC(SChat, SC, data, target_col, batch_size)
+    eval_SC(SChat::AbstractArray, SC::AbstractArray)
+    eval_SC(SChat::AbstractArray, SC::AbstractArray, SC_rest::AbstractArray)
+    eval_SC(SChat::AbstractArray, SC::AbstractArray, data::DataFrame, target_col::Union{String, Symbol})
+    eval_SC(SChat::AbstractArray, SC::AbstractArray, SC_rest::AbstractArray, data::DataFrame, data_rest::DataFrame, target_col::Union{String, Symbol})
+    eval_SC(SChat::AbstractArray, SC::AbstractArray, batch_size::Int64)
+    eval_SC(SChat::AbstractArray, SC::AbstractArray, data::DataFrame, target_col::Union{String, Symbol}, batch_size::Int64)
     eval_SC_loose(SChat, SC, k)
     eval_SC_loose(SChat, SC, k, data, target_col)
     eval_manual(res, data, i2f)

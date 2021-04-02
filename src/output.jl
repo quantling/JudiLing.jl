@@ -162,7 +162,12 @@ function write2csv(gpi, filename; root_dir = ".", output_dir = ".")
     )
 
     for (i, g) in enumerate(gpi)
-        ws, wst = findmin(g.ngrams_ind_support)
+        if isempty(g.ngrams_ind_support)
+            ws = missing
+            wst = missing
+        else
+            ws, wst = findmin(g.ngrams_ind_support)
+        end
         write(
             io,
             "\"$i\",\"$(ws)\",\"$(wst)\",\"$(g.support)\",\"$(g.ngrams_ind)\",\"$(g.ngrams_ind_support)\"\n",
@@ -378,7 +383,7 @@ JudiLing.save_L_matrix(L, joinpath(@__DIR__, "L.csv"))
 """
 function save_L_matrix(L, filename)
 
-    L_df = convert(DataFrames.DataFrame, L.L)
+    L_df = DataFrame(L.L)
     insertcols!(L_df, 1, :col_names => L.i2f)
     CSV.write(filename, L_df, quotestrings = true, header = false)
     nothing
@@ -431,7 +436,8 @@ JudiLing.save_S_matrix(S, joinpath(@__DIR__, "L.csv"), latin, :Word)
 ```
 """
 function save_S_matrix(S, filename, data, target_col; sep=" ")
-    S_df = convert(DataFrames.DataFrame, S)
+
+    S_df = DataFrame(S)
     insertcols!(S_df, 1, :col_names => data[:,target_col])
     CSV.write(filename, S_df, quotestrings = true, header = false, delim=sep)
     nothing

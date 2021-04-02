@@ -399,7 +399,7 @@ function cal_max_val(n_data, max_val, max_val_ratio)
     else
         if max_val_ratio != 0.0
             @warn "You have specified both :val_sample_size and :val_ratio." *
-            " Only :max_val will be used!"
+            " Only :val_sample_size will be used!"
         end
     end
     return max_val
