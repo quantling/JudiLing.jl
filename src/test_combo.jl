@@ -25,7 +25,7 @@ KWARGS_DEFAULT = Dict([
         (:shift, 0.02),
         (:multiplier, 1.01),
         (:output_format, :auto),
-        (:sparse_ratio, 0.2),
+        (:sparse_ratio, 0.05),
         (:wh_freq, nothing),
         (:init_weights, nothing),
         (:eta, 0.1),
@@ -43,7 +43,6 @@ KWARGS_DEFAULT = Dict([
         (:tolerance_val, -0.1),
         (:max_tolerance_val, 2),
         (:issparse, false),
-        (:sparse_ratio, 0.05),
         (:n_neighbors_train, 10),
         (:n_neighbors_val, 20),
         (:output_dir, "out"),
@@ -54,9 +53,61 @@ KWARGS_DEFAULT = Dict([
     test_combo(test_mode;kwargs...)
 
 A wrapper function for a full model for a specific combination of parameters. A detailed introduction is in [Test Combo Introduction](@ref)
-```
+
+# Obligatory Arguments
+- `test_mode::Symbol`: which test mode, currently supports :train_only, :pre_split, :careful_split and :random_split.
+
+# Optional Arguments
+- `train_sample_size::Int64=0`: the desired number of training data
+- `val_sample_size::Int64=0`: the desired number of validation data
+- `val_ratio::Float64=0.0`: the desired portion of validation data, if works only if :val_sample_size is 0.0.
+- `extension::String=".csv"`: the extension for data n_features_inflections
+- `n_grams_target_col::Union{String, Symbol}=:Word`: the column name for target strings
+- `n_grams_tokenized::Boolean=false`: if true, the dataset target is assumed to be tokenized
+- `n_grams_sep_token::String=nothing`: separator
+- `grams::Int64=3`: the number of grams for cues
+- `n_grams_keep_sep::Boolean=false`: if true, keep separators in cues
+- `start_end_token::String=":"`: start and end token in boundary cues
+- `path_sep_token::String=":"`: path separator in the assembled path
+- `random_seed::Int64=314`: the random seed
+- `sd_base_mean::Int64=1`: the sd mean of base features
+- `sd_inflection_mean::Int64=1`: the sd mean of inflectional features
+- `sd_base::Int64=4`: the sd of base features
+- `sd_inflection::Int64=4`: the sd of inflectional features
+- `isdeep::Boolean=true`: if true, mean of each feature is also randomized
+- `add_noise::Boolean=true`: if true, add additional Gaussian noise
+- `sd_noise::Int64=1`: the sd of the Gaussian noise
+- `normalized::Boolean=false`: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd
+- `if_combined::Boolean=false`: if true, then features are combined with both training and validation data
+- `learn_mode::Int64=:cholesky`: which learning mode, currently supports :cholesky and :wh
+- `method::Int64=:additive`: whether :additive or :multiplicative decomposition is required
+- `shift::Int64=0.02`: shift value for :additive decomposition
+- `multiplier::Int64=1.01`: multiplier value for :multiplicative decomposition
+- `output_format::Int64=:auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
+- `sparse_ratio::Int64=0.05`: the ratio to decide whether a matrix is sparse
+- `wh_freq::Vector=nothing`: the learning sequence
+- `init_weights::Matrix=nothing`: the initial weights
+- `eta::Float64=0.1`: the learning rate
+- `n_epochs::Int64=1`: the number of epochs to be trained
+- `max_t::Int64=0`: the number of epochs to be trained
+- `A::Matrix=nothing`: the number of epochs to be trained
+- `A_mode::Symbol=:combined`: the adjacency matrix mode, currently supports :combined or :train_only
+- `max_can::Int64=10`: the max number of candidate path to keep in the output
+- `threshold_train::Float64=0.1`:the value set for the support such that if the support of an n-gram is higher than this value, the n-gram will be taking into consideration for training data
+- `is_tolerant_train::Bool=false`: if true, select a specified number (given by `max_tolerance`) of n-grams whose supports are below threshold but above a second tolerance threshold to be added to the path  for training data
+- `tolerance_train::Float64=-0.1`: the value set for the second threshold (in tolerant mode) such that if the support for an n-gram is in between this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path  for training data
+- `max_tolerance_train::Int64=2`: maximum number of n-grams allowed in a path for training data
+- `threshold_val::Float64=0.1`:the value set for the support such that if the support of an n-gram is higher than this value, the n-gram will be taking into consideration for validation data
+- `is_tolerant_val::Bool=false`: if true, select a specified number (given by `max_tolerance`) of n-grams whose supports are below threshold but above a second tolerance threshold to be added to the path for validation data
+- `tolerance_val::Float64=-0.1`: the value set for the second threshold (in tolerant mode) such that if the support for an n-gram is in between this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path for validation data
+- `max_tolerance_val::Int64=2`: maximum number of n-grams allowed in a path for validation data
+- `n_neighbors_train::Int64=10`: the top n form neighbors to be considered for training data
+- `n_neighbors_val::Int64=20`: the top n form neighbors to be considered for validation data
+- `issparse::Bool=false`: if true, keep sparse matrix format when learning paths
+- `output_dir::String="out"`: the output directory
+- `verbose::Bool=false`: if true, more information will be printed
 """
-function test_combo(test_mode;kwargs...)
+function test_combo(test_mode; kwargs...)
     verbose = get_kwarg(kwargs, :verbose, required=false)
     train_sample_size = get_kwarg(kwargs, :train_sample_size, required=false)
     val_sample_size = get_kwarg(kwargs, :val_sample_size, required=false)

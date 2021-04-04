@@ -2,6 +2,16 @@
     wh_learn(X, Y)
 
 Widrow-Hoff Learning.
+
+# Obligatory Arguments
+- `test_mode::Symbol`: which test mode, currently supports :train_only, :pre_split, :careful_split and :random_split.
+
+# Optional Arguments
+- `eta::Float64=0.1`: the learning rate
+- `n_epochs::Int64=1`: the number of epochs to be trained
+- `weights::Matrix=nothing`: the initial weights
+- `learn_seq::Vector=nothing`: the learning sequence
+- `verbose::Bool = false`: if true, more information will be printed out
 """
 function wh_learn(
     X,
