@@ -122,6 +122,7 @@ function test_combo(test_mode; kwargs...)
     random_seed = get_kwarg(kwargs, :random_seed, required=false)
     if_combined = get_kwarg(kwargs, :if_combined, required=false)
 
+    verbose && println("Preparing datasets...")
     # split and load data
     if test_mode == :train_only
         data_path = get_kwarg(kwargs, :data_path, required=true)
@@ -218,7 +219,7 @@ function test_combo(test_mode; kwargs...)
 
     # make cue matrix/matrices
     # make semantic matrix/matrices
-
+    verbose && println("Making cue matrix object...")
     cue_obj_train, cue_obj_val = make_cue_train_val(
         data_train,
         data_val,
@@ -231,6 +232,7 @@ function test_combo(test_mode; kwargs...)
         if_combined,
         verbose)
 
+    verbose && println("Making S matrix...")
     n_features = size(cue_obj_train.C, 2)
     S_train, S_val = make_S_train_val(data_train, data_val,
         n_features_base, n_features_inflections,
@@ -247,6 +249,7 @@ function test_combo(test_mode; kwargs...)
         S_val = S_train[1:val_sample_size, :]
     end
 
+    verbose && println("Learning transformation mapping F and G...")
     learn_mode = get_kwarg(kwargs, :learn_mode, required=false)
 
     # cholesky params
@@ -311,6 +314,7 @@ function test_combo(test_mode; kwargs...)
             ":wh"))
     end
 
+    verbose && println("Predicting S and C...")
     Shat_train = cue_obj_train.C * F_train
     Shat_val = cue_obj_val.C * F_train
     Chat_train = S_train * G_train
@@ -350,6 +354,7 @@ function test_combo(test_mode; kwargs...)
         end
     end
 
+    verbose && println("Performing path-finding algorithms...")
     max_can = get_kwarg(kwargs, :max_can, required=false)
     threshold_train = get_kwarg(kwargs, :threshold_train, required=false)
     is_tolerant_train = get_kwarg(kwargs, :is_tolerant_train, required=false)
@@ -464,6 +469,7 @@ function test_combo(test_mode; kwargs...)
         verbose = verbose,
     )
 
+    verbose && println("Evaluating results...")
     acc_Chat_train = eval_SC(Chat_train, cue_obj_train.C)
     acc_Shat_train = eval_SC(Shat_train, S_train)
     acc_Shat_train_homo = eval_SC(Shat_train, S_train, data_train, n_grams_target_col)
@@ -496,6 +502,7 @@ function test_combo(test_mode; kwargs...)
         verbose=verbose
     )
 
+    verbose && println("Saving outputs...")
     output_dir = get_kwarg(kwargs, :output_dir, required=false)
 
     mkpath(output_dir)

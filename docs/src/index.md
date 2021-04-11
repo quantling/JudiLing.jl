@@ -538,6 +538,16 @@ You can download and try out this script [here](https://osf.io/sa89x/download).
 
 We implemented a high-level wrapper function that aims to provide quick and preliminary studies on multiple datasets with different parameter settings. For a sophisticated study, we suggest to build a script step by step.
 
+In general, `test_combo` function will perform the following operations:
+
+- prepare datasets
+- make cue matrix object
+- make semantic matrix
+- learn transfrom mapping F and G
+- perform path-finding algorithms for both `learn_paths` and `build_paths` in training and validation datasets
+- evaluate results
+- save outputs
+
 ### Split mode
 `test_combo` function provides four split mode. `:train_only` give the opportunity to only evaluate the model with training data or partial training data. `data_path` is the path to the CSV file and `data_output_dir` is the directory for store training and validation datasets for future analysis.
 
@@ -579,7 +589,7 @@ JudiLing.test_combo(
     )
 ```
 
-`:random_split` will randomly split data into training and validation datasets. In this case, it is high likely that unseen n-grams and features are in the validation datasets. Therefore, `if_combined` should be turned on. `data_path` is the path to the directory containing CSV files and `data_output_dir` is the directory for store training and validation datasets for future analysis.
+`:random_split` will randomly split data into training and validation datasets. In this case, it is high likely that unseen n-grams and features are in the validation datasets. Therefore, you should set `if_combined` to true. `data_path` is the path to the directory containing CSV files and `data_output_dir` is the directory for store training and validation datasets for future analysis.
 
 ```julia
 JudiLing.test_combo(
@@ -606,7 +616,7 @@ JudiLing.test_combo(
     )
 ```
 
-`:careful_split` will carefully split data into training and validation datasets where there will be no unseen n-grams and features in the validation datasets. Therefore, `if_combined` shall be truned off. `data_path` is the path to the directory containing CSV files and `data_output_dir` is the directory for store training and validation datasets for future analysis. `n_features_columns` gives names of feature columns and target column.
+`:careful_split` will carefully split data into training and validation datasets where there will be no unseen n-grams and features in the validation datasets. Therefore, you should set `if_combined` to false. `data_path` is the path to the directory containing CSV files and `data_output_dir` is the directory for store training and validation datasets for future analysis. `n_features_columns` gives names of feature columns and target column.
 
 ```julia
 JudiLing.test_combo(
