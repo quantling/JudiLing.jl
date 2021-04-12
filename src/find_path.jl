@@ -65,6 +65,7 @@ word, which n-grams are best supported for a given position in the sequence of n
 - `sep_token::Union{Nothing, String, Char}=nothing`: separator token
 - `keep_sep::Bool=false`:if true, keep separators in cues
 - `target_col::Union{String, :Symbol}=:Words`: the column name for target strings
+- `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
 - `issparse::Symbol=:auto`: control of whether output of Mt matrix is a dense matrix or a sparse matrix
 - `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
 - `if_pca::Bool=false`: turn on to enable pca mode
@@ -214,6 +215,7 @@ function learn_paths(
     sep_token = nothing,
     keep_sep = false,
     target_col = "Words",
+    start_end_token = "#",
     issparse = :auto,
     sparse_ratio = 0.2,
     if_pca = false,
@@ -261,6 +263,7 @@ function learn_paths(
             tokenized = tokenized,
             sep_token = sep_token,
             keep_sep = keep_sep,
+            start_end_token = start_end_token
         )
 
         verbose && println("Calculating Mt...")
