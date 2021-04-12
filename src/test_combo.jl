@@ -122,7 +122,10 @@ function test_combo(test_mode; kwargs...)
     random_seed = get_kwarg(kwargs, :random_seed, required=false)
     if_combined = get_kwarg(kwargs, :if_combined, required=false)
 
+    verbose && println("="^20)
     verbose && println("Preparing datasets...")
+    verbose && println("="^20)
+    
     # split and load data
     if test_mode == :train_only
         data_path = get_kwarg(kwargs, :data_path, required=true)
@@ -219,7 +222,10 @@ function test_combo(test_mode; kwargs...)
 
     # make cue matrix/matrices
     # make semantic matrix/matrices
+    verbose && println("="^20)
     verbose && println("Making cue matrix object...")
+    verbose && println("="^20)
+
     cue_obj_train, cue_obj_val = make_cue_train_val(
         data_train,
         data_val,
@@ -231,8 +237,15 @@ function test_combo(test_mode; kwargs...)
         start_end_token,
         if_combined,
         verbose)
+    for i in 1:10
+        display(cue_obj_train.i2f[i])
+        display(cue_obj_val.i2f[i])
+    end
 
+    verbose && println("="^20)
     verbose && println("Making S matrix...")
+    verbose && println("="^20)
+
     n_features = size(cue_obj_train.C, 2)
     S_train, S_val = make_S_train_val(data_train, data_val,
         n_features_base, n_features_inflections,
@@ -249,7 +262,10 @@ function test_combo(test_mode; kwargs...)
         S_val = S_train[1:val_sample_size, :]
     end
 
+    verbose && println("="^20)
     verbose && println("Learning transformation mapping F and G...")
+    verbose && println("="^20)
+
     learn_mode = get_kwarg(kwargs, :learn_mode, required=false)
 
     # cholesky params
@@ -314,7 +330,10 @@ function test_combo(test_mode; kwargs...)
             ":wh"))
     end
 
+    verbose && println("="^20)
     verbose && println("Predicting S and C...")
+    verbose && println("="^20)
+
     Shat_train = cue_obj_train.C * F_train
     Shat_val = cue_obj_val.C * F_train
     Chat_train = S_train * G_train
@@ -354,7 +373,10 @@ function test_combo(test_mode; kwargs...)
         end
     end
 
+    verbose && println("="^20)
     verbose && println("Performing path-finding algorithms...")
+    verbose && println("="^20)
+
     max_can = get_kwarg(kwargs, :max_can, required=false)
     threshold_train = get_kwarg(kwargs, :threshold_train, required=false)
     is_tolerant_train = get_kwarg(kwargs, :is_tolerant_train, required=false)
@@ -391,6 +413,7 @@ function test_combo(test_mode; kwargs...)
         sep_token = n_grams_sep_token,
         keep_sep = n_grams_keep_sep,
         target_col = n_grams_target_col,
+        start_end_token = start_end_token,
         issparse = issparse,
         sparse_ratio = sparse_ratio,
         verbose = verbose)
@@ -419,6 +442,7 @@ function test_combo(test_mode; kwargs...)
         sep_token = n_grams_sep_token,
         keep_sep = n_grams_keep_sep,
         target_col = n_grams_target_col,
+        start_end_token = start_end_token,
         issparse = issparse,
         sparse_ratio = sparse_ratio,
         verbose = verbose)
@@ -469,7 +493,10 @@ function test_combo(test_mode; kwargs...)
         verbose = verbose,
     )
 
+    verbose && println("="^20)
     verbose && println("Evaluating results...")
+    verbose && println("="^20)
+
     acc_Chat_train = eval_SC(Chat_train, cue_obj_train.C)
     acc_Shat_train = eval_SC(Shat_train, S_train)
     acc_Shat_train_homo = eval_SC(Shat_train, S_train, data_train, n_grams_target_col)
@@ -502,7 +529,10 @@ function test_combo(test_mode; kwargs...)
         verbose=verbose
     )
 
+    verbose && println("="^20)
     verbose && println("Saving outputs...")
+    verbose && println("="^20)
+
     output_dir = get_kwarg(kwargs, :output_dir, required=false)
 
     mkpath(output_dir)
