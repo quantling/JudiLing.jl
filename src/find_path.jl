@@ -67,7 +67,7 @@ word, which n-grams are best supported for a given position in the sequence of n
 - `target_col::Union{String, :Symbol}=:Words`: the column name for target strings
 - `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
 - `issparse::Symbol=:auto`: control of whether output of Mt matrix is a dense matrix or a sparse matrix
-- `sparse_ratio::Float64=0.2`: the ratio to decide whether a matrix is sparse
+- `sparse_ratio::Float64=0.05`: the ratio to decide whether a matrix is sparse
 - `if_pca::Bool=false`: turn on to enable pca mode
 - `pca_eval_M::Matrix=nothing`: pass original F for pca mode
 - `verbose::Bool=false`: if true, more information is printed
@@ -160,7 +160,7 @@ check_gold_path=true,
 res_val = JudiLing.learn_paths(
 ...
 issparse=:auto,
-sparse_ratio=0.2,
+sparse_ratio=0.05,
 ...)
 
 # pca mode
@@ -217,7 +217,7 @@ function learn_paths(
     target_col = "Words",
     start_end_token = "#",
     issparse = :auto,
-    sparse_ratio = 0.2,
+    sparse_ratio = 0.05,
     if_pca = false,
     pca_eval_M = nothing,
     verbose = false,
