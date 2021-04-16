@@ -75,7 +75,7 @@ function make_transform_matrix(
     X::Union{SparseMatrixCSC,Matrix},
     Y::Union{SparseMatrixCSC,Matrix};
     output_format = :auto,
-    sparse_ratio = 0.2,
+    sparse_ratio = 0.05,
     verbose = false,
 )
 
@@ -103,7 +103,7 @@ where X is a sparse matrix and Y is a dense matrix.
 - `shift::Float64 = 0.02`: shift value for :additive decomposition
 - `multiplier::Float64 = 1.01`: multiplier value for :multiplicative decomposition
 - `output_format::Symbol = :auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
-- `sparse_ratio::Float64 = 0.2`: the ratio to decide whether a matrix is sparse
+- `sparse_ratio::Float64 = 0.05`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool = false`: if true, more information will be printed out
 
 # Examples
@@ -128,7 +128,7 @@ JudiLing.make_transform_matrix(
 JudiLing.make_transform_matrix(
   ...
     output_format = :auto,
-    sparse_ratio = 0.2,
+    sparse_ratio = 0.05,
   ...)
 ```
 """
@@ -139,7 +139,7 @@ function make_transform_matrix(
     shift = 0.02,
     multiplier = 1.01,
     output_format = :auto,
-    sparse_ratio = 0.2,
+    sparse_ratio = 0.05,
     verbose = false,
 )
 
@@ -181,7 +181,7 @@ where X is a dense matrix and Y is either a dense matrix or a sparse matrix.
 - `shift::Float64 = 0.02`: shift value for :additive decomposition
 - `multiplier::Float64 = 1.01`: multiplier value for :multiplicative decomposition
 - `output_format::Symbol = :auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
-- `sparse_ratio::Float64 = 0.2`: the ratio to decide whether a matrix is sparse
+- `sparse_ratio::Float64 = 0.05`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool = false`: if true, more information will be printed out
 
 # Examples
@@ -206,7 +206,7 @@ JudiLing.make_transform_matrix(
 JudiLing.make_transform_matrix(
     ...
     output_format = :auto,
-    sparse_ratio = 0.2,
+    sparse_ratio = 0.05,
     ...)
 ```
 """
@@ -217,7 +217,7 @@ function make_transform_matrix(
     shift = 0.02,
     multiplier = 1.01,
     output_format = :auto,
-    sparse_ratio = 0.2,
+    sparse_ratio = 0.05,
     verbose = false,
 )
 
@@ -259,7 +259,7 @@ where X is a sparse matrix and Y is a sparse matrix.
 - `shift::Float64 = 0.02`: shift value for :additive decomposition
 - `multiplier::Float64 = 1.01`: multiplier value for :multiplicative decomposition
 - `output_format::Symbol = :auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
-- `sparse_ratio::Float64 = 0.2`: the ratio to decide whether a matrix is sparse
+- `sparse_ratio::Float64 = 0.05`: the ratio to decide whether a matrix is sparse
 - `verbose::Bool = false`: if true, more information will be printed out
 
 # Examples
@@ -284,7 +284,7 @@ JudiLing.make_transform_matrix(
 JudiLing.make_transform_matrix(
     ...
     output_format = :auto,
-    sparse_ratio = 0.2,
+    sparse_ratio = 0.05,
     ...)
 ```
 """
@@ -295,7 +295,7 @@ function make_transform_matrix(
     shift = 0.02,
     multiplier = 1.01,
     output_format = :auto,
-    sparse_ratio = 0.2,
+    sparse_ratio = 0.05,
     verbose = false,
 )
 
@@ -332,7 +332,7 @@ Convert output matrix format to either a dense matrix or a sparse matrix.
 function format_matrix(
     M::Union{SparseMatrixCSC,Matrix},
     output_format = :auto;
-    sparse_ratio = 0.2,
+    sparse_ratio = 0.05,
     verbose = false,
 )
 

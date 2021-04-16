@@ -237,10 +237,6 @@ function test_combo(test_mode; kwargs...)
         start_end_token,
         if_combined,
         verbose)
-    for i in 1:10
-        display(cue_obj_train.i2f[i])
-        display(cue_obj_val.i2f[i])
-    end
 
     verbose && println("="^20)
     verbose && println("Making S matrix...")
@@ -502,8 +498,13 @@ function test_combo(test_mode; kwargs...)
     acc_Shat_train_homo = eval_SC(Shat_train, S_train, data_train, n_grams_target_col)
 
     acc_Chat_val = eval_SC(Chat_val, cue_obj_val.C)
+    acc_Chat_val_tv = eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C)
+
     acc_Shat_val = eval_SC(Shat_val, S_val)
+    acc_Shat_val_tv = eval_SC(Shat_val, S_val, S_train)
+
     acc_Shat_val_homo = eval_SC(Shat_val, S_val, data_val, n_grams_target_col)
+    acc_Shat_val_homo_tv = eval_SC(Shat_val, S_val, S_train, data_val, data_train, n_grams_target_col)
 
     acc_learn_train = JudiLing.eval_acc(
         res_learn_train,
@@ -541,8 +542,11 @@ function test_combo(test_mode; kwargs...)
     println(accio, "Acc for Shat train: $acc_Shat_train")
     println(accio, "Acc for Shat train homophones: $acc_Shat_train_homo")
     println(accio, "Acc for Chat val: $acc_Chat_val")
+    println(accio, "Acc for Chat val for both train and val: $acc_Chat_val_tv")
     println(accio, "Acc for Shat val: $acc_Shat_val")
+    println(accio, "Acc for Acc for Shat val for both train and val: $acc_Shat_val_tv")
     println(accio, "Acc for Shat val homophones: $acc_Shat_val_homo")
+    println(accio, "Acc for Shat val homophones for both train and val: $acc_Shat_val_homo_tv")
     println(accio, "Acc for learn_path train: $acc_learn_train")
     println(accio, "Acc for learn_path val: $acc_learn_val")
     println(accio, "Acc for build_path train: $acc_build_train")

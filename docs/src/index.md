@@ -795,7 +795,7 @@ Parameters for Cholesky mode are:
 - `shift::Float64 = 0.02`: shift value for :additive decomposition
 - `multiplier::Float64 = 1.01`: multiplier value for :multiplicative decomposition
 - `output_format::Symbol = :auto`: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program
-- `sparse_ratio::Float64 = 0.2`: the ratio to decide whether a matrix is sparse
+- `sparse_ratio::Float64 = 0.05`: the ratio to decide whether a matrix is sparse
 
 ```julia
 JudiLing.test_combo(
@@ -812,7 +812,7 @@ JudiLing.test_combo(
     method = :additive,
     shift = 0.02,
     output_format = :auto,
-    sparse_ratio = 0.2,
+    sparse_ratio = 0.05,
     verbose = true
     )
 ```
