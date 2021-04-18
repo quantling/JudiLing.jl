@@ -629,6 +629,7 @@ function build_paths(
     tokenized = false,
     sep_token = nothing,
     target_col = :Words,
+    start_end_token = "#",
     if_pca = false,
     pca_eval_M = nothing,
     verbose = false,
