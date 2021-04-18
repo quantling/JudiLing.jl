@@ -122,7 +122,7 @@ end
 """
 Check whether a path is complete.
 """
-function iscomplete(a, i2f; tokenized = false, sep_token = nothing)
+function iscomplete(a, i2f; tokenized = false, sep_token = nothing, start_end_token = "#")
 
     ngram = i2f[a[end]]
 
@@ -132,13 +132,13 @@ function iscomplete(a, i2f; tokenized = false, sep_token = nothing)
         last_w = split(ngram, "")[end]
     end
 
-    last_w == "#"
+    last_w == start_end_token
 end
 
 """
 Check whether a gram can start a path.
 """
-function isstart(c, i2f; tokenized = false, sep_token = nothing)
+function isstart(c, i2f; tokenized = false, sep_token = nothing, start_end_token = "#")
 
     ngram = i2f[c]
 
@@ -148,7 +148,7 @@ function isstart(c, i2f; tokenized = false, sep_token = nothing)
         start_w = split(ngram, "")[1]
     end
 
-    start_w == "#"
+    start_w == start_w
 end
 
 """

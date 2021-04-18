@@ -325,6 +325,7 @@ function learn_paths(
                                 i2f,
                                 tokenized = tokenized,
                                 sep_token = sep_token,
+                                start_end_token = start_end_token,
                             )
                                 push!(res[j], (a_copy, a[2]))
                             else
@@ -346,6 +347,7 @@ function learn_paths(
                                     i2f,
                                     tokenized = tokenized,
                                     sep_token = sep_token,
+                                    start_end_token = start_end_token,
                                 )
                                     push!(res[j], (a_copy, a[2] + 1))
                                 else
@@ -370,6 +372,7 @@ function learn_paths(
                         i2f,
                         tokenized = tokenized,
                         sep_token = sep_token,
+                        start_end_token = start_end_token
                     )
                         a = Int64[]
                         push!(a, c)
@@ -379,6 +382,7 @@ function learn_paths(
                             i2f,
                             tokenized = tokenized,
                             sep_token = sep_token,
+                            start_end_token = start_end_token,
                         )
                             push!(res[j], (a, 0))
                         else
@@ -395,6 +399,7 @@ function learn_paths(
                             i2f,
                             tokenized = tokenized,
                             sep_token = sep_token,
+                            start_end_token = start_end_token,
                         )
                             a = Int64[]
                             push!(a, c)
@@ -404,6 +409,7 @@ function learn_paths(
                                 i2f,
                                 tokenized = tokenized,
                                 sep_token = sep_token,
+                                start_end_token = start_end_token,
                             )
                                 push!(res[j], (a, 1))
                             else
@@ -666,7 +672,13 @@ function build_paths(
         working_q = Queue{Array{Int64,1}}()
         for c in candidates_t
             # check whether a n-gram is a start n-gram
-            if isstart(c, i2f, tokenized = tokenized, sep_token = sep_token)
+            if isstart(c,
+                i2f,
+                tokenized = tokenized,
+                sep_token = sep_token,
+                start_end_token = start_end_token,
+            )
+
                 a = Int64[]
                 push!(a, c)
                 # check whether this n-gram is both start and complete
@@ -675,6 +687,7 @@ function build_paths(
                     i2f,
                     tokenized = tokenized,
                     sep_token = sep_token,
+                    start_end_token = start_end_token,
                 )
                     push!(res[j], (a, 0))
                 else
@@ -698,6 +711,7 @@ function build_paths(
                             i2f,
                             tokenized = tokenized,
                             sep_token = sep_token,
+                            start_end_token = start_end_token,
                         )
                             push!(res[j], (a_copy, 0))
                         else
