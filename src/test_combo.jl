@@ -152,6 +152,7 @@ function test_combo(test_mode; kwargs...)
             train_sample_size = train_sample_size,
             val_sample_size = val_sample_size,
             val_ratio = val_ratio,
+            random_seed = random_seed,
             verbose = verbose)
 
     elseif test_mode == :careful_split
@@ -174,6 +175,7 @@ function test_combo(test_mode; kwargs...)
             grams = grams,
             n_grams_keep_sep= n_grams_keep_sep,
             start_end_token = start_end_token,
+            random_seed = random_seed,
             verbose=verbose)
     else
         throw(ArgumentError("test_mode is incorrect, using :train_only," * 
@@ -685,6 +687,7 @@ function loading_data_randomly_split(
     train_sample_size = 0,
     val_sample_size = 0,
     val_ratio = 0.0,
+    random_seed = 314,
     verbose = false)
     verbose && println("Spliting data...")
 
@@ -695,6 +698,7 @@ function loading_data_randomly_split(
         train_sample_size = train_sample_size,
         val_sample_size = val_sample_size,
         val_ratio = val_ratio,
+        random_seed = random_seed,
         verbose = verbose,
         )
 
@@ -717,6 +721,7 @@ function loading_data_careful_split(
     grams = 3,
     n_grams_keep_sep = false,
     start_end_token = "#",
+    random_seed = 314,
     verbose = false)
 
     verbose && println("Spliting data...")
@@ -734,6 +739,7 @@ function loading_data_careful_split(
         grams = grams,
         n_grams_keep_sep = n_grams_keep_sep,
         start_end_token = start_end_token,
+        random_seed = random_seed,
         verbose = verbose,
     )
 
