@@ -432,7 +432,7 @@ Save S matrix into a csv file.
 
 # Examples
 ```julia
-JudiLing.save_S_matrix(S, joinpath(@__DIR__, "L.csv"), latin, :Word)
+JudiLing.save_S_matrix(S, joinpath(@__DIR__, "S.csv"), latin, :Word)
 ```
 """
 function save_S_matrix(S, filename, data, target_col; sep=" ")
@@ -457,7 +457,7 @@ Load S matrix from a csv file.
 
 # Examples
 ```julia
-JudiLing.load_S_matrix(joinpath(@__DIR__, "L.csv"))
+JudiLing.load_S_matrix(joinpath(@__DIR__, "S.csv"))
 ```
 """
 function load_S_matrix(filename; header = false, sep=" ")
