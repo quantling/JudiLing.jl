@@ -44,6 +44,15 @@ using DataFrames
     Shat_train = cue_obj_train.C * F_train
     Shat_val = cue_obj_val.C * F_train
 
+    JudiLing.write_comprehension_eval(Shat_train, S_train, latin_train,
+        :Word, "train_output.csv", k=10, root_dir=@__DIR__, output_dir="test_out")
+
+    JudiLing.write_comprehension_eval(Shat_val, S_val, latin_val,
+        :Word, "val_output.csv", k=10, root_dir=@__DIR__, output_dir="test_out")
+
+    JudiLing.write_comprehension_eval(Shat_val, S_val, S_train, latin_val, latin_train,
+        :Word, "all_output.csv", k=10, root_dir=@__DIR__, output_dir="test_out")
+
     A = cue_obj_train.A
 
     max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)

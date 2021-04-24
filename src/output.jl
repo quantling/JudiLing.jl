@@ -13,6 +13,12 @@ that is optionally returned as second output result.
 function write2df end
 
 """
+Write comprehension evaluation into a CSV file, include target and predicted 
+ids and indentifiers and their correlations.
+"""
+function write_comprehension_eval end
+
+"""
     write2csv(res, data, cue_obj_train, cue_obj_val, filename)
 
 Write results into csv file for the results from `learn_paths` and `build_paths`.
@@ -435,7 +441,7 @@ Save S matrix into a csv file.
 JudiLing.save_S_matrix(S, joinpath(@__DIR__, "S.csv"), latin, :Word)
 ```
 """
-function save_S_matrix(S, filename, data, target_col; sep=" ")
+function save_S_matrix(S, filename, data, target_col; sep = " ")
 
     S_df = DataFrame(S)
     insertcols!(S_df, 1, :col_names => data[:,target_col])
@@ -460,11 +466,133 @@ Load S matrix from a csv file.
 JudiLing.load_S_matrix(joinpath(@__DIR__, "S.csv"))
 ```
 """
-function load_S_matrix(filename; header = false, sep=" ")
+function load_S_matrix(filename; header = false, sep = " ")
 
     S_df = DataFrame(CSV.File(filename, header = header, delim = sep))
     words = S_df[:, 1]
     S = Array(select(S_df, Not(1)))
 
     S, words
+end
+
+"""
+    write_comprehension_eval(SChat, SC, data, filename)
+
+Write comprehension evaluation into a CSV file, include target and predicted 
+ids and indentifiers and their correlations.
+
+# Obligatory Arguments
+- `SChat::Matrix`: the Shat/Chat matrix
+- `SC::Matrix`: the S/C matrix
+- `data::DataFrame`: the data
+- `target_col::Symbol`: the name of target column
+- `filename::String`: the filename/filepath
+
+# Optional Arguments
+- `k`: top k candidates
+- `root_dir::String="."`: dir path for project root dir
+- `output_dir::String="."`: output dir inside root dir
+
+# Examples
+```julia
+JudiLing.write_comprehension_eval(Chat, cue_obj.C, latin, :Word, "output.csv",
+    k=10, root_dir=@__DIR__, output_dir="out")
+```
+"""
+function write_comprehension_eval(
+    SChat,
+    SC,
+    data,
+    target_col,
+    filename;
+    k = 10,
+    root_dir = ".",
+    output_dir = "."
+    )
+
+    output_path = joinpath(root_dir, output_dir)
+    mkpath(output_path)
+    total = size(SChat, 1)
+
+    io = open(joinpath(output_path, filename), "w")
+
+    write(
+        io,
+        "\"target_utterance\",\"target_identifier\",\"predicted_utterance\",\"predicted_identifier\",\"support\"\n",
+    )
+
+    rSC = cor(
+        convert(Matrix{Float64}, SChat),
+        convert(Matrix{Float64}, SC),
+        dims = 2,
+    )
+
+    for i = 1:total
+        p = sortperm(rSC[i, :], rev = true)
+        p = p[1:k]
+        for j in p
+            write(
+                io,
+                "\"$i\",\"$(data[i,target_col])\",\"$j\",\"$(data[j,target_col])\",\"$(rSC[i,j])\"\n",
+            )
+        end
+    end
+
+    close(io)
+end
+
+"""
+    write_comprehension_eval(SChat, SC, data, filename)
+
+Write comprehension evaluation into a CSV file for both training and validation
+datasets, include target and predicted ids and indentifiers and their
+correlations.
+
+# Obligatory Arguments
+- `SChat::Matrix`: the Shat/Chat matrix
+- `SC::Matrix`: the S/C matrix
+- `SC_rest::Matrix`: the rest S/C matrix
+- `data::DataFrame`: the data
+- `data_rest::DataFrame`: the rest data
+- `target_col::Symbol`: the name of target column
+- `filename::String`: the filename/filepath
+
+# Optional Arguments
+- `k`: top k candidates
+- `root_dir::String="."`: dir path for project root dir
+- `output_dir::String="."`: output dir inside root dir
+
+# Examples
+```julia
+JudiLing.write_comprehension_eval(Shat_val, S_val, S_train, latin_val, latin_train,
+    :Word, "all_output.csv", k=10, root_dir=@__DIR__, output_dir="out")
+```
+"""
+function write_comprehension_eval(
+    SChat,
+    SC,
+    SC_rest,
+    data,
+    data_rest,
+    target_col,
+    filename;
+    k = 10,
+    root_dir = ".",
+    output_dir = "."
+    )
+
+    data_combined = copy(data)
+    append!(data_combined, data_rest)
+
+    write_comprehension_eval(
+        SChat,
+        vcat(SC, SC_rest),
+        data_combined,
+        target_col,
+        filename,
+        k = k,
+        root_dir = root_dir,
+        output_dir = output_dir
+        )
+
 end
