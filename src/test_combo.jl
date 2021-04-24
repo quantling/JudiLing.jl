@@ -538,6 +538,11 @@ function test_combo(test_mode; kwargs...)
 
     output_dir = get_kwarg(kwargs, :output_dir, required=false)
 
+    save_S_matrix(S_train, joinpath(".", output_dir, "S_train.csv"),
+        data_train, n_grams_target_col)
+    save_S_matrix(S_val, joinpath(".", output_dir, "S_val.csv"), data_val,
+        n_grams_target_col)
+
     mkpath(output_dir)
     accio = open(joinpath(output_dir, "acc.out"), "w")
     println(accio, "Acc for Chat train: $acc_Chat_train")
