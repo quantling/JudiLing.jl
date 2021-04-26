@@ -220,6 +220,7 @@ function learn_paths(
     sparse_ratio = 0.05,
     if_pca = false,
     pca_eval_M = nothing,
+    activation = nothing,
     verbose = false,
 )
 
@@ -284,9 +285,11 @@ function learn_paths(
         if is_truly_sparse(Ythat_val, verbose = verbose)
             Ythat_val = sparse(Ythat_val)
         end
-        # Ythat = sparse(Ythat)
-        # verbose && println("Sparsity of Ythat: $(length(Ythat.nzval)/Ythat.m/Ythat.n)")
 
+        # apply activation to Yt hat
+        if !isnothing(activation)
+            Ythat_val = activation.(Ythat_val)
+        end
         # collect supports for gold path each timestep
         if check_gold_path && !isnothing(gold_ind)
             for j = 1:size(data_val, 1)
