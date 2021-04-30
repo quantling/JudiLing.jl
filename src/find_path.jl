@@ -221,6 +221,7 @@ function learn_paths(
     if_pca = false,
     pca_eval_M = nothing,
     activation = nothing,
+    ignore_nan = true,
     verbose = false,
 )
 
@@ -430,7 +431,7 @@ function learn_paths(
 
     verbose && println("Evaluating paths...")
     res =
-        eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, verbose)
+        eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, ignore_nan, verbose)
 
     # initialize gold_path_infos
     if check_gold_path
@@ -500,6 +501,7 @@ function learn_paths(
     is_tolerant = false,
     tolerance = (-1000.0),
     max_tolerance = 3,
+    ignore_nan = true,
     verbose = true)
     
     max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col)
@@ -528,6 +530,7 @@ function learn_paths(
         sep_token = cue_obj.sep_token,
         keep_sep = cue_obj.keep_sep,
         target_col = cue_obj.target_col,
+        ignore_nan = ignore_nan,
         verbose = verbose,
     )
 end
@@ -635,6 +638,7 @@ function build_paths(
     start_end_token = "#",
     if_pca = false,
     pca_eval_M = nothing,
+    ignore_nan = true,
     verbose = false,
 )
     # initialize queues for storing paths
@@ -735,7 +739,7 @@ function build_paths(
     end
 
     verbose && println("Evaluating paths...")
-    eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, verbose)
+    eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, ignore_nan, verbose)
 end
 
 """
@@ -753,6 +757,7 @@ function eval_can(
     max_can,
     if_pca,
     pca_eval_M,
+    ignore_nan = true,
     verbose = false,
 )
 
@@ -779,6 +784,11 @@ function eval_can(
                 push!(res, Result_Path_Info_Struct(ci, n, Scor))
             end
         end
+        
+        if ignore_nan
+            res = filter(x -> !isnan(x.support), res)
+        end
+
         # we collect only top x candidates from the top
         res_l[i] = collect(Iterators.take(
             sort!(res, by = x -> x.support, rev = true),
