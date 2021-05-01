@@ -20,6 +20,9 @@ function wh_learn(
     n_epochs = 1,
     weights = nothing,
     learn_seq = nothing,
+    save_history = false,
+    history_cols = nothing,
+    history_rows = nothing,
     verbose = false,
     )
 
@@ -39,6 +42,10 @@ function wh_learn(
     # construct learn_seq if nothing
     if isnothing(learn_seq)
         learn_seq = 1:size(X, 1)
+    end
+
+    if save_history
+        history = zeros(Float64, n_epochs, length(history_rows), length(history_cols))
     end
 
     inputT = Matrix{Float64}(undef, (size(X, 2), 1))
@@ -65,8 +72,16 @@ function wh_learn(
             rmul!(deltaW, eta)
             # W += deltaW
             broadcast!(+, W, W, deltaW)
+
             verbose && ProgressMeter.next!(pb)
         end
+        # push history
+        if save_history
+            history[j,:,:] = copy(W[history_rows, history_cols])
+        end
+    end
+    if save_history
+        return W, history
     end
     W
 end
