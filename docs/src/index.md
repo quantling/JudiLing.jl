@@ -548,6 +548,8 @@ In general, `test_combo` function will perform the following operations:
 - evaluate results
 - save outputs
 
+You can download the available datasets you need for the following demos. ([french.csv](https://osf.io/b3mju/download), [estonian_train.csv](https://osf.io/3xvp4/download) and [estonian_val.csv](https://osf.io/zqt2c/download))
+
 ### Split mode
 `test_combo` function provides four split mode. `:train_only` give the opportunity to only evaluate the model with training data or partial training data. `data_path` is the path to the CSV file and `data_output_dir` is the directory for store training and validation datasets for future analysis.
 
