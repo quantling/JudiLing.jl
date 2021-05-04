@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · JudiLing.jl</title><link rel="canonical" href="https://MegamindHenry.github.io/JudiLing.jl/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">JudiLing.jl</span></div><form class="docs-search" action="search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li class="is-active"><a class="tocitem" href>Home</a><ul class="internal"><li><a class="tocitem" href="#Installation"><span>Installation</span></a></li><li><a class="tocitem" href="#Running-Julia-with-multiple-threads"><span>Running Julia with multiple threads</span></a></li><li><a class="tocitem" href="#Include-packages"><span>Include packages</span></a></li><li><a class="tocitem" href="#Quick-start-example"><span>Quick start example</span></a></li><li><a class="tocitem" href="#Test-Combo-Introduction"><span>Test Combo Introduction</span></a></li><li><a class="tocitem" href="#Citation"><span>Citation</span></a></li></ul></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="man/make_cue_matrix/">Make Cue Matrix</a></li><li><a class="tocitem" href="man/make_semantic_matrix/">Make Semantic Matrix</a></li><li><a class="tocitem" href="man/cholesky/">Cholesky</a></li><li><a class="tocitem" href="man/make_adjacency_matrix/">Make Adjacency Matrix</a></li><li><a class="tocitem" href="man/make_yt_matrix/">Make Yt Matrix</a></li><li><a class="tocitem" href="man/find_path/">Find Paths</a></li><li><a class="tocitem" href="man/eval/">Evaluation</a></li><li><a class="tocitem" href="man/output/">Output</a></li><li><a class="tocitem" href="man/test_combo/">Test Combo</a></li><li><a class="tocitem" href="man/display/">Display</a></li><li><a class="tocitem" href="man/utils/">Utils</a></li><li><a class="tocitem" href="man/pickle/">Pickle</a></li><li><a class="tocitem" href="man/pyndl/">Pyndl</a></li><li><a class="tocitem" href="man/wh/">Widrow-Hoff Learning</a></li></ul></li><li><a class="tocitem" href="man/all_manual/">All Manual index</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Home</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Home</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/MegamindHenry/JudiLing.jl/blob/master/docs/src/index.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="JudiLing"><a class="docs-heading-anchor" href="#JudiLing">JudiLing</a><a id="JudiLing-1"></a><a class="docs-heading-anchor-permalink" href="#JudiLing" title="Permalink"></a></h1><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>If you encounter an error like &quot;ERROR: UndefVarError: DataFrame! not defined&quot;, this is because our dependency CSV.jl changed their APIs in v0.8. Please use &quot;data = DataFrame(CSV.File(path<em>to</em>csv_file))&quot; to read a CSV file and include DataFrames package by &quot;using DataFrames&quot;.</p></div></div><h2 id="Installation"><a class="docs-heading-anchor" href="#Installation">Installation</a><a id="Installation-1"></a><a class="docs-heading-anchor-permalink" href="#Installation" title="Permalink"></a></h2><p>JudiLing is now on the Julia package system. You can install JudiLing by the follow commands:</p><pre><code class="language-none">using Pkg
+Pkg.add(&quot;JudiLing&quot;)</code></pre><p>For brave adventurers, install test version of JudiLing by:</p><pre><code class="language-none">julia&gt; Pkg.add(PackageSpec(url=&quot;https://github.com/MegamindHenry/JudiLing.jl.git&quot;))</code></pre><p>if you are on the Julia 1.4 and in Julia 1.5 REPL, we can run:</p><pre><code class="language-none">julia&gt; Pkg.add(url=&quot;https://github.com/MegamindHenry/JudiLing.jl.git&quot;)</code></pre><p>Or from the Julia REPL, type <code>]</code> to enter the Pkg REPL mode and run</p><pre><code class="language-none">pkg&gt; add https://github.com/MegamindHenry/JudiLing.jl.git</code></pre><h2 id="Running-Julia-with-multiple-threads"><a class="docs-heading-anchor" href="#Running-Julia-with-multiple-threads">Running Julia with multiple threads</a><a id="Running-Julia-with-multiple-threads-1"></a><a class="docs-heading-anchor-permalink" href="#Running-Julia-with-multiple-threads" title="Permalink"></a></h2><p>JudiLing supports the use of multiple threads. Simply start up Julia in your terminal as follows:</p><pre><code class="language-none">$ julia -t your_num_of_threads</code></pre><p>For detailed information on using Julia with threads, see this <a href="https://docs.julialang.org/en/v1/manual/multi-threading/">link</a>.</p><h2 id="Include-packages"><a class="docs-heading-anchor" href="#Include-packages">Include packages</a><a id="Include-packages-1"></a><a class="docs-heading-anchor-permalink" href="#Include-packages" title="Permalink"></a></h2><p>Before we start, we first need to include two packages in julia:</p><pre><code class="language-julia">using JudiLing # our package
+using CSV # read csv files into dataframes
+using DataFrames # parse data into dataframes</code></pre><h2 id="Quick-start-example"><a class="docs-heading-anchor" href="#Quick-start-example">Quick start example</a><a id="Quick-start-example-1"></a><a class="docs-heading-anchor-permalink" href="#Quick-start-example" title="Permalink"></a></h2><p>The Latin dataset <a href="https://osf.io/2ejfu/download">latin.csv</a> contains lexemes and inflectional features for 672 inflected Latin verb forms for 8 lexemes from 4 conjugation classes. Word forms are inflected for person, number, tense, voice and mood.</p><pre><code class="language-none">&quot;&quot;,&quot;Word&quot;,&quot;Lexeme&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;
+&quot;1&quot;,&quot;vocoo&quot;,&quot;vocare&quot;,&quot;p1&quot;,&quot;sg&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
+&quot;2&quot;,&quot;vocaas&quot;,&quot;vocare&quot;,&quot;p2&quot;,&quot;sg&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
+&quot;3&quot;,&quot;vocat&quot;,&quot;vocare&quot;,&quot;p3&quot;,&quot;sg&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
+&quot;4&quot;,&quot;vocaamus&quot;,&quot;vocare&quot;,&quot;p1&quot;,&quot;pl&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
+&quot;5&quot;,&quot;vocaatis&quot;,&quot;vocare&quot;,&quot;p2&quot;,&quot;pl&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;
+&quot;6&quot;,&quot;vocant&quot;,&quot;vocare&quot;,&quot;p3&quot;,&quot;pl&quot;,&quot;present&quot;,&quot;active&quot;,&quot;ind&quot;</code></pre><p>We first download and read the csv file into Julia:</p><pre><code class="language-julia">download(&quot;https://osf.io/2ejfu/download&quot;, &quot;latin.csv&quot;)
+
+latin = DataFrame(CSV.File(joinpath(@__DIR__, &quot;latin.csv&quot;)));</code></pre><p>and we can inspect the latin dataframe:</p><pre><code class="language-julia">display(latin)</code></pre><pre><code class="language-none">672×8 DataFrame. Omitted printing of 2 columns
+│ Row │ Column1 │ Word           │ Lexeme  │ Person │ Number │ Tense      │
+│     │ Int64   │ String         │ String  │ String │ String │ String     │
+├─────┼─────────┼────────────────┼─────────┼────────┼────────┼────────────┤
+│ 1   │ 1       │ vocoo          │ vocare  │ p1     │ sg     │ present    │
+│ 2   │ 2       │ vocaas         │ vocare  │ p2     │ sg     │ present    │
+│ 3   │ 3       │ vocat          │ vocare  │ p3     │ sg     │ present    │
+│ 4   │ 4       │ vocaamus       │ vocare  │ p1     │ pl     │ present    │
+│ 5   │ 5       │ vocaatis       │ vocare  │ p2     │ pl     │ present    │
+│ 6   │ 6       │ vocant         │ vocare  │ p3     │ pl     │ present    │
+│ 7   │ 7       │ clamoo         │ clamare │ p1     │ sg     │ present    │
+│ 8   │ 8       │ clamaas        │ clamare │ p2     │ sg     │ present    │
+⋮
+│ 664 │ 664     │ carpsisseemus  │ carpere │ p1     │ pl     │ pluperfect │
+│ 665 │ 665     │ carpsisseetis  │ carpere │ p2     │ pl     │ pluperfect │
+│ 666 │ 666     │ carpsissent    │ carpere │ p3     │ pl     │ pluperfect │
+│ 667 │ 667     │ cuccurissem    │ currere │ p1     │ sg     │ pluperfect │
+│ 668 │ 668     │ cuccurissees   │ currere │ p2     │ sg     │ pluperfect │
+│ 669 │ 669     │ cuccurisset    │ currere │ p3     │ sg     │ pluperfect │
+│ 670 │ 670     │ cuccurisseemus │ currere │ p1     │ pl     │ pluperfect │
+│ 671 │ 671     │ cuccurisseetis │ currere │ p2     │ pl     │ pluperfect │
+│ 672 │ 672     │ cuccurissent   │ currere │ p3     │ pl     │ pluperfect │</code></pre><p>For the production model, we want to predict correct forms given their lexemes and inflectional features. For example, giving the lexeme <code>vocare</code> and its inflectional features <code>p1</code>, <code>sg</code>, <code>present</code>, <code>active</code> and <code>ind</code>, the model should produce the form <code>vocoo</code>. On the other hand, the comprehension model takes forms as input and tries to predict their lexemes and inflectional features.</p><p>We use letter trigrams to encode our forms. For word <code>vocoo</code>, for example, we use trigrams <code>#vo</code>, <code>voc</code>, <code>oco</code>, <code>coo</code> and <code>oo#</code>. Here, <code>#</code> is used as start/end token to encode the initial trigram and finial trigram of a word. The row vectors of the C matrix specify for each word which of the trigrams are realized in that word.</p><p>To make the C matrix, we use the make_cue_matrix function:</p><pre><code class="language-julia">cue_obj = JudiLing.make_cue_matrix(
+    latin,
+    grams=3,
+    target_col=:Word,
+    tokenized=false,
+    keep_sep=false
+    )</code></pre><p>Next, we simulate the semantic matrix S using the make_S_matrix function:</p><pre><code class="language-julia">n_features = size(cue_obj.C, 2)
+S = JudiLing.make_S_matrix(
+    latin,
+    [&quot;Lexeme&quot;],
+    [&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;],
+    ncol=n_features)</code></pre><p>For this simulation, first random vectors are assigned to every lexeme and inflectional feature, and next the vectors of those features are summed up to obtain the semantic vector of the inflected form. Similar dimensions for C and S work best. Therefore, we retrieve the number of columns from the C matrix and pass it to make_S_Matrix when constructing S.</p><p>Then, the next step is to calculate a mapping from S to C by solving equation C = SG. We use Cholesky decomposition to solve this equation:</p><pre><code class="language-julia">G = JudiLing.make_transform_matrix(S, cue_obj.C)</code></pre><p>Then, we can make our predicted C matrix Chat:</p><pre><code class="language-julia">Chat = S * G</code></pre><p>and evaluate the model&#39;s prediction accuracy:</p><pre><code class="language-julia">@show JudiLing.eval_SC(cue_obj.C, Chat)</code></pre><p>Output:</p><pre><code class="language-output">JudiLing.eval_SC(Chat, cue_obj.C) = 0.9926</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Accuracy may be different depending on the simulated semantic matrix.</p></div></div><p>Similar to G and Chat, we can solve S = CF:</p><pre><code class="language-julia">F = JudiLing.make_transform_matrix(cue_obj.C, S)</code></pre><p>and we then calculate the Shat matrix and evaluate comprehension accuracy:</p><pre><code class="language-julia">Shat = cue_obj.C * F
+@show JudiLing.eval_SC(S, Shat)</code></pre><p>Output:</p><pre><code class="language-output">JudiLing.eval_SC(Shat, S) = 0.9911</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Accuracy may be different depending on the simulated semantic matrix.</p></div></div><p>To model speech production, the proper triphones have to be selected and put into the right order. We have two algorithms that accomplish this. Both algorithms construct paths in a triphone space that start with word-initial triphones and end with word-final triphones.</p><p>The first step is to construct an adjacency matrix that specify which triphone can follow each other. In this example, we use the adjacency matrix constructed by make_cue_matrix, but we can also make use of a independently constructed adjacency matrix if required.</p><pre><code class="language-julia">A = cue_obj.A</code></pre><p>For our sequencing algorithms, we calculate the number of timesteps we need for our algorithms. For the Latin dataset, the max timestep is equal to the length of the longest word. The argument :Word specifies the column in the Latin dataset that lists the words&#39; forms.</p><pre><code class="language-julia">max_t = JudiLing.cal_max_timestep(latin, :Word)</code></pre><p>One sequence finding algorithm used discrimination learning for the position of triphones. This function returns two lists, one with candidate triphone paths and their positional learning support (res) and one with the semantic supports for the gold paths (gpi).</p><pre><code class="language-julia">res_learn, gpi_learn = JudiLing.learn_paths(
+    latin,
+    latin,
+    cue_obj.C,
+    S,
+    F,
+    Chat,
+    A,
+    cue_obj.i2f,
+    cue_obj.f2i, # api changed in 0.3.1
+    check_gold_path = true,
+    gold_ind = cue_obj.gold_ind,
+    Shat_val = Shat,
+    max_t = max_t,
+    max_can = 10,
+    grams = 3,
+    threshold = 0.05,
+    tokenized = false,
+    keep_sep = false,
+    target_col = :Word,
+    verbose = true
+)</code></pre><p>We evaluate the accuracy on the training data as follows:</p><pre><code class="language-julia">acc_learn = JudiLing.eval_acc(res_learn, cue_obj.gold_ind, verbose = false)
+
+println(&quot;Acc for learn: $acc_learn&quot;)</code></pre><pre><code class="language-none">Acc for learn: 0.9985</code></pre><p>The second sequence finding algorithm is usually faster than the first, but does not provide positional learnability estimates.</p><pre><code class="language-julia">res_build = JudiLing.build_paths(
+    latin,
+    cue_obj.C,
+    S,
+    F,
+    Chat,
+    A,
+    cue_obj.i2f,
+    cue_obj.gold_ind,
+    max_t=max_t,
+    n_neighbors=3,
+    verbose=true
+    )
+
+acc_build = JudiLing.eval_acc(
+    res_build,
+    cue_obj.gold_ind,
+    verbose=false
+)</code></pre><pre><code class="language-none">Acc for build: 0.9955</code></pre><p>After having obtained the results from the sequence functions: <code>learn_paths</code> or <code>build_paths</code>, we can save the results either into a csv or into a dataframe, the dataframe can be loaded into R with the rput command of the RCall package.</p><pre><code class="language-julia">JudiLing.write2csv(
+    res_learn,
+    latin,
+    cue_obj,
+    cue_obj,
+    &quot;latin_learn_res.csv&quot;,
+    grams = 3,
+    tokenized = false,
+    sep_token = nothing,
+    start_end_token = &quot;#&quot;,
+    output_sep_token = &quot;&quot;,
+    path_sep_token = &quot;:&quot;,
+    target_col = :Word,
+    root_dir = @__DIR__,
+    output_dir = &quot;latin_out&quot;
+)
+
+df_learn = JudiLing.write2df(
+    res_learn,
+    latin,
+    cue_obj,
+    cue_obj,
+    grams = 3,
+    tokenized = false,
+    sep_token = nothing,
+    start_end_token = &quot;#&quot;,
+    output_sep_token = &quot;&quot;,
+    path_sep_token = &quot;:&quot;,
+    target_col = :Word
+)
+
+JudiLing.write2csv(
+    res_build,
+    latin,
+    cue_obj,
+    cue_obj,
+    &quot;latin_build_res.csv&quot;,
+    grams = 3,
+    tokenized = false,
+    sep_token = nothing,
+    start_end_token = &quot;#&quot;,
+    output_sep_token = &quot;&quot;,
+    path_sep_token = &quot;:&quot;,
+    target_col = :Word,
+    root_dir = @__DIR__,
+    output_dir = &quot;latin_out&quot;
+)
+
+df_build = JudiLing.write2df(
+    res_build,
+    latin,
+    cue_obj,
+    cue_obj,
+    grams = 3,
+    tokenized = false,
+    sep_token = nothing,
+    start_end_token = &quot;#&quot;,
+    output_sep_token = &quot;&quot;,
+    path_sep_token = &quot;:&quot;,
+    target_col = :Word
+)
+
+display(df_learn)
+display(df_build)</code></pre><pre><code class="language-none">3805×9 DataFrame. Omitted printing of 5 columns
+│ Row  │ utterance │ identifier     │ path                                                    │ pred           │
+│      │ Int64?    │ String?        │ Union{Missing, String}                                  │ String?        │
+├──────┼───────────┼────────────────┼─────────────────────────────────────────────────────────┼────────────────┤
+│ 1    │ 1         │ vocoo          │ #vo:voc:oco:coo:oo#                                     │ vocoo          │
+│ 2    │ 2         │ vocaas         │ #vo:voc:oca:caa:aas:as#                                 │ vocaas         │
+│ 3    │ 2         │ vocaas         │ #vo:voc:oca:caa:aab:aba:baa:aas:as#                     │ vocaabaas      │
+│ 4    │ 2         │ vocaas         │ #vo:voc:oca:caa:aat:ati:tis:is#                         │ vocaatis       │
+│ 5    │ 2         │ vocaas         │ #vo:voc:oca:caa:aav:avi:vis:ist:sti:tis:is#             │ vocaavistis    │
+│ 6    │ 2         │ vocaas         │ #vo:voc:oca:caa:aam:amu:mus:us#                         │ vocaamus       │
+│ 7    │ 2         │ vocaas         │ #vo:voc:oca:caa:aab:abi:bit:it#                         │ vocaabit       │
+│ 8    │ 2         │ vocaas         │ #vo:voc:oca:caa:aam:amu:mur:ur#                         │ vocaamur       │
+│ 9    │ 2         │ vocaas         │ #vo:voc:oca:caa:aar:are:ret:et#                         │ vocaaret       │
+⋮
+│ 3796 │ 671       │ cuccurisseetis │ #cu:cuc:ucc:ccu:cur:ure:ree:eet:eti:tis:is#             │ cuccureetis    │
+│ 3797 │ 671       │ cuccurisseetis │ #cu:cuc:ucc:ccu:cur:uri:ris:ist:sti:tis:is#             │ cuccuristis    │
+│ 3798 │ 671       │ cuccurisseetis │ #cu:cuc:ucc:ccu:cur:uri:ris:iss:sse:set:et#             │ cuccurisset    │
+│ 3799 │ 671       │ cuccurisseetis │ #cu:cur:urr:rri:rim:imi:min:ini:nii:ii#                 │ curriminii     │
+│ 3800 │ 672       │ cuccurissent   │ #cu:cuc:ucc:ccu:cur:uri:ris:iss:sse:sen:ent:nt#         │ cuccurissent   │
+│ 3801 │ 672       │ cuccurissent   │ #cu:cur:urr:rre:rer:ere:ren:ent:nt#                     │ currerent      │
+│ 3802 │ 672       │ cuccurissent   │ #cu:cuc:ucc:ccu:cur:uri:ris:iss:sse:see:eem:emu:mus:us# │ cuccurisseemus │
+│ 3803 │ 672       │ cuccurissent   │ #cu:cuc:ucc:ccu:cur:uri:ris:iss:sse:see:eet:eti:tis:is# │ cuccurisseetis │
+│ 3804 │ 672       │ cuccurissent   │ #cu:cur:urr:rre:rer:ere:ren:ent:ntu:tur:ur#             │ currerentur    │
+│ 3805 │ 672       │ cuccurissent   │ #cu:cuc:ucc:ccu:cur:uri:ris:iss:sse:see:ees:es#         │ cuccurissees   │
+2519×9 DataFrame. Omitted printing of 4 columns
+│ Row  │ utterance │ identifier     │ path                                            │ pred         │ num_tolerance │
+│      │ Int64?    │ String?        │ Union{Missing, String}                          │ String?      │ Int64?        │
+├──────┼───────────┼────────────────┼─────────────────────────────────────────────────┼──────────────┼───────────────┤
+│ 1    │ 1         │ vocoo          │ #vo:voc:oco:coo:oo#                             │ vocoo        │ 0             │
+│ 2    │ 1         │ vocoo          │ #vo:voc:oca:caa:aab:abo:boo:oo#                 │ vocaaboo     │ 0             │
+│ 3    │ 1         │ vocoo          │ #vo:voc:oca:caa:aab:aba:bam:am#                 │ vocaabam     │ 0             │
+│ 4    │ 2         │ vocaas         │ #vo:voc:oca:caa:aas:as#                         │ vocaas       │ 0             │
+│ 5    │ 2         │ vocaas         │ #vo:voc:oca:caa:aab:abi:bis:is#                 │ vocaabis     │ 0             │
+│ 6    │ 2         │ vocaas         │ #vo:voc:oca:caa:aat:ati:tis:is#                 │ vocaatis     │ 0             │
+│ 7    │ 3         │ vocat          │ #vo:voc:oca:cat:at#                             │ vocat        │ 0             │
+│ 8    │ 3         │ vocat          │ #vo:voc:oca:caa:aab:aba:bat:at#                 │ vocaabat     │ 0             │
+│ 9    │ 3         │ vocat          │ #vo:voc:oca:caa:aas:as#                         │ vocaas       │ 0             │
+⋮
+│ 2510 │ 671       │ cuccurisseetis │ #cu:cur:uri:ris:iss:sse:see:ees:es#             │ curissees    │ 0             │
+│ 2511 │ 671       │ cuccurisseetis │ #cu:cur:uri:ris:iss:sse:see:eem:emu:mus:us#     │ curisseemus  │ 0             │
+│ 2512 │ 671       │ cuccurisseetis │ #cu:cur:uri:ris:is#                             │ curis        │ 0             │
+│ 2513 │ 671       │ cuccurisseetis │ #cu:cuc:ucc:ccu:cur:uri:ris:is#                 │ cuccuris     │ 0             │
+│ 2514 │ 672       │ cuccurissent   │ #cu:cuc:ucc:ccu:cur:uri:ris:iss:sse:sen:ent:nt# │ cuccurissent │ 0             │
+│ 2515 │ 672       │ cuccurissent   │ #cu:cur:uri:ris:iss:sse:sen:ent:nt#             │ curissent    │ 0             │
+│ 2516 │ 672       │ cuccurissent   │ #cu:cuc:ucc:ccu:cur:uri:ris:iss:sse:set:et#     │ cuccurisset  │ 0             │
+│ 2517 │ 672       │ cuccurissent   │ #cu:cur:uri:ris:iss:sse:set:et#                 │ curisset     │ 0             │
+│ 2518 │ 672       │ cuccurissent   │ #cu:cuc:ucc:ccu:cur:uri:ris:iss:sse:sem:em#     │ cuccurissem  │ 0             │
+│ 2519 │ 672       │ cuccurissent   │ #cu:cur:uri:ris:iss:sse:sem:em#                 │ curissem     │ 0             │</code></pre><p>The model also provides functionality for cross-validation. Here, you can download our datasets, <a href="https://osf.io/yr9a3/download">latin_train.csv</a> and <a href="https://osf.io/bm7y6/download">latin_val.csv</a>. Please notice that currently our model only support validation datasets that have all their n-grams present in the training datasets.</p><pre><code class="language-none">download(&quot;https://osf.io/2ejfu/download&quot;, joinpath(@__DIR__, &quot;data&quot;, &quot;latin_train.csv&quot;))
+download(&quot;https://osf.io/bm7y6/download&quot;, joinpath(@__DIR__, &quot;data&quot;, &quot;latin_val.csv&quot;))
+
+latin_train =
+    DataFrame(CSV.File(joinpath(@__DIR__, &quot;data&quot;, &quot;latin_train.csv&quot;)))
+latin_val =
+    DataFrame(CSV.File(joinpath(@__DIR__, &quot;data&quot;, &quot;latin_val.csv&quot;)))</code></pre><p>Then, we make the C and S matrices passing both training and validation datasets to the <code>make_cue_matrix</code> function.</p><pre><code class="language-none">cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
+    latin_train,
+    latin_val,
+    grams = 3,
+    target_col = :Word,
+    tokenized = false,
+    keep_sep = false
+)
+
+n_features = size(cue_obj_train.C, 2)
+S_train, S_val = JudiLing.make_S_matrix(
+    latin_train,
+    latin_val,
+    [&quot;Lexeme&quot;],
+    [&quot;Person&quot;, &quot;Number&quot;, &quot;Tense&quot;, &quot;Voice&quot;, &quot;Mood&quot;],
+    ncol = n_features
+)</code></pre><p>After that, we make the transformation matrices, but this time we only use training dataset. We use these transformation matrices to predict the validation dataset.</p><pre><code class="language-none">G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
+F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
+
+Chat_train = S_train * G_train
+Chat_val = S_val * G_train
+Shat_train = cue_obj_train.C * F_train
+Shat_val = cue_obj_val.C * F_train
+
+@show JudiLing.eval_SC(Chat_train, cue_obj_train.C)
+@show JudiLing.eval_SC(Chat_val, cue_obj_val.C)
+@show JudiLing.eval_SC(Shat_train, S_train)
+@show JudiLing.eval_SC(Shat_val, S_val)</code></pre><p>Output:</p><pre><code class="language-output">JudiLing.eval_SC(Chat_train, cue_obj_train.C) = 0.9926
+JudiLing.eval_SC(Chat_val, cue_obj_val.C) = 0.3955
+JudiLing.eval_SC(Shat_train, S_train) = 0.9911
+JudiLing.eval_SC(Shat_val, S_val) = 1.0</code></pre><p>Finally, we can find possible paths through <code>build_paths</code> or <code>learn_paths</code>. Since validation datasets are harder to predict, we turn on <code>tolerant</code> mode which allow the algorithms to find more paths but at the cost of investing more time.</p><pre><code class="language-none">A = cue_obj_train.A
+max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
+
+res_learn_train, gpi_learn_train = JudiLing.learn_paths(
+    latin_train,
+    latin_train,
+    cue_obj_train.C,
+    S_train,
+    F_train,
+    Chat_train,
+    A,
+    cue_obj_train.i2f,
+    cue_obj_train.f2i, # api changed in 0.3.1
+    gold_ind = cue_obj_train.gold_ind,
+    Shat_val = Shat_train,
+    check_gold_path = true,
+    max_t = max_t,
+    max_can = 10,
+    grams = 3,
+    threshold = 0.05,
+    tokenized = false,
+    sep_token = &quot;_&quot;,
+    keep_sep = false,
+    target_col = :Word,
+    issparse = :dense,
+    verbose = true,
+)
+
+res_learn_val, gpi_learn_val = JudiLing.learn_paths(
+    latin_train,
+    latin_val,
+    cue_obj_train.C,
+    S_val,
+    F_train,
+    Chat_val,
+    A,
+    cue_obj_train.i2f,
+    cue_obj_train.f2i, # api changed in 0.3.1
+    gold_ind = cue_obj_val.gold_ind,
+    Shat_val = Shat_val,
+    check_gold_path = true,
+    max_t = max_t,
+    max_can = 10,
+    grams = 3,
+    threshold = 0.05,
+    is_tolerant = true,
+    tolerance = -0.1,
+    max_tolerance = 2,
+    tokenized = false,
+    sep_token = &quot;-&quot;,
+    keep_sep = false,
+    target_col = :Word,
+    issparse = :dense,
+    verbose = true,
+)
+
+acc_learn_train =
+    JudiLing.eval_acc(res_learn_train, cue_obj_train.gold_ind, verbose = false)
+acc_learn_val = JudiLing.eval_acc(res_learn_val, cue_obj_val.gold_ind, verbose = false)
+
+res_build_train = JudiLing.build_paths(
+    latin_train,
+    cue_obj_train.C,
+    S_train,
+    F_train,
+    Chat_train,
+    A,
+    cue_obj_train.i2f,
+    cue_obj_train.gold_ind,
+    max_t = max_t,
+    n_neighbors = 3,
+    verbose = true,
+)
+
+res_build_val = JudiLing.build_paths(
+    latin_val,
+    cue_obj_train.C,
+    S_val,
+    F_train,
+    Chat_val,
+    A,
+    cue_obj_train.i2f,
+    cue_obj_train.gold_ind,
+    max_t = max_t,
+    n_neighbors = 20,
+    verbose = true,
+)
+
+acc_build_train =
+    JudiLing.eval_acc(res_build_train, cue_obj_train.gold_ind, verbose = false)
+acc_build_val = JudiLing.eval_acc(res_build_val, cue_obj_val.gold_ind, verbose = false)
+
+@show acc_learn_train
+@show acc_learn_val
+@show acc_build_train
+@show acc_build_val</code></pre><p>Output:</p><pre><code class="language-output">acc_learn_train = 0.9985
+acc_learn_val = 0.8433
+acc_build_train = 0.9955
+acc_build_val = 0.8433</code></pre><p>Alternatively, we  have a wrapper function incorporating all above functionalities. With this function, you can quickly explore datasets with different parameter settings. Please find more in the next section, <a href="#Test-Combo-Introduction">Test Combo Introduction</a>.</p><p>Once you are done, you may want to clean up your output directory:</p><pre><code class="language-julia">rm(joinpath(@__DIR__, &quot;data&quot;), force = true, recursive = true)
+rm(joinpath(@__DIR__, &quot;latin_out&quot;), force = true, recursive = true)</code></pre><p>You can download and try out this script <a href="https://osf.io/sa89x/download">here</a>.</p><h2 id="Test-Combo-Introduction"><a class="docs-heading-anchor" href="#Test-Combo-Introduction">Test Combo Introduction</a><a id="Test-Combo-Introduction-1"></a><a class="docs-heading-anchor-permalink" href="#Test-Combo-Introduction" title="Permalink"></a></h2><p>We implemented a high-level wrapper function that aims to provide quick and preliminary studies on multiple datasets with different parameter settings. For a sophisticated study, we suggest to build a script step by step.</p><p>In general, <code>test_combo</code> function will perform the following operations:</p><ul><li>prepare datasets</li><li>make cue matrix object</li><li>make semantic matrix</li><li>learn transfrom mapping F and G</li><li>perform path-finding algorithms for both <code>learn_paths</code> and <code>build_paths</code> in training and validation datasets</li><li>evaluate results</li><li>save outputs</li></ul><p>You can download the available datasets you need for the following demos. (<a href="https://osf.io/b3mju/download">french.csv</a>, <a href="https://osf.io/3xvp4/download">estonian_train.csv</a> and <a href="https://osf.io/zqt2c/download">estonian_val.csv</a>)</p><h3 id="Split-mode"><a class="docs-heading-anchor" href="#Split-mode">Split mode</a><a id="Split-mode-1"></a><a class="docs-heading-anchor-permalink" href="#Split-mode" title="Permalink"></a></h3><p><code>test_combo</code> function provides four split mode. <code>:train_only</code> give the opportunity to only evaluate the model with training data or partial training data. <code>data_path</code> is the path to the CSV file and <code>data_output_dir</code> is the directory for store training and validation datasets for future analysis.</p><pre><code class="language-julia">JudiLing.test_combo(
+    :train_only,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;latin.csv&quot;),
+    data_prefix = &quot;latin&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_grams_target_col = :Word,
+    n_grams_tokenized = false,
+    grams = 3,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;],
+    verbose = true
+    )</code></pre><p><code>:pre_split</code> give the option for datasets that already have been split into train and validation datasets. <code>data_path</code> is the path to the directory containing CSV files.</p><pre><code class="language-julia">JudiLing.test_combo(
+    :pre_split,
+    data_path=joinpath(@__DIR__, &quot;data&quot;),
+    data_prefix=&quot;estonian&quot;,
+    n_grams_target_col=:Word,
+    n_grams_tokenized=false,
+    grams=3,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Lexeme&quot;,&quot;Case&quot;,&quot;Number&quot;],
+    A_mode = :train_only,
+    threshold_train = 0.1,
+    is_tolerant_train = false,
+    threshold_val = 0.1,
+    is_tolerant_val = true,
+    tolerance_val = -0.1,
+    max_tolerance_val = 3,
+    verbose = true
+    )</code></pre><p><code>:random_split</code> will randomly split data into training and validation datasets. In this case, it is high likely that unseen n-grams and features are in the validation datasets. Therefore, you should set <code>if_combined</code> to true. <code>data_path</code> is the path to the directory containing CSV files and <code>data_output_dir</code> is the directory for store training and validation datasets for future analysis.</p><pre><code class="language-julia">JudiLing.test_combo(
+    :random_split,
+    val_sample_size = 1000,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;french.csv&quot;),
+    data_prefix = &quot;french&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_grams_target_col = :Syllables,
+    n_grams_tokenized = true,
+    n_grams_sep_token = &quot;-&quot;,
+    n_grams_keep_sep = true,
+    grams = 2,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    if_combined = true,
+    threshold_train = 0.1,
+    is_tolerant_train = false,
+    is_tolerant_val = true,
+    threshold_val = 0.1,
+    tolerance_val = -0.1,
+    max_tolerance_train = 3,
+    verbose = true
+    )</code></pre><p><code>:careful_split</code> will carefully split data into training and validation datasets where there will be no unseen n-grams and features in the validation datasets. Therefore, you should set <code>if_combined</code> to false. <code>data_path</code> is the path to the directory containing CSV files and <code>data_output_dir</code> is the directory for store training and validation datasets for future analysis. <code>n_features_columns</code> gives names of feature columns and target column.</p><pre><code class="language-julia">JudiLing.test_combo(
+    :careful_split,
+    val_sample_size = 1000,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;french.csv&quot;),
+    data_prefix = &quot;french&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_features_columns = [&quot;Lexeme&quot;,&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    n_grams_target_col = :Syllables,
+    n_grams_tokenized = true,
+    n_grams_sep_token = &quot;-&quot;,
+    n_grams_keep_sep = true,
+    grams = 2,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    if_combined = true,
+    threshold_train = 0.1,
+    is_tolerant_train = false,
+    is_tolerant_val = true,
+    threshold_val = 0.1,
+    tolerance_val = -0.1,
+    max_tolerance_train = 3,
+    verbose = true
+    )</code></pre><h3 id="Training-and-validation-size"><a class="docs-heading-anchor" href="#Training-and-validation-size">Training and validation size</a><a id="Training-and-validation-size-1"></a><a class="docs-heading-anchor-permalink" href="#Training-and-validation-size" title="Permalink"></a></h3><p><code>val_sample_size</code> and <code>val_ratio</code> control the validation data size. <code>train_sample_size</code> controls the training data size. For very large datasets, it is recommended that try out with small <code>train_sample_size</code> first, then test out the whole dataset.</p><pre><code class="language-julia">JudiLing.test_combo(
+    :random_split,
+    train_sample_size = 3000,
+    val_sample_size = 100,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;french.csv&quot;),
+    data_prefix = &quot;french&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_features_columns = [&quot;Lexeme&quot;,&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    n_grams_target_col = :Syllables,
+    n_grams_tokenized = true,
+    n_grams_sep_token = &quot;-&quot;,
+    n_grams_keep_sep = true,
+    grams = 2,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    if_combined = true,
+    threshold_train = 0.1,
+    is_tolerant_train = false,
+    is_tolerant_val = true,
+    threshold_val = 0.1,
+    tolerance_val = -0.1,
+    max_tolerance_train = 3,
+    verbose = true
+    )
+
+JudiLing.test_combo(
+    :random_split,
+    val_ratio = 0.1,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;french.csv&quot;),
+    data_prefix = &quot;french&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_features_columns = [&quot;Lexeme&quot;,&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    n_grams_target_col = :Syllables,
+    n_grams_tokenized = true,
+    n_grams_sep_token = &quot;-&quot;,
+    n_grams_keep_sep = true,
+    grams = 2,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    if_combined = true,
+    threshold_train = 0.1,
+    is_tolerant_train = false,
+    is_tolerant_val = true,
+    threshold_val = 0.1,
+    tolerance_val = -0.1,
+    max_tolerance_train = 3,
+    verbose = true
+    )</code></pre><h3 id="Make-cue-matrix"><a class="docs-heading-anchor" href="#Make-cue-matrix">Make cue matrix</a><a id="Make-cue-matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Make-cue-matrix" title="Permalink"></a></h3><p>Parameters for making cue matrix object is same as <code>make_cue_matrix</code> function:</p><ul><li><code>grams::Int64=3</code>: the number of grams for cues</li><li><code>n_grams_target_col::Union{String, Symbol}=:Words</code>: the column name for target strings</li><li><code>n_grams_tokenized::Bool=false</code>:if true, the dataset target is assumed to be tokenized</li><li><code>n_grams_sep_token::Union{Nothing, String, Char}=nothing</code>: separator</li><li><code>n_grams_keep_sep::Bool=false</code>: if true, keep separators in cues</li><li><code>start_end_token::Union{String, Char}=&quot;#&quot;</code>: start and end token in boundary cues</li></ul><pre><code class="language-julia">JudiLing.test_combo(
+    :train_only,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;latin.csv&quot;),
+    data_prefix = &quot;latin&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_features_columns = [&quot;Lexeme&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;],
+    n_grams_target_col = :Word,
+    n_grams_tokenized = false,
+    n_grams_sep_token = nothing,
+    n_grams_keep_sep = false,
+    grams = 3,
+    start_end_token = &quot;#&quot;,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;],
+    verbose = true
+    )
+
+JudiLing.test_combo(
+    :random_split,
+    val_sample_size = 1000,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;french.csv&quot;),
+    data_prefix = &quot;french&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_features_columns = [&quot;Lexeme&quot;,&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    n_grams_target_col = :Syllables,
+    n_grams_tokenized = true,
+    n_grams_sep_token = &quot;-&quot;,
+    n_grams_keep_sep = true,
+    grams = 2,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    if_combined = true,
+    threshold_train = 0.1,
+    is_tolerant_train = false,
+    is_tolerant_val = true,
+    threshold_val = 0.1,
+    tolerance_val = -0.1,
+    max_tolerance_train = 3,
+    verbose = true
+    )</code></pre><h3 id="Make-S-matrix"><a class="docs-heading-anchor" href="#Make-S-matrix">Make S matrix</a><a id="Make-S-matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Make-S-matrix" title="Permalink"></a></h3><p>Parameters for making S matrix is the same as <code>make_S_matrix</code>:</p><ul><li><code>n_features_base::Vector</code>: context lexemes</li><li><code>n_features_inflections::Vector</code>: grammatic lexemes</li><li><code>sd_base_mean::Int64=1</code>: the sd mean of base features</li><li><code>sd_inflection_mean::Int64=1</code>: the sd mean of inflectional features</li><li><code>sd_base::Int64=4</code>: the sd of base features</li><li><code>sd_inflection::Int64=4</code>: the sd of inflectional features</li><li><code>isdeep::Bool=true</code>: if true, mean of each feature is also randomized</li><li><code>add_noise::Bool=true</code>: if true, add additional Gaussian noise</li><li><code>sd_noise::Int64=1</code>: the sd of the Gaussian noise</li><li><code>normalized::Bool=false</code>: if true, most of the values range between 1 and -1, it may slightly exceed between 1 or -1 depending on the sd</li></ul><pre><code class="language-julia">JudiLing.test_combo(
+    :train_only,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;latin.csv&quot;),
+    data_prefix = &quot;latin&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_grams_target_col = :Word,
+    n_grams_tokenized = false,
+    grams = 3,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;],
+    sd_base_mean = 1,
+    sd_inflection_mean = 1,
+    sd_base = 4,
+    sd_inflection = 4,
+    isdeep = true,
+    add_noise = true,
+    sd_noise = 1,
+    normalized = false,
+    verbose = true
+    )</code></pre><h3 id="Learning-mode"><a class="docs-heading-anchor" href="#Learning-mode">Learning mode</a><a id="Learning-mode-1"></a><a class="docs-heading-anchor-permalink" href="#Learning-mode" title="Permalink"></a></h3><p>Currently <code>test_combo</code> function supports two learning mode by <code>learn_mode</code>, <code>:wh</code> for increamental learning implemented Widrow-Hoff learning rules and <code>:cholesky</code> for end-state learning using Cholesky Decomposition.</p><h4 id="Cholesky"><a class="docs-heading-anchor" href="#Cholesky">Cholesky</a><a id="Cholesky-1"></a><a class="docs-heading-anchor-permalink" href="#Cholesky" title="Permalink"></a></h4><p>Parameters for Cholesky mode are:</p><ul><li><code>method::Symbol = :additive</code>: whether :additive or :multiplicative decomposition is required</li><li><code>shift::Float64 = 0.02</code>: shift value for :additive decomposition</li><li><code>multiplier::Float64 = 1.01</code>: multiplier value for :multiplicative decomposition</li><li><code>output_format::Symbol = :auto</code>: to force output format to dense(:dense) or sparse(:sparse), make it auto(:auto) to determined by the program</li><li><code>sparse_ratio::Float64 = 0.05</code>: the ratio to decide whether a matrix is sparse</li></ul><pre><code class="language-julia">JudiLing.test_combo(
+    :train_only,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;latin.csv&quot;),
+    data_prefix = &quot;latin&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_grams_target_col = :Word,
+    n_grams_tokenized = false,
+    grams = 3,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;],
+    learn_mode = :cholesky,
+    method = :additive,
+    shift = 0.02,
+    output_format = :auto,
+    sparse_ratio = 0.05,
+    verbose = true
+    )</code></pre><h4 id="Widrow-Hoff-learning"><a class="docs-heading-anchor" href="#Widrow-Hoff-learning">Widrow-Hoff learning</a><a id="Widrow-Hoff-learning-1"></a><a class="docs-heading-anchor-permalink" href="#Widrow-Hoff-learning" title="Permalink"></a></h4><p>Parameters for Widrow-Hoff learning are:</p><ul><li><code>wh_freq::Vector = nothing</code>: the learning sequence</li><li><code>init_weights::Matrix = nothing</code>: the initial weights</li><li><code>eta::Float64 = 0.1</code>: the learning rate</li><li><code>n_epochs::Int64 = 1</code>: the number of epochs to be trained</li></ul><pre><code class="language-julia">JudiLing.test_combo(
+    :train_only,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;latin.csv&quot;),
+    data_prefix = &quot;latin&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_grams_target_col = :Word,
+    n_grams_tokenized = false,
+    grams = 3,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;],
+    learn_mode = :wh,
+    eta = 0.001,
+    n_epochs = 1000,
+    verbose = true
+    )</code></pre><h4 id="Adjacency-matrix"><a class="docs-heading-anchor" href="#Adjacency-matrix">Adjacency matrix</a><a id="Adjacency-matrix-1"></a><a class="docs-heading-anchor-permalink" href="#Adjacency-matrix" title="Permalink"></a></h4><p><code>test_combo</code> has control (<code>A_mode</code>) for whether to take combined adjacency matrix (<code>:combined</code>). In that case, the adjacency matrix is made from both training and validation matrix, otherwise the adjacency matrix is only made from training data (<code>:train_only</code>). There is also an option to pass custumized adjacency matrix (<code>A</code>).</p><pre><code class="language-julia">JudiLing.test_combo(
+    :random_split,
+    val_sample_size = 1000,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;french.csv&quot;),
+    data_prefix = &quot;french&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_features_columns = [&quot;Lexeme&quot;,&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    n_grams_target_col = :Syllables,
+    n_grams_tokenized = true,
+    n_grams_sep_token = &quot;-&quot;,
+    n_grams_keep_sep = true,
+    grams = 2,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    if_combined = true,
+    A_mode = :combined,
+    threshold_train = 0.1,
+    is_tolerant_train = false,
+    is_tolerant_val = true,
+    threshold_val = 0.1,
+    tolerance_val = -0.1,
+    max_tolerance_train = 3,
+    verbose = true
+    )
+
+# suppose we had A matrix from somewhere else
+JudiLing.test_combo(
+    :random_split,
+    val_sample_size = 1000,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;french.csv&quot;),
+    data_prefix = &quot;french&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_features_columns = [&quot;Lexeme&quot;,&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    n_grams_target_col = :Syllables,
+    n_grams_tokenized = true,
+    n_grams_sep_token = &quot;-&quot;,
+    n_grams_keep_sep = true,
+    grams = 2,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    if_combined = true,
+    A = A,
+    threshold_train = 0.1,
+    is_tolerant_train = false,
+    is_tolerant_val = true,
+    threshold_val = 0.1,
+    tolerance_val = -0.1,
+    max_tolerance_train = 3,
+    verbose = true
+    )</code></pre><h4 id="learn_paths"><a class="docs-heading-anchor" href="#learn_paths"><code>learn_paths</code></a><a id="learn_paths-1"></a><a class="docs-heading-anchor-permalink" href="#learn_paths" title="Permalink"></a></h4><p>We have separate parameters for training and validation data:</p><ul><li><code>threshold_train::Float64 = 0.1</code>: the value set for the support such that if the support of an n-gram is higher than this value, the n-gram will be taking into consideration</li><li><code>is_tolerant_train::Bool = false</code>: if true, select a specified number (given by <code>max_tolerance</code>) of n-grams whose supports are below threshold but above a second tolerance threshold to be added to the path</li><li><code>tolerance_train::Float64 = -0.1</code>: the value set for the second threshold (in tolerant mode) such that if the support for an n-gram is in between this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path</li><li><code>max_tolerance_train::Int64 = 2</code>: maximum number of n-grams allowed in a path</li><li><code>threshold_val::Float64 = 0.1</code>: the value set for the support such that if the support of an n-gram is higher than this value, the n-gram will be taking into consideration</li><li><code>is_tolerant_val::Bool = false</code>: if true, select a specified number (given by <code>max_tolerance</code>) of n-grams whose supports are below threshold but above a second tolerance threshold to be added to the path</li><li><code>tolerance_val::Float64 = -0.1</code>: the value set for the second threshold (in tolerant mode) such that if the support for an n-gram is in between this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path</li><li><code>max_tolerance_val::Int64 = 2</code>: maximum number of n-grams allowed in a path</li></ul><pre><code class="language-julia">JudiLing.test_combo(
+    :random_split,
+    train_sample_size = 3000,
+    val_sample_size = 100,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;french.csv&quot;),
+    data_prefix = &quot;french&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_features_columns = [&quot;Lexeme&quot;,&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    n_grams_target_col = :Syllables,
+    n_grams_tokenized = true,
+    n_grams_sep_token = &quot;-&quot;,
+    n_grams_keep_sep = true,
+    grams = 2,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    if_combined = true,
+    threshold_train = 0.1,
+    is_tolerant_train = false,
+    is_tolerant_val = true,
+    threshold_val = 0.1,
+    tolerance_val = -0.1,
+    max_tolerance_train = 3,
+    verbose = true
+    )</code></pre><h4 id="build_paths"><a class="docs-heading-anchor" href="#build_paths"><code>build_paths</code></a><a id="build_paths-1"></a><a class="docs-heading-anchor-permalink" href="#build_paths" title="Permalink"></a></h4><p>We have separate parameters for training and validation data:</p><ul><li><code>n_neighbors_train::Int64 = 10</code>: the top n form neighbors to be considered</li><li><code>n_neighbors_val::Int64 = 20</code>: the top n form neighbors to be considered</li></ul><pre><code class="language-julia">JudiLing.test_combo(
+    :random_split,
+    train_sample_size = 3000,
+    val_sample_size = 100,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;french.csv&quot;),
+    data_prefix = &quot;french&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_features_columns = [&quot;Lexeme&quot;,&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    n_grams_target_col = :Syllables,
+    n_grams_tokenized = true,
+    n_grams_sep_token = &quot;-&quot;,
+    n_grams_keep_sep = true,
+    grams = 2,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Tense&quot;,&quot;Aspect&quot;,&quot;Person&quot;,&quot;Number&quot;,&quot;Gender&quot;,&quot;Class&quot;,&quot;Mood&quot;],
+    if_combined = true,
+    n_neighbors_train = 10,
+    n_neighbors_val = 20,
+    verbose = true
+    )</code></pre><h4 id="Output-directory"><a class="docs-heading-anchor" href="#Output-directory">Output directory</a><a id="Output-directory-1"></a><a class="docs-heading-anchor-permalink" href="#Output-directory" title="Permalink"></a></h4><p>All outputs will be stored in a directory which can be configured by <code>output_dir</code>.</p><pre><code class="language-julia">JudiLing.test_combo(
+    :train_only,
+    data_path = joinpath(@__DIR__, &quot;data&quot;, &quot;latin.csv&quot;),
+    data_prefix = &quot;latin&quot;,
+    data_output_dir = joinpath(@__DIR__, &quot;data&quot;),
+    n_grams_target_col = :Word,
+    n_grams_tokenized = false,
+    grams = 3,
+    n_features_base = [&quot;Lexeme&quot;],
+    n_features_inflections = [&quot;Person&quot;,&quot;Number&quot;,&quot;Tense&quot;,&quot;Voice&quot;,&quot;Mood&quot;],
+    output_dir = joinpath(@__DIR__, &quot;latin_out&quot;),
+    verbose = true
+    )</code></pre><h2 id="Citation"><a class="docs-heading-anchor" href="#Citation">Citation</a><a id="Citation-1"></a><a class="docs-heading-anchor-permalink" href="#Citation" title="Permalink"></a></h2><p>If you find this package helpful, please cite this as follow:</p><p>Luo, X., Chuang, Y. Y., Baayen, R. H. JudiLing: an implementation in Julia of Linear Discriminative Learning algorithms for language model. Eberhard Karls Universität Tübingen, Seminar für Sprachwissenschaft.</p><p>The following studies have made use of several algorithms now implemented in JudiLing instead of WpmWithLdl:</p><ul><li><p>Baayen, R. H., Chuang, Y. Y., Shafaei-Bajestan, E., and Blevins, J. P. (2019). The discriminative lexicon: A unified computational model for the lexicon and lexical processing in comprehension and production grounded not in (de)composition but in linear discriminative learning. Complexity, 2019, 1-39.</p></li><li><p>Baayen, R. H., Chuang, Y. Y., and Blevins, J. P. (2018). Inflectional morphology with linear mappings. The Mental Lexicon, 13 (2), 232-270.</p></li><li><p>Chuang, Y.-Y., Lõo, K., Blevins, J. P., and Baayen, R. H. (in press). Estonian case inflection made simple. A case study in Word and Paradigm morphology with Linear Discriminative Learning. In Körtvélyessy, L., and Štekauer, P. (Eds.) Complex Words: Advances in Morphology, 1-19.</p></li><li><p>Chuang, Y-Y., Bell, M. J., Banke, I., and Baayen, R. H. (accepted). Bilingual and multilingual mental lexicon: a modeling study with Linear Discriminative Learning. Language Learning, 1-55.</p></li></ul></article><nav class="docs-footer"><a class="docs-footer-nextpage" href="man/make_cue_matrix/">Make Cue Matrix »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Tuesday 4 May 2021 23:42">Tuesday 4 May 2021</span>. Using Julia version 1.6.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
