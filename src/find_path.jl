@@ -501,6 +501,7 @@ function learn_paths(
     is_tolerant = false,
     tolerance = (-1000.0),
     max_tolerance = 3,
+    activation = nothing,
     ignore_nan = true,
     verbose = true)
     
@@ -530,6 +531,7 @@ function learn_paths(
         sep_token = cue_obj.sep_token,
         keep_sep = cue_obj.keep_sep,
         target_col = cue_obj.target_col,
+        activation = activation,
         ignore_nan = ignore_nan,
         verbose = verbose,
     )
