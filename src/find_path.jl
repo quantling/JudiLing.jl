@@ -70,6 +70,8 @@ word, which n-grams are best supported for a given position in the sequence of n
 - `sparse_ratio::Float64=0.05`: the ratio to decide whether a matrix is sparse
 - `if_pca::Bool=false`: turn on to enable pca mode
 - `pca_eval_M::Matrix=nothing`: pass original F for pca mode
+- `activation::Function=nothing`: the activation function you want to pass
+- `ignore_nan::Bool=true`: whether to ignore NaN when compare correlations, otherwise NaN will be selected as the max correlation value
 - `verbose::Bool=false`: if true, more information is printed
 
 # Examples
@@ -482,6 +484,8 @@ for users who is very new to JudiLing and learn_paths function.
 - `is_tolerant::Bool=false`: if true, select a specified number (given by `max_tolerance`) of n-grams whose supports are below threshold but above a second tolerance threshold to be added to the path
 - `tolerance::Float64=(-1000.0)`: the value set for the second threshold (in tolerant mode) such that if the support for an n-gram is in between this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path
 - `max_tolerance::Int64=4`: maximum number of n-grams allowed in a path
+- `activation::Function=nothing`: the activation function you want to pass
+- `ignore_nan::Bool=true`: whether to ignore NaN when compare correlations, otherwise NaN will be selected as the max correlation value
 - `verbose::Bool=false`: if true, more information is printed
 
 # Examples

@@ -11,6 +11,9 @@ Widrow-Hoff Learning.
 - `n_epochs::Int64=1`: the number of epochs to be trained
 - `weights::Matrix=nothing`: the initial weights
 - `learn_seq::Vector=nothing`: the learning sequence
+- `save_history::Bool=false`: if true, a partical training history will be saved
+- `history_cols::Vector=nothing`: the list of column indices you want to saved in history, e.g. `[1,32,42]` or `[2]`
+- `history_rows::Vector=nothing`: the list of row indices you want to saved in history, e.g. `[1,32,42]` or `[2]`
 - `verbose::Bool = false`: if true, more information will be printed out
 """
 function wh_learn(
