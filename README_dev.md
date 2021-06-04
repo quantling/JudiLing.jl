@@ -49,3 +49,14 @@ Data: June 04, 2021
 8. test the package and make.jl for docs
 9. push codes to GitHub and wait for several minutes
 10. if the code passed CI and the new documentations have been generated, post a new comment under issue: register with "@JuliaRegistrator register", then wait for Julia registry to pass the update
+
+## about test enviroments
+
+1. dev branch
+2. master branch
+3. julia registry
+
+## about dev clone
+it is not convinient that directly clone JudiLing from GitHub when dev the pacakge.
+
+## 
