@@ -45,4 +45,7 @@ Data: June 04, 2021
 4. write documentation for new function
 5. make docs by run `make.jl` in the docs dir
 6. repeat process 1-5 until it is good to update new version
-7. 
+7. update version number in `Project.toml`
+8. test the package and make.jl for docs
+9. push codes to GitHub and wait for several minutes
+10. if the code passed CI and the new documentations have been generated, post a new comment under issue: register with "@JuliaRegistrator register", then wait for Julia registry to pass the update
