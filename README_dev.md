@@ -38,25 +38,53 @@ Data: June 04, 2021
 └── README.md
 ```
 
-## recommended development procedure
-1. write new function
-2. write test units for new function
-3. test new function by `test JudiLing` in the pkg mode (']')
-4. write documentation for new function
-5. make docs by run `make.jl` in the docs dir
-6. repeat process 1-5 until it is good to update new version
-7. update version number in `Project.toml`
-8. test the package and make.jl for docs
-9. push codes to GitHub and wait for several minutes
-10. if the code passed CI and the new documentations have been generated, post a new comment under issue: register with "@JuliaRegistrator register", then wait for Julia registry to pass the update
+## Test, Dev and Production environments
+In total, there are three environments. Production environment, development environment and under-construction environment.
+Production environment is tagged with version numbers. It should be thoroughly tested, carefully maintained and bug-free (well, at least try it). Normally users can download them through `add JudiLing` in pkg mode.
+Development environment the master branch in GitHub. It may contain bugs but it is ready to be tested by users.
+Under-construction environment is any other branches that haven't been merged into master branch. They can be used for checkpoints for the developments.
 
-## about test enviroments
+## Development
 
-1. dev branch
-2. master branch
-3. julia registry
+### deploy dev environment locally
 
-## about dev clone
-it is not convinient that directly clone JudiLing from GitHub when dev the pacakge.
+Usually, directly cloning JudiLIng from GitHub and writing codes there is not convenient because it is hard to add this into Julia environment. A more sophisticated way to do so is to
 
-## 
+1. create a working dir, for example `judiling_dev`
+2. add JudiLing in the environment, `add JudiLing`
+3. clone package locally `develop --local Example`
+4. update the package, go to `dev/JudiLing` and `git pull`
+5. write code in `dev/JudiLing` and test it through scripts in `judiling_dev`
+
+Please see more details in:
+
+https://docs.julialang.org/en/v1/stdlib/Pkg/#Pkg
+
+
+### new functions
+To develop new functions, please make sure to write corresponding docs and tests for that functions.
+To test package, run `test JudiLing` in pkg mode ("]").
+To make docs, run `make.jl` in the docs dir and you can test/verify that docs looks good. On the production side, docs are auto-generate by GitHub action after CI. See `.github/workflows/ci.yml` for more details.
+
+### update new version
+1. update version number in `Project.toml` ( please make sure the `Project.toml` file is the one located in the root dir of JudiLing not somewhere else.)
+2. test the functions and docs
+3. push to GitHub and wait for CI script to complete
+4. if NOT pass, fix bugs and repeat steps 2 and 3
+5. if pass, post a new comment under issue "register" with "@JuliaRegistrator register", then wait for Julia registry to pass
+6. if NOT pass (rarely happened), follow the instruction in the Julia registry threads.
+
+### test_combo function
+`test_combo` function is a huge monster that contains almost 50 parameters. The workflow is:
+
+1. prepare datasets in four different modes
+2. create C matrices
+3. create S matrices
+4. calculate/learn F matrices
+5. calculate/learn G matrices
+6. predicting Shat
+7. prediction Chat
+8. learn_paths
+9. build_paths
+10. evaluate
+11. output
