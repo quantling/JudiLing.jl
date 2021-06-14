@@ -499,7 +499,8 @@ function learn_paths(
     max_tolerance = 3,
     verbose = true)
     
-    max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col)
+    max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col,
+        tokenized=cue_obj.tokenized, sep_token=cue_obj.sep_token)
 
     learn_paths(
         data,
