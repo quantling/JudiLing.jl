@@ -49,6 +49,9 @@ KWARGS_DEFAULT = Dict([
         (:verbose, false)
         ])
 
+
+KWARGS_DUMP = Dict()
+
 """
     test_combo(test_mode;kwargs...)
 
@@ -129,6 +132,7 @@ function test_combo(test_mode; kwargs...)
     # split and load data
     if test_mode == :train_only
         data_path = get_kwarg(kwargs, :data_path, required=true)
+
         data_train, data_val = loading_data_train_only(data_path, 
             train_sample_size = train_sample_size, 
             val_sample_size = val_sample_size)
@@ -136,10 +140,12 @@ function test_combo(test_mode; kwargs...)
         data_path = get_kwarg(kwargs, :data_path, required=true)
         data_prefix = get_kwarg(kwargs, :data_prefix, required=true)
         extension = get_kwarg(kwargs, :extension, required=false)
+
         data_train, data_val = loading_data_pre_split(
             data_path, data_prefix, 
             train_sample_size = train_sample_size, 
             val_sample_size = val_sample_size, extension=extension)
+
     elseif test_mode == :random_split
         data_path = get_kwarg(kwargs, :data_path, required=true)
         data_output_dir = get_kwarg(kwargs, :data_output_dir, required=true)
@@ -536,22 +542,30 @@ function test_combo(test_mode; kwargs...)
 
     output_dir = get_kwarg(kwargs, :output_dir, required=false)
 
+    # write acc output
     mkpath(output_dir)
-    accio = open(joinpath(output_dir, "acc.out"), "w")
-    println(accio, "Acc for Chat train: $acc_Chat_train")
-    println(accio, "Acc for Shat train: $acc_Shat_train")
-    println(accio, "Acc for Shat train homophones: $acc_Shat_train_homo")
-    println(accio, "Acc for Chat val: $acc_Chat_val")
-    println(accio, "Acc for Chat val for both train and val: $acc_Chat_val_tv")
-    println(accio, "Acc for Shat val: $acc_Shat_val")
-    println(accio, "Acc for Acc for Shat val for both train and val: $acc_Shat_val_tv")
-    println(accio, "Acc for Shat val homophones: $acc_Shat_val_homo")
-    println(accio, "Acc for Shat val homophones for both train and val: $acc_Shat_val_homo_tv")
-    println(accio, "Acc for learn_path train: $acc_learn_train")
-    println(accio, "Acc for learn_path val: $acc_learn_val")
-    println(accio, "Acc for build_path train: $acc_build_train")
-    println(accio, "Acc for build_path val: $acc_build_val")
-    close(accio)
+    acc_io = open(joinpath(output_dir, "acc.out"), "w")
+    println(acc_io, "Acc for Chat train: $acc_Chat_train")
+    println(acc_io, "Acc for Shat train: $acc_Shat_train")
+    println(acc_io, "Acc for Shat train homophones: $acc_Shat_train_homo")
+    println(acc_io, "Acc for Chat val: $acc_Chat_val")
+    println(acc_io, "Acc for Chat val for both train and val: $acc_Chat_val_tv")
+    println(acc_io, "Acc for Shat val: $acc_Shat_val")
+    println(acc_io, "Acc for Acc for Shat val for both train and val: $acc_Shat_val_tv")
+    println(acc_io, "Acc for Shat val homophones: $acc_Shat_val_homo")
+    println(acc_io, "Acc for Shat val homophones for both train and val: $acc_Shat_val_homo_tv")
+    println(acc_io, "Acc for learn_path train: $acc_learn_train")
+    println(acc_io, "Acc for learn_path val: $acc_learn_val")
+    println(acc_io, "Acc for build_path train: $acc_build_train")
+    println(acc_io, "Acc for build_path val: $acc_build_val")
+    close(acc_io)
+
+    # write params into a file
+    params_io = open(joinpath(output_dir, "params.out"), "w")
+    for (k,v) in KWARGS_DUMP
+        println(params_io, "$k: $v")
+    end
+    close(params_io)
 
     write2csv(
         res_learn_train,
@@ -853,10 +867,16 @@ function get_kwarg(kwargs, kw; required=false)
         if required
             throw(ArgumentError("$kw is not specified!"))
         else
-            return get_default_kwargs(kw)
+            kwarg = get_default_kwargs(kw)
         end
+    else
+        kwarg = kwargs[kw]
     end
-    kwargs[kw]
+
+    # dump args
+    KWARGS_DUMP[kw] = kwarg
+
+    return kwarg
 end
 
 function get_default_kwargs(kw)
