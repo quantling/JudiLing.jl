@@ -18,6 +18,13 @@ struct Gold_Path_Info_Struct
     support::Float64
 end
 
+struct Threshold_Stat_Struct
+    threshold::Float64
+    threshold_prop::Array
+    tolerance::Float64
+    tolerance_prop::Array
+end
+
 """
 A sequence finding algorithm using discrimination learning to predict, for a given
 word, which n-grams are best supported for a given position in the sequence of n-grams.
@@ -220,7 +227,8 @@ function learn_paths(
     sparse_ratio = 0.05,
     if_pca = false,
     pca_eval_M = nothing,
-    verbose = false,
+    check_threshold_stat = false,
+    verbose = false
 )
 
     # initialize queues for storing paths
@@ -232,6 +240,10 @@ function learn_paths(
     for j = 1:n_val
         res[j] = Tuple{Vector{Int64},Int64}[]
     end
+
+    # store thr proportion for each timestep and each utterance
+    thr_stat = zeros(Float64, (n_val, max_t))
+    tlr_stat = zeros(Float64, (n_val, max_t))
 
     # # initialize gold_path_info supports
     if check_gold_path && !isnothing(gold_ind)
@@ -245,6 +257,8 @@ function learn_paths(
 
     verbose && println("Making fac C")
     fac_C_train = make_transform_fac(C_train)
+
+    C_dim = size(Chat_val, 2)
 
     for i = 1:max_t
         verbose && println("="^10)
@@ -302,11 +316,20 @@ function learn_paths(
         if verbose
             pb = Progress(n_val)
         end
+
         for j in iter
             # collect all n-grams which has greater support than the threshold
             candidates_t = findall(x -> x > threshold, Ythat_val[j, :])
             candidates_t_tlr =
                 findall(x -> x > tolerance && x <= threshold, Ythat_val[j, :])
+
+            # calculate threshold stat
+            if check_threshold_stat
+                prop_candidates_t = length(candidates_t) / C_dim
+                prop_candidates_t_tlr = length(candidates_t_tlr) / C_dim
+                thr_stat[j, i] = prop_candidates_t
+                tlr_stat[j, i] = prop_candidates_t_tlr
+            end
 
             # for timestep 2 and after 2
             if isassigned(working_q, j)
@@ -425,11 +448,13 @@ function learn_paths(
         end
     end
 
+    ts = Threshold_Stat_Struct(threshold, thr_stat, tolerance, tlr_stat)
+
     verbose && println("Evaluating paths...")
     res =
         eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, verbose)
 
-    # initialize gold_path_infos
+    # initialize gpi
     if check_gold_path
         if isnothing(gold_ind)
             throw(ErrorException("gold_ind is nothing! Perhaps you forgot to pass gold_ind as an argument."))
@@ -439,23 +464,34 @@ function learn_paths(
             throw(ErrorException("Shat_val is nothing! Perhaps you forgot to pass Shat_val as an argument."))
         end
 
-        gold_path_infos =
+        gpi =
             Vector{Gold_Path_Info_Struct}(undef, size(data_val, 1))
 
         # calculate all shat correlation with S
         Scors = [cor(Shat_val[i, :], S_val[i, :]) for i = 1:n_val]
 
         for i = 1:size(data_val, 1)
-            gold_path_infos[i] = Gold_Path_Info_Struct(
+            gpi[i] = Gold_Path_Info_Struct(
                 gold_ind[i],
                 gold_path_info_supports[i],
                 Scors[i],
             )
         end
-        return res, gold_path_infos
     end
 
-    res
+    if check_gold_path
+        if check_threshold_stat
+            return res, gpi, ts
+        else
+            return res, gpi
+        end
+    else
+        if check_threshold_stat
+            return res, ts
+        else
+            return res
+        end
+    end
 end
 
 """
@@ -497,6 +533,7 @@ function learn_paths(
     is_tolerant = false,
     tolerance = (-1000.0),
     max_tolerance = 3,
+    check_threshold_stat = false,
     verbose = true)
     
     max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col,
@@ -526,6 +563,7 @@ function learn_paths(
         sep_token = cue_obj.sep_token,
         keep_sep = cue_obj.keep_sep,
         target_col = cue_obj.target_col,
+        check_threshold_stat = check_threshold_stat,
         verbose = verbose,
     )
 end
@@ -834,3 +872,7 @@ function find_top_feature_indices(
 
     features_all
 end
+
+# function process_ts(ts)
+#     return ts
+# end
