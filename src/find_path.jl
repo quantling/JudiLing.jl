@@ -23,6 +23,8 @@ struct Threshold_Stat_Struct
     threshold_prop::Array
     tolerance::Float64
     tolerance_prop::Array
+    n_rows::Int64
+    timestep::Int64
 end
 
 """
@@ -448,7 +450,7 @@ function learn_paths(
         end
     end
 
-    ts = Threshold_Stat_Struct(threshold, thr_stat, tolerance, tlr_stat)
+    ts = Threshold_Stat_Struct(threshold, thr_stat, tolerance, tlr_stat, n_val, max_t)
 
     verbose && println("Evaluating paths...")
     res =
