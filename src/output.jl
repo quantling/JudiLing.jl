@@ -148,7 +148,7 @@ JudiLing.write2csv(
     )
 ```
 """
-function write2csv(gpi, filename; root_dir = ".", output_dir = ".")
+function write2csv(gpi::Vector{Gold_Path_Info_Struct}, filename; root_dir = ".", output_dir = ".")
     output_path = joinpath(root_dir, output_dir)
     # create path if not exist
     mkpath(output_path)
@@ -175,6 +175,17 @@ function write2csv(gpi, filename; root_dir = ".", output_dir = ".")
     end
     # close file
     close(io)
+end
+
+function write2csv(ts::Threshold_Stat_Struct, filename; root_dir = ".", output_dir = ".")
+    output_path = joinpath(root_dir, output_dir)
+    
+    # create path if not exist
+    mkpath(output_path)
+
+    df = JudiLing.write2df(ts)
+    CSV.write(joinpath(output_path, filename), df, quotestrings = true)
+    nothing
 end
 
 """
@@ -337,7 +348,7 @@ JudiLing.write2csv(gpi_train)
 JudiLing.write2csv(gpi_val)
 ```
 """
-function write2df(gpi)
+function write2df(gpi::Vector{Gold_Path_Info_Struct})
 
     utterance_vec = Union{Int64,Missing}[]
     weakest_support_vec = Union{Float64,Missing}[]
@@ -363,6 +374,20 @@ function write2df(gpi)
     df.support = support_vec
     df.gold_path = gold_path_vec
     df.timestep_support = timestep_support_vec
+
+    df
+end
+
+function write2df(ts::Threshold_Stat_Struct)
+    n = ts.timestep
+    
+    df = DataFrame(vcat([Int64, Float64, Float64], [Float64 for k in 1:2n]),
+        vcat([:utterance, :threshold, :tolerance], [Symbol("thr_prop_$k") for k in 1:n], [Symbol("tlr_prop_$k") for k in 1:n]),
+        0)
+
+    for i in 1:ts.n_rows
+        push!(df, vcat([i, ts.threshold, ts.tolerance], ts.threshold_prop[i,:], ts.tolerance_prop[i,:]))
+    end
 
     df
 end
