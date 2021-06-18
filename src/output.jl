@@ -116,7 +116,7 @@ function write2csv(
 end
 
 """
-    write2csv(gpi, filename)
+    write2csv(gpi::Vector{Gold_Path_Info_Struct}, filename)
 
 Write results into csv file for the gold paths' information optionally returned by
 `learn_paths` and `build_paths`.
@@ -177,6 +177,24 @@ function write2csv(gpi::Vector{Gold_Path_Info_Struct}, filename; root_dir = ".",
     close(io)
 end
 
+"""
+    write2csv(ts::Threshold_Stat_Struct, filename)
+
+Write results into csv file for threshold and tolerance proportion for each timestep.
+
+# Obligatory Arguments
+- `gpi::Vector{Gold_Path_Info_Struct}`: the gold paths' information
+- `filename::String`: the filename
+
+# Optional Arguments
+- `root_dir::String="."`: dir path for project root dir
+- `output_dir::String="."`: output dir inside root dir
+
+# Examples
+```julia
+JudiLing.write2csv(ts, "ts.csv", root_dir = @__DIR__, output_dir="out")
+```
+"""
 function write2csv(ts::Threshold_Stat_Struct, filename; root_dir = ".", output_dir = ".")
     output_path = joinpath(root_dir, output_dir)
     
@@ -331,7 +349,7 @@ function write2df(
 end
 
 """
-    write2df(gpi)
+    write2df(gpi::Vector{Gold_Path_Info_Struct})
 
 Write results into a dataframe for the gold paths' information optionally returned by
 `learn_paths` and `build_paths`.
@@ -378,9 +396,23 @@ function write2df(gpi::Vector{Gold_Path_Info_Struct})
     df
 end
 
+
+"""
+    write2df(ts::Threshold_Stat_Struct)
+
+Write results into a dataframe for threshold and tolerance proportion for each timestep.
+
+# Obligatory Arguments
+- `ts::Threshold_Stat_Struct`: the threshold and tolerance proportion
+
+# Examples
+```julia
+JudiLing.write2df(ts)
+```
+"""
 function write2df(ts::Threshold_Stat_Struct)
     n = ts.timestep
-    
+
     df = DataFrame(vcat([Int64, Float64, Float64], [Float64 for k in 1:2n]),
         vcat([:utterance, :threshold, :tolerance], [Symbol("thr_prop_$k") for k in 1:n], [Symbol("tlr_prop_$k") for k in 1:n]),
         0)
