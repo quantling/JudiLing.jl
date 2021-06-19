@@ -7,6 +7,7 @@ CurrentModule = JudiLing
 ```@docs
     Result_Path_Info_Struct
     Gold_Path_Info_Struct
+    Threshold_Stat_Struct
     learn_paths
     build_paths
     learn_paths(data, cue_obj, S_val, F_train, Chat_val)
