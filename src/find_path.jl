@@ -520,7 +520,6 @@ for users who is very new to JudiLing and learn_paths function.
 - `is_tolerant::Bool=false`: if true, select a specified number (given by `max_tolerance`) of n-grams whose supports are below threshold but above a second tolerance threshold to be added to the path
 - `tolerance::Float64=(-1000.0)`: the value set for the second threshold (in tolerant mode) such that if the support for an n-gram is in between this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path
 - `max_tolerance::Int64=4`: maximum number of n-grams allowed in a path
-- `check_threshold_stat::Bool=false`: if true, return a threshold and torlerance proportion for each timestep
 - `verbose::Bool=false`: if true, more information is printed
 
 # Examples
@@ -540,7 +539,6 @@ function learn_paths(
     is_tolerant = false,
     tolerance = (-1000.0),
     max_tolerance = 3,
-    check_threshold_stat = false,
     verbose = true)
     
     max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col,
@@ -570,7 +568,6 @@ function learn_paths(
         sep_token = cue_obj.sep_token,
         keep_sep = cue_obj.keep_sep,
         target_col = cue_obj.target_col,
-        check_threshold_stat = check_threshold_stat,
         verbose = verbose,
     )
 end

@@ -48,7 +48,7 @@ using DataFrames
 
     max_t = JudiLing.cal_max_timestep(latin_train, latin_val, :Word)
 
-    res_train, gpi_train = JudiLing.learn_paths(
+    res_train, gpi_train, ts_train = JudiLing.learn_paths(
         latin_train,
         latin_train,
         cue_obj_train.C,
@@ -70,10 +70,11 @@ using DataFrames
         keep_sep = false,
         target_col = :Word,
         issparse = :dense,
+        check_threshold_stat = true,
         verbose = false,
     )
 
-    res_val, gpi_val = JudiLing.learn_paths(
+    res_val, gpi_val, ts_val = JudiLing.learn_paths(
         latin_train,
         latin_val,
         cue_obj_train.C,
@@ -98,6 +99,7 @@ using DataFrames
         keep_sep = false,
         target_col = :Word,
         issparse = :dense,
+        check_threshold_stat = true,
         verbose = false,
     )
 
@@ -149,6 +151,20 @@ using DataFrames
         output_dir = "test_out",
     )
 
+    JudiLing.write2csv(
+        ts_train,
+        "ts_latin_train.csv",
+        root_dir = ".",
+        output_dir = "test_out",
+    )
+
+    JudiLing.write2csv(
+        ts_val,
+        "ts_latin_val.csv",
+        root_dir = ".",
+        output_dir = "test_out",
+    )
+
     JudiLing.write2df(
         res_train,
         latin_train,
@@ -180,6 +196,10 @@ using DataFrames
     JudiLing.write2df(gpi_train)
 
     JudiLing.write2df(gpi_val)
+
+    JudiLing.write2df(ts_train)
+
+    JudiLing.write2df(ts_val)
 
     path = joinpath(".", "test_out")
     rm(path, force = true, recursive = true)
