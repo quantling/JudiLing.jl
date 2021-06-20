@@ -533,7 +533,7 @@ function load_S_matrix(filename; header = false, sep = " ")
 end
 
 """
-    write_comprehension_eval(SChat, SC, data, filename)
+    write_comprehension_eval(SChat, SC, data, target_col, filename)
 
 Write comprehension evaluation into a CSV file, include target and predicted 
 ids and indentifiers and their correlations.
@@ -599,7 +599,7 @@ function write_comprehension_eval(
 end
 
 """
-    write_comprehension_eval(SChat, SC, data, filename)
+    write_comprehension_eval(SChat, SC, SC_rest, data, data_rest, target_col, filename)
 
 Write comprehension evaluation into a CSV file for both training and validation
 datasets, include target and predicted ids and indentifiers and their
