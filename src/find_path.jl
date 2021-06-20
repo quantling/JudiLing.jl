@@ -82,6 +82,8 @@ word, which n-grams are best supported for a given position in the sequence of n
 - `sparse_ratio::Float64=0.05`: the ratio to decide whether a matrix is sparse
 - `if_pca::Bool=false`: turn on to enable pca mode
 - `pca_eval_M::Matrix=nothing`: pass original F for pca mode
+- `activation::Function=nothing`: the activation function you want to pass
+- `ignore_nan::Bool=true`: whether to ignore NaN when compare correlations, otherwise NaN will be selected as the max correlation value
 - `check_threshold_stat::Bool=false`: if true, return a threshold and torlerance proportion for each timestep
 - `verbose::Bool=false`: if true, more information is printed
 
@@ -233,6 +235,8 @@ function learn_paths(
     sparse_ratio = 0.05,
     if_pca = false,
     pca_eval_M = nothing,
+    activation = nothing,
+    ignore_nan = true,
     check_threshold_stat = false,
     verbose = false
 )
@@ -304,9 +308,11 @@ function learn_paths(
         if is_truly_sparse(Ythat_val, verbose = verbose)
             Ythat_val = sparse(Ythat_val)
         end
-        # Ythat = sparse(Ythat)
-        # verbose && println("Sparsity of Ythat: $(length(Ythat.nzval)/Ythat.m/Ythat.n)")
 
+        # apply activation to Yt hat
+        if !isnothing(activation)
+            Ythat_val = activation.(Ythat_val)
+        end
         # collect supports for gold path each timestep
         if check_gold_path && !isnothing(gold_ind)
             for j = 1:size(data_val, 1)
@@ -458,7 +464,7 @@ function learn_paths(
 
     verbose && println("Evaluating paths...")
     res =
-        eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, verbose)
+        eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, ignore_nan, verbose)
 
     # initialize gpi
     if check_gold_path
@@ -520,6 +526,8 @@ for users who is very new to JudiLing and learn_paths function.
 - `is_tolerant::Bool=false`: if true, select a specified number (given by `max_tolerance`) of n-grams whose supports are below threshold but above a second tolerance threshold to be added to the path
 - `tolerance::Float64=(-1000.0)`: the value set for the second threshold (in tolerant mode) such that if the support for an n-gram is in between this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path
 - `max_tolerance::Int64=4`: maximum number of n-grams allowed in a path
+- `activation::Function=nothing`: the activation function you want to pass
+- `ignore_nan::Bool=true`: whether to ignore NaN when compare correlations, otherwise NaN will be selected as the max correlation value
 - `verbose::Bool=false`: if true, more information is printed
 
 # Examples
@@ -539,6 +547,8 @@ function learn_paths(
     is_tolerant = false,
     tolerance = (-1000.0),
     max_tolerance = 3,
+    activation = nothing,
+    ignore_nan = true,
     verbose = true)
     
     max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col,
@@ -568,6 +578,8 @@ function learn_paths(
         sep_token = cue_obj.sep_token,
         keep_sep = cue_obj.keep_sep,
         target_col = cue_obj.target_col,
+        activation = activation,
+        ignore_nan = ignore_nan,
         verbose = verbose,
     )
 end
@@ -675,6 +687,7 @@ function build_paths(
     start_end_token = "#",
     if_pca = false,
     pca_eval_M = nothing,
+    ignore_nan = true,
     verbose = false,
 )
     # initialize queues for storing paths
@@ -775,7 +788,7 @@ function build_paths(
     end
 
     verbose && println("Evaluating paths...")
-    eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, verbose)
+    eval_can(res, S_val, F_train, i2f, max_can, if_pca, pca_eval_M, ignore_nan, verbose)
 end
 
 """
@@ -793,6 +806,7 @@ function eval_can(
     max_can,
     if_pca,
     pca_eval_M,
+    ignore_nan = true,
     verbose = false,
 )
 
@@ -819,6 +833,11 @@ function eval_can(
                 push!(res, Result_Path_Info_Struct(ci, n, Scor))
             end
         end
+        
+        if ignore_nan
+            res = filter(x -> !isnan(x.support), res)
+        end
+
         # we collect only top x candidates from the top
         res_l[i] = collect(Iterators.take(
             sort!(res, by = x -> x.support, rev = true),

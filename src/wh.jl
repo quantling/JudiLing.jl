@@ -11,6 +11,9 @@ Widrow-Hoff Learning.
 - `n_epochs::Int64=1`: the number of epochs to be trained
 - `weights::Matrix=nothing`: the initial weights
 - `learn_seq::Vector=nothing`: the learning sequence
+- `save_history::Bool=false`: if true, a partical training history will be saved
+- `history_cols::Vector=nothing`: the list of column indices you want to saved in history, e.g. `[1,32,42]` or `[2]`
+- `history_rows::Vector=nothing`: the list of row indices you want to saved in history, e.g. `[1,32,42]` or `[2]`
 - `verbose::Bool = false`: if true, more information will be printed out
 """
 function wh_learn(
@@ -20,6 +23,9 @@ function wh_learn(
     n_epochs = 1,
     weights = nothing,
     learn_seq = nothing,
+    save_history = false,
+    history_cols = nothing,
+    history_rows = nothing,
     verbose = false,
     )
 
@@ -39,6 +45,10 @@ function wh_learn(
     # construct learn_seq if nothing
     if isnothing(learn_seq)
         learn_seq = 1:size(X, 1)
+    end
+
+    if save_history
+        history = zeros(Float64, n_epochs, length(history_rows), length(history_cols))
     end
 
     inputT = Matrix{Float64}(undef, (size(X, 2), 1))
@@ -65,8 +75,16 @@ function wh_learn(
             rmul!(deltaW, eta)
             # W += deltaW
             broadcast!(+, W, W, deltaW)
+
             verbose && ProgressMeter.next!(pb)
         end
+        # push history
+        if save_history
+            history[j,:,:] = copy(W[history_rows, history_cols])
+        end
+    end
+    if save_history
+        return W, history
     end
     W
 end

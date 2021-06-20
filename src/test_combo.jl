@@ -158,6 +158,7 @@ function test_combo(test_mode; kwargs...)
             train_sample_size = train_sample_size,
             val_sample_size = val_sample_size,
             val_ratio = val_ratio,
+            random_seed = random_seed,
             verbose = verbose)
 
     elseif test_mode == :careful_split
@@ -180,6 +181,7 @@ function test_combo(test_mode; kwargs...)
             grams = grams,
             n_grams_keep_sep= n_grams_keep_sep,
             start_end_token = start_end_token,
+            random_seed = random_seed,
             verbose=verbose)
     else
         throw(ArgumentError("test_mode is incorrect, using :train_only," * 
@@ -544,21 +546,27 @@ function test_combo(test_mode; kwargs...)
 
     # write acc output
     mkpath(output_dir)
-    acc_io = open(joinpath(output_dir, "acc.out"), "w")
-    println(acc_io, "Acc for Chat train: $acc_Chat_train")
-    println(acc_io, "Acc for Shat train: $acc_Shat_train")
-    println(acc_io, "Acc for Shat train homophones: $acc_Shat_train_homo")
-    println(acc_io, "Acc for Chat val: $acc_Chat_val")
-    println(acc_io, "Acc for Chat val for both train and val: $acc_Chat_val_tv")
-    println(acc_io, "Acc for Shat val: $acc_Shat_val")
-    println(acc_io, "Acc for Acc for Shat val for both train and val: $acc_Shat_val_tv")
-    println(acc_io, "Acc for Shat val homophones: $acc_Shat_val_homo")
-    println(acc_io, "Acc for Shat val homophones for both train and val: $acc_Shat_val_homo_tv")
-    println(acc_io, "Acc for learn_path train: $acc_learn_train")
-    println(acc_io, "Acc for learn_path val: $acc_learn_val")
-    println(acc_io, "Acc for build_path train: $acc_build_train")
-    println(acc_io, "Acc for build_path val: $acc_build_val")
-    close(acc_io)
+
+    save_S_matrix(S_train, joinpath(".", output_dir, "S_train.csv"),
+        data_train, n_grams_target_col)
+    save_S_matrix(S_val, joinpath(".", output_dir, "S_val.csv"), data_val,
+        n_grams_target_col)
+
+    accio = open(joinpath(output_dir, "acc.out"), "w")
+    println(accio, "Acc for Chat train: $acc_Chat_train")
+    println(accio, "Acc for Shat train: $acc_Shat_train")
+    println(accio, "Acc for Shat train homophones: $acc_Shat_train_homo")
+    println(accio, "Acc for Chat val: $acc_Chat_val")
+    println(accio, "Acc for Chat val for both train and val: $acc_Chat_val_tv")
+    println(accio, "Acc for Shat val: $acc_Shat_val")
+    println(accio, "Acc for Acc for Shat val for both train and val: $acc_Shat_val_tv")
+    println(accio, "Acc for Shat val homophones: $acc_Shat_val_homo")
+    println(accio, "Acc for Shat val homophones for both train and val: $acc_Shat_val_homo_tv")
+    println(accio, "Acc for learn_path train: $acc_learn_train")
+    println(accio, "Acc for learn_path val: $acc_learn_val")
+    println(accio, "Acc for build_path train: $acc_build_train")
+    println(accio, "Acc for build_path val: $acc_build_val")
+    close(accio)
 
     # write params into a file
     params_io = open(joinpath(output_dir, "params.out"), "w")
@@ -699,6 +707,7 @@ function loading_data_randomly_split(
     train_sample_size = 0,
     val_sample_size = 0,
     val_ratio = 0.0,
+    random_seed = 314,
     verbose = false)
     verbose && println("Spliting data...")
 
@@ -709,6 +718,7 @@ function loading_data_randomly_split(
         train_sample_size = train_sample_size,
         val_sample_size = val_sample_size,
         val_ratio = val_ratio,
+        random_seed = random_seed,
         verbose = verbose,
         )
 
@@ -731,6 +741,7 @@ function loading_data_careful_split(
     grams = 3,
     n_grams_keep_sep = false,
     start_end_token = "#",
+    random_seed = 314,
     verbose = false)
 
     verbose && println("Spliting data...")
@@ -748,6 +759,7 @@ function loading_data_careful_split(
         grams = grams,
         n_grams_keep_sep = n_grams_keep_sep,
         start_end_token = start_end_token,
+        random_seed = random_seed,
         verbose = verbose,
     )
 

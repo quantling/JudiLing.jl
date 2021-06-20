@@ -148,7 +148,7 @@ function isstart(c, i2f; tokenized = false, sep_token = nothing, start_end_token
         start_w = split(ngram, "")[1]
     end
 
-    start_w == start_w
+    start_w == start_end_token
 end
 
 """
