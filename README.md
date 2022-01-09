@@ -528,6 +528,10 @@ rm(joinpath(@__DIR__, "latin_out"), force = true, recursive = true)
 
 You can download and try out this script [here](https://osf.io/sa89x/download).
 
+## Supports
+
+There are two types of supports in outputs. An utterance level and a set of supports for each cue. The former support is also called "synthesis-by-analysis" support. This support is calculated by predicted S vector and original S vector and it is used to select the best paths. Cue level supports are slices of Yt matrices from each timestep. Those supports are used to determine whether a cue is eligible for constructing paths.
+
 ## Citation
 
 If you find this package helpful, please cite this as follow:
