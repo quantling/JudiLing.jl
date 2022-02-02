@@ -88,3 +88,26 @@ To make docs, run `make.jl` in the docs dir and you can test/verify that docs lo
 9. build_paths
 10. evaluate
 11. output
+
+==============================================
+### virtual Environments
+1. Virtual Environment is very import to modern programming projects specially for packages like JudiLing which requires packages of certain versions.
+2. To activate a virtual enviroment for JudiLing. Go to pkg mode `]` and then type `activate .` in Julia repl.
+3. see [ref](https://docs.julialang.org/en/v1/stdlib/Pkg/)
+
+### download and import JudiLing in a local version
+1. In pkg mode `]`, type `develop --local JudiLing`.
+2. To verify, in pkg modem type `status`. There should be a local path like `JudiLing v0.5.2 dev\JudiLing` under JudiLing version.
+
+### dev structure
+1. a dev structure shoule like this:
+```bash
+├── some_other_scripts
+├── dev
+│   ├── JudiLing
+├── Manifest.toml
+├── Project.toml
+```
+
+### cache mechanism
+1. Julia have cache mechanism. Therefore sometimes you need to quit Julia repl to make new changes taking effect.
