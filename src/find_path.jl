@@ -792,6 +792,134 @@ function build_paths(
 end
 
 """
+    learn_paths_rpi(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
+
+Calculate learn_paths with results indices supports as well.
+"""
+
+function learn_paths_rpi(
+    data_train,
+    data_val,
+    C_train,
+    S_val,
+    F_train,
+    Chat_val,
+    A,
+    i2f,
+    f2i;
+    gold_ind = nothing,
+    Shat_val = nothing,
+    check_gold_path = false,
+    max_t = 15,
+    max_can = 10,
+    threshold = 0.1,
+    is_tolerant = false,
+    tolerance = (-1000.0),
+    max_tolerance = 3,
+    grams = 3,
+    tokenized = false,
+    sep_token = nothing,
+    keep_sep = false,
+    target_col = "Words",
+    start_end_token = "#",
+    issparse = :auto,
+    sparse_ratio = 0.05,
+    if_pca = false,
+    pca_eval_M = nothing,
+    activation = nothing,
+    ignore_nan = true,
+    check_threshold_stat = false,
+    verbose = false
+    )
+
+    res = learn_paths(
+        data_train,
+        data_val,
+        C_train,
+        S_val,
+        F_train,
+        Chat_val,
+        A,
+        i2f,
+        f2i,
+        gold_ind = gold_ind,
+        Shat_val = Shat_val,
+        check_gold_path = check_gold_path,
+        max_t = max_t,
+        max_can = max_can,
+        threshold = threshold,
+        is_tolerant = is_tolerant,
+        tolerance = tolerance,
+        max_tolerance = max_tolerance,
+        grams = grams,
+        tokenized = tokenized,
+        sep_token = sep_token,
+        keep_sep = keep_sep,
+        target_col = target_col,
+        start_end_token = start_end_token,
+        issparse = issparse,
+        sparse_ratio = sparse_ratio,
+        if_pca = if_pca,
+        pca_eval_M = pca_eval_M,
+        activation = activation,
+        ignore_nan = ignore_nan,
+        check_threshold_stat = check_threshold_stat,
+        verbose = verbose
+    )
+
+    if check_gold_path
+        res = res[1]
+        gpi = res[2]
+    end
+
+    n = size(res)
+    ngrams_ind = make_ngrams_ind(res, n)
+
+    tmp, rpi = learn_paths(
+        data_train,
+        data_val,
+        C_train,
+        S_val,
+        F_train,
+        Chat_val,
+        A,
+        i2f,
+        f2i,
+        gold_ind = ngrams_ind,
+        Shat_val = Shat_val,
+        check_gold_path = true,
+        max_t = max_t,
+        max_can = 1,
+        threshold = 1,
+        is_tolerant = false,
+        tolerance = 1,
+        max_tolerance = 1,
+        grams = grams,
+        tokenized = tokenized,
+        sep_token = sep_token,
+        keep_sep = keep_sep,
+        target_col = target_col,
+        start_end_token = start_end_token,
+        issparse = issparse,
+        sparse_ratio = sparse_ratio,
+        if_pca = if_pca,
+        pca_eval_M = pca_eval_M,
+        activation = activation,
+        ignore_nan = ignore_nan,
+        check_threshold_stat = check_threshold_stat,
+        verbose = false
+    )
+
+    if check_gold_path
+        return res, gpi, rpi
+    else
+        return res, rpi
+    end
+end
+
+
+
+"""
     eval_can(candidates, S, F, i2f, max_can, if_pca, pca_eval_M)
 
 Calculate for each candidate path the correlation between predicted semantic
@@ -894,4 +1022,24 @@ function find_top_feature_indices(
     end
 
     features_all
+end
+
+"""
+    make_ngrams_ind(res, n)
+
+Construct ngrams indices.
+"""
+function make_ngrams_ind(
+    res,
+    n
+)
+    ngrams_ind = Array{Array{Int, 1}, 1}(undef, n)
+    for i = 1:n[1]
+        if isempty(res[i])
+            ngrams_ind[i] = []
+        else
+            ngrams_ind[i] = res[i][1].ngrams_ind
+        end
+    end
+    ngrams_ind
 end

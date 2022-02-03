@@ -382,7 +382,12 @@ function write2df(gpi::Vector{Gold_Path_Info_Struct})
     timestep_support_vec = Union{Vector,Missing}[]
 
     for (i, g) in enumerate(gpi)
-        ws, wst = findmin(g.ngrams_ind_support)
+        ws, wst = missing, missing
+        try
+            ws, wst = findmin(g.ngrams_ind_support)
+        catch e
+            ;
+        end
         push!(utterance_vec, i)
         push!(weakest_support_vec, ws)
         push!(weakest_support_timestep_vec, wst)
