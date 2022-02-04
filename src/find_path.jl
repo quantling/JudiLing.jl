@@ -873,6 +873,12 @@ function learn_paths_rpi(
 
     n = size(res)
     ngrams_ind = make_ngrams_ind(res, n)
+    Shat = zeros(Float64, size(S_val))
+
+    for i in 1:n[1]
+        ci = ngrams_ind[i]
+        Shat[i,:] = sum(F_train[ci, :], dims = 1)
+    end
 
     tmp, rpi = learn_paths(
         data_train,
@@ -885,7 +891,7 @@ function learn_paths_rpi(
         i2f,
         f2i,
         gold_ind = ngrams_ind,
-        Shat_val = nothing,
+        Shat_val = Shat,
         check_gold_path = true,
         max_t = max_t,
         max_can = 1,
@@ -914,6 +920,7 @@ function learn_paths_rpi(
     else
         return res, rpi
     end
+
 end
 
 
