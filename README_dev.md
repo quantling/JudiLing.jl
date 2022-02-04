@@ -111,3 +111,10 @@ To make docs, run `make.jl` in the docs dir and you can test/verify that docs lo
 
 ### cache mechanism
 1. Julia have cache mechanism. Therefore sometimes you need to quit Julia repl to make new changes taking effect.
+
+### dev steps
+1. write code, write doc, write test units
+2. test docs
+3. test test units
+4. upgrade version in Project.tmol
+5. push commits online, wait for CI

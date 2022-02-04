@@ -796,7 +796,6 @@ end
 
 Calculate learn_paths with results indices supports as well.
 """
-
 function learn_paths_rpi(
     data_train,
     data_val,
@@ -886,7 +885,7 @@ function learn_paths_rpi(
         i2f,
         f2i,
         gold_ind = ngrams_ind,
-        Shat_val = Shat_val,
+        Shat_val = nothing,
         check_gold_path = true,
         max_t = max_t,
         max_can = 1,
