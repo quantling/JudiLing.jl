@@ -118,3 +118,4 @@ To make docs, run `make.jl` in the docs dir and you can test/verify that docs lo
 3. test test units
 4. upgrade version in Project.tmol
 5. push commits online, wait for CI
+6. release a new version on git
