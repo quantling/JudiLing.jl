@@ -136,7 +136,7 @@ function train_val_careful_split(
     data_train_ngrams = unique(data_train_ngrams)
     data_train_features =
         collect_features(data[1:init_num_train, :], n_features_columns)
-    data_val = DataFrame()
+    data_val = similar(data, 0)
 
     perform_split(
         data[init_num_train+1:end, :],
@@ -185,7 +185,11 @@ end
 function collect_features(data, n_features_columns)
     features = String[]
     for c in n_features_columns
-        push!(features, unique(data[:, c])...)
+        for c_feature in unique(data[:, c])
+            if !ismissing(c_feature)
+                push!(features, c_feature)
+            end
+        end
     end
     unique(features)
 end
@@ -281,7 +285,13 @@ function perform_split(
             n_grams_sep_token,
             start_end_token,
         )
-        features = unique(utterances[i, n_features_columns])
+
+        features = String[]
+        for feature in unique(utterances[i, n_features_columns])
+            if !ismissing(feature)
+                push!(features, feature)
+            end
+        end
 
         # to check whether
         if !any(x -> !any(y -> y == x, utterances_train_ngrams), ngrams) &&
@@ -413,6 +423,7 @@ function write_split_data(output_dir_path, data_prefix, data_train, data_val)
         data_train,
         quotestrings = true,
     )
+
     CSV.write(
         joinpath(output_dir_path, "$(data_prefix)_val.csv"),
         data_val,
