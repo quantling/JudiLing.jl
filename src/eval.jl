@@ -264,9 +264,19 @@ function eval_SC(
     digits = 4,
     R = false
     )
+    
+    n_data = size(data, 1)
+    n_data_rest = size(data_rest, 1)
 
-    data_combined = copy(data)
-    append!(data_combined, data_rest)
+    if n_data > n_data_rest
+        data_combined = similar(data, 0)
+        append!(data_combined, data)
+        append!(data_combined, data_rest)
+    else
+        data_combined = similar(data_rest, 0)
+        append!(data_combined, data_rest)
+        append!(data_combined, data)
+    end
 
     eval_SC(
         SChat,
