@@ -509,7 +509,7 @@ end
 """
     learn_paths(data, cue_obj, S_val, F_train, Chat_val)
 
-A high-level wrapper function for learn_paths with much less control. It aims 
+A high-level wrapper function for learn_paths with much less control. It aims
 for users who is very new to JudiLing and learn_paths function.
 
 # Obligatory Arguments
@@ -550,7 +550,7 @@ function learn_paths(
     activation = nothing,
     ignore_nan = true,
     verbose = true)
-    
+
     max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col,
         tokenized=cue_obj.tokenized, sep_token=cue_obj.sep_token)
 
@@ -867,8 +867,8 @@ function learn_paths_rpi(
     )
 
     if check_gold_path
-        res = res[1]
         gpi = res[2]
+        res = res[1]
     end
 
     n = size(res)
@@ -967,7 +967,7 @@ function eval_can(
                 push!(res, Result_Path_Info_Struct(ci, n, Scor))
             end
         end
-        
+
         if ignore_nan
             res = filter(x -> !isnan(x.support), res)
         end
