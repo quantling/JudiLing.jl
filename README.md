@@ -125,7 +125,7 @@ Chat = S * G
 
 and evaluate the model's prediction accuracy:
 ```julia
-@show JudiLing.eval_SC(cue_obj.C, Chat)
+@show JudiLing.eval_SC(Chat, cue_obj.C)
 ```
 
 Output:
@@ -143,7 +143,7 @@ F = JudiLing.make_transform_matrix(cue_obj.C, S)
 and we then calculate the Shat matrix and evaluate comprehension accuracy:
 ```julia
 Shat = cue_obj.C * F
-@show JudiLing.eval_SC(S, Shat)
+@show JudiLing.eval_SC(Shat, S)
 ```
 
 Output:
