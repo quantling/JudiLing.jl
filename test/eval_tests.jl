@@ -381,5 +381,5 @@ end
     JudiLing.eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C)
 
     @test JudiLing.eval_SC(Chat_train, cue_obj_train.C, cue_obj_val.C, latin_train, latin_val, :Word) ≈ 1
-    @test JudiLing.eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C, latin_val, latin_train, :Word) ≈ 0.18
+    @test JudiLing.eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C, latin_val, latin_train, :Word) > 0.15
 end
