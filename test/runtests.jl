@@ -4,6 +4,10 @@ using SafeTestsets
     include("cholesky_tests.jl")
 end
 
+@safetestset "frequency tests" begin
+    include("frequency_tests.jl")
+end
+
 @safetestset "display tests" begin
     include("display_tests.jl")
 end
