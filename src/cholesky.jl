@@ -356,7 +356,7 @@ JudiLing.make_transform_matrix_frequency(
 """
 function make_transform_matrix(X::Union{SparseMatrixCSC,Matrix},
                              Y::Union{SparseMatrixCSC,Matrix},
-                             freq::Array{Int64,1};
+                             freq::Union{Array{Int64, 1}, Array{Float64,1}};
                              method = :additive,
                              shift = 0.02,
                              multiplier = 1.01,
