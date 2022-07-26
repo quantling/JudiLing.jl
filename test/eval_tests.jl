@@ -134,7 +134,7 @@ end
         Person = ["B", "C"],
     )
 
-    cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
+    cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(
         latin_train,
         latin_val,
         grams = 3,
@@ -143,13 +143,14 @@ end
         keep_sep = false,
     )
 
-    n_features = size(cue_obj.C, 2)
-    S_train, S_val = JudiLing.make_S_matrix(
+    n_features = size(cue_obj_train.C, 2)
+    S_train, S_val = JudiLing.make_combined_S_matrix(
         latin_train,
         latin_val,
         [:Lexeme],
         [:Person],
         ncol = n_features,
+        add_noise = false
     )
 
     G = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
@@ -161,7 +162,7 @@ end
 
     @test JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 1) == 1
     @test JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 2) == 1
-    @test JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 1) == 0
+    @test JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 1) == 0.5
     @test JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 2) == 1
     @test JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 1, latin_val, latin_train, :Word) == 1
     @test JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 2, latin_val, latin_train, :Word) == 1
