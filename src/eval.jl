@@ -540,6 +540,79 @@ function eval_SC_loose(SChat, SC, k, data, target_col; digits=4)
     round(correct / total, digits=digits)
 end
 
+
+"""
+    eval_SC_loose(SChat, SC, SC_rest, k; digits=4)
+
+Assess model accuracy on the basis of the correlations of row vectors of Chat and
+C or Shat and S. Count it as correct if one of the top k candidates is correct.
+Does not consider homophones.
+Takes into account gold-standard vectors in both the actual targets (SC)
+as well as in a second matrix (e.g. the training or validation data; SC_rest).
+
+# Obligatory Arguments
+- `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
+- `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix of the data under consideration
+- `SC_rest::Union{SparseMatrixCSC, Matrix}`: the C or S matrix of rest data
+- `k`: top k candidates
+
+# Optional Arguments
+- `digits=4`: the specified number of digits after the decimal place (or before if negative)
+
+```julia
+eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, k)
+eval_SC_loose(Shat_val, S_val, S_train, k)
+```
+"""
+function eval_SC_loose(SChat, SC, SC_rest, k; digits=4)
+ SC_combined = vcat(SC, SC_rest)
+ eval_SC_loose(SChat, SC_combined, k, digits=digits)
+end
+
+"""
+    eval_SC_loose(SChat, SC, SC_rest, k, data, data_rest, target_col; digits=4)
+
+Assess model accuracy on the basis of the correlations of row vectors of Chat and
+C or Shat and S. Count it as correct if one of the top k candidates is correct.
+Considers homophones.
+Takes into account gold-standard vectors in both the actual targets (SC)
+as well as in a second matrix (e.g. the training or validation data; SC_rest).
+
+# Obligatory Arguments
+- `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
+- `SC::Union{SparseMatrixCSC, Matrix}`: the C or S matrix of the data under consideration
+- `SC_rest::Union{SparseMatrixCSC, Matrix}`: the C or S matrix of rest data
+- `k`: top k candidates
+- `data`: dataset under consideration
+- `data_rest`: remaining dataset
+- `target_col`: target column name
+
+# Optional Arguments
+- `digits=4`: the specified number of digits after the decimal place (or before if negative)
+
+```julia
+eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, k, latin_val, latin_train, :Word)
+eval_SC_loose(Shat_val, S_val, S_train, k, latin_val, latin_train, :Word)
+```
+"""
+function eval_SC_loose(SChat, SC, SC_rest, k, data, data_rest, target_col; digits=4)
+    SC_combined = vcat(SC, SC_rest)
+
+    n_data = size(data, 1)
+    n_data_rest = size(data_rest, 1)
+
+    if n_data > n_data_rest
+        data_combined = similar(data, 0)
+    else
+        data_combined = similar(data_rest, 0)
+    end
+
+    append!(data_combined, data)
+    append!(data_combined, data_rest)
+
+    eval_SC_loose(SChat, SC_combined, k, data_combined, target_col, digits=digits)
+end
+
 """
     eval_manual(res, data, i2f)
 
