@@ -121,6 +121,52 @@ end
         @test JudiLing.eval_SC_loose(Chat, cue_obj.C, k, latin, :Word) == 1
         @test JudiLing.eval_SC_loose(Shat, S, k, latin, :Word) == 1
     end
+
+    latin_train = DataFrame(
+        Word = ["ABC", "BCD", "CDE", "BCD"],
+        Lexeme = ["A", "B", "C", "B"],
+        Person = ["B", "C", "D", "D"],
+    )
+
+    latin_val = DataFrame(
+        Word = ["ABC", "BCD"],
+        Lexeme = ["A", "B"],
+        Person = ["B", "C"],
+    )
+
+    cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
+        latin_train,
+        latin_val,
+        grams = 3,
+        target_col = :Word,
+        tokenized = false,
+        keep_sep = false,
+    )
+
+    n_features = size(cue_obj.C, 2)
+    S_train, S_val = JudiLing.make_S_matrix(
+        latin_train,
+        latin_val,
+        [:Lexeme],
+        [:Person],
+        ncol = n_features,
+    )
+
+    G = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
+    Chat_val = S_val * G
+    Chat_train = S_train * G
+    F = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
+    Shat_val = cue_obj_val.C * F
+    Shat_train = cue_obj_train.C * F
+
+    @test JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 1) == 1
+    @test JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 2) == 1
+    @test JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 1) == 0
+    @test JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 2) == 1
+    @test JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 1, latin_val, latin_train, :Word) == 1
+    @test JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 2, latin_val, latin_train, :Word) == 1
+    @test JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 1, latin_val, latin_train, :Word) == 1
+    @test JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 2, latin_val, latin_train, :Word) == 1
 end
 
 @testset "accuracy_comprehension" begin
