@@ -20,6 +20,8 @@ jobs:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
+        python-version:
+          - 3.8
         arch:
           - x64
         experimental:
@@ -37,10 +39,12 @@ jobs:
             version: 'nightly'
             arch: x64
             experimental: true
-    env:
-      PYTHON: ""
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
