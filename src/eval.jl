@@ -99,6 +99,95 @@ function accuracy_comprehension(
 end
 
 """
+    accuracy_comprehension(
+        S_val,
+        S_train,
+        Shat_val,
+        data_val,
+        data_train;
+        target_col = :Words,
+        base = nothing,
+        inflections = nothing,
+    )
+
+Evaluate comprehension accuracy.
+
+# Obligatory Arguments
+- `S_val::Matrix`: the (gold standard) S matrix of the validation data
+- `S_train::Matrix`: the (gold standard) S matrix of the training data
+- `Shat_val::Matrix`: the (predicted) Shat matrix of the validation data
+- `data_val::DataFrame`: the validation dataset
+- `data_train::DataFrame`: the training dataset
+
+# Optional Arguments
+- `target_col::Union{String, Symbol}=:Words`: the column name for target strings
+- `base::Vector=nothing`: base features (typically a lexeme)
+- `inflections::Union{Nothing, Vector}=nothing`: other features (typically in inflectional features)
+
+# Examples
+```julia
+accuracy_comprehension(
+    S_val,
+    S_train,
+    Shat_val,
+    latin_val,
+    latin_train,
+    target_col=:Words,
+    base=[:Lexeme],
+    inflections=[:Person, :Number, :Tense, :Voice, :Mood]
+    )
+```
+"""
+function accuracy_comprehension(
+    S_val,
+    S_train,
+    Shat_val,
+    data_val,
+    data_train;
+    target_col = :Words,
+    base = nothing,
+    inflections = nothing,
+)
+
+    S = vcat(S_val, S_train)
+
+    data_combined = copy(data_val)
+    append!(data_combined, data_train)
+
+    corMat = cor(Shat_val, S, dims = 2)
+    top_index = [i[2] for i in argmax(corMat, dims = 2)]
+
+    dfr = DataFrame()
+    dfr.target = data_val[:, target_col]
+    dfr.form = vec([data_combined[i, target_col] for i in top_index])
+    dfr.r =
+        vec([corMat[index, value] for (index, value) in enumerate(top_index)])
+    dfr.r_target = corMat[diagind(corMat)]
+    dfr.correct = [dfr.target[i] == dfr.form[i] for i = 1:size(dfr, 1)]
+
+    if !isnothing(inflections)
+        all_features = vcat(base, inflections)
+    elseif !isnothing(base)
+        all_features = base
+    else
+        all_features = []
+    end
+
+    for f in all_features
+        dfr.tmp = vec([
+            data_val[index, f] == data_combined[value, f]
+            for (index, value) in enumerate(top_index)
+        ])
+        rename!(dfr, "tmp" => f)
+    end
+
+    acc = sum(dfr[:, "correct"]) / size(dfr, 1)
+    err = findall(x -> x != 1, dfr[:, "correct"])
+
+    Comp_Acc_Struct(dfr, acc, err)
+end
+
+"""
     eval_SC(SChat::AbstractArray, SC::AbstractArray)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and

@@ -13,7 +13,7 @@ that is optionally returned as second output result.
 function write2df end
 
 """
-Write comprehension evaluation into a CSV file, include target and predicted 
+Write comprehension evaluation into a CSV file, include target and predicted
 ids and indentifiers and their correlations.
 """
 function write_comprehension_eval end
@@ -203,7 +203,7 @@ JudiLing.write2csv(ts, "ts.csv", root_dir = @__DIR__, output_dir="out")
 """
 function write2csv(ts::Threshold_Stat_Struct, filename; root_dir = ".", output_dir = ".")
     output_path = joinpath(root_dir, output_dir)
-    
+
     # create path if not exist
     mkpath(output_path)
 
@@ -219,7 +219,10 @@ Reformat results into a dataframe for the results form `learn_paths` and `build_
 functions.
 
 # Obligatory Arguments
+- `res`: output of `learn_paths` or `build_paths`
 - `data::DataFrame`: the dataset
+- `cue_obj_train`: cue object of the training data set
+- `cue_obj_val`: cue object of the validation data set
 
 # Optional Arguments
 - `grams::Int64=3`: the number n in n-gram cues
@@ -540,7 +543,7 @@ end
 """
     write_comprehension_eval(SChat, SC, data, target_col, filename)
 
-Write comprehension evaluation into a CSV file, include target and predicted 
+Write comprehension evaluation into a CSV file, include target and predicted
 ids and indentifiers and their correlations.
 
 # Obligatory Arguments

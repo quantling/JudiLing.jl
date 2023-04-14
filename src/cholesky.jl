@@ -368,6 +368,7 @@ function make_transform_matrix(X::Union{SparseMatrixCSC,Matrix},
 
     P = zeros((size(X, 1), size(X, 1)));
     P[diagind(P)] .= p
+    P = sparse(P)
     X_sch = sqrt.(P) * X
     Y_sch = sqrt.(P) * Y
     F_f = make_transform_matrix(X_sch, Y_sch, method=method,

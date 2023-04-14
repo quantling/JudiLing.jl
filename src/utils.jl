@@ -172,14 +172,36 @@ function check_used_token(data, target_col, token, token_name)
 end
 
 """
+    function cal_max_timestep(
+        data_train::DataFrame,
+        data_val::DataFrame,
+        target_col::Union{String, Symbol};
+        tokenized::Bool = false,
+        sep_token::Union{Nothing, String, Char} = "",
+    )
+
 Calculate the max timestep given training and validation datasets.
+
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `target_col::Union{String, Symbol}`: the column with the target word forms
+
+# Optional Arguments
+- `tokenized::Bool = false`: Whether the word forms in the `target_col` are already tokenized
+- `sep_token::Union{Nothing, String, Char} = ""`: The token with which the word forms are tokenized
+
+# Examples
+```julia
+JudiLing.cal_max_timestep(latin_train, latin_val, target_col=:Word)
+```
 """
 function cal_max_timestep(
-    data_train,
-    data_val,
-    target_col;
-    tokenized = false,
-    sep_token = "",
+    data_train::DataFrame,
+    data_val::DataFrame,
+    target_col::Union{String, Symbol};
+    tokenized::Bool = false,
+    sep_token::Union{Nothing, String, Char} = "",
 )
     words_train = data_train[:, target_col]
     words_val = data_val[:, target_col]
@@ -197,9 +219,34 @@ function cal_max_timestep(
 end
 
 """
-Calculate the max timestep given training datasets only.
+    function cal_max_timestep(
+        data::DataFrame,
+        target_col::Union{String, Symbol};
+        tokenized::Bool = false,
+        sep_token::Union{Nothing, String, Char} = "",
+    )
+
+Calculate the max timestep given training dataset.
+
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+- `target_col::Union{String, Symbol}`: the column with the target word forms
+
+# Optional Arguments
+- `tokenized::Bool = false`: Whether the word forms in the `target_col` are already tokenized
+- `sep_token::Union{Nothing, String, Char} = ""`: The token with which the word forms are tokenized
+
+# Examples
+```julia
+JudiLing.cal_max_timestep(latin, target_col=:Word)
+```
 """
-function cal_max_timestep(data, target_col; tokenized = false, sep_token = "")
+function cal_max_timestep(
+    data::DataFrame,
+    target_col::Union{String, Symbol};
+    tokenized::Bool = false,
+    sep_token::Union{Nothing, String, Char} = "",
+)
 
     words = data[:, target_col]
 

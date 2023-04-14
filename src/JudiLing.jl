@@ -9,6 +9,7 @@ using ProgressMeter
 using CSV
 using GZip
 using PyCall
+using Embeddings
 
 include("utils.jl")
 include("pyndl.jl")

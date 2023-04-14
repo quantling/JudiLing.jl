@@ -454,6 +454,7 @@ function learn_paths(
                     end
                 end
             end
+            flush(stdout)
             if verbose
                 ProgressMeter.next!(pb)
             end
@@ -877,6 +878,7 @@ function learn_paths_rpi(
 
     for i in 1:n[1]
         ci = ngrams_ind[i]
+        # CHANGE needed
         Shat[i,:] = sum(F_train[ci, :], dims = 1)
     end
 
@@ -962,6 +964,7 @@ function eval_can(
         res = Result_Path_Info_Struct[]
         if size(candidates[i], 1) > 0
             for (ci, n) in candidates[i] # ci = [1,3,4]
+                # CHANGE needed
                 Shat = sum(F[ci, :], dims = 1)
                 Scor = cor(Shat[1, :], S[i, :])
                 push!(res, Result_Path_Info_Struct(ci, n, Scor))

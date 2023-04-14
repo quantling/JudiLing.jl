@@ -1342,6 +1342,161 @@ function make_combined_S_matrix(
 end
 
 """
+    load_S_matrix_from_fasttext(data::DataFrame,
+                                language::Symbol;
+                                target_col=:Word,
+                                default_file::Int=1)
+
+Load semantic matrix from fasttext, loaded using the Embeddings.jl package.
+Subset fasttext vectors to include only words in `target_col` of `data`, and
+subset data to only include words in `target_col` for which semantic vector
+is available.
+
+- `default_file=1` loads from https://fasttext.cc/docs/en/crawl-vectors.html,
+  paper: E. Grave*, P. Bojanowski*, P. Gupta, A. Joulin, T. Mikolov,
+         Learning Word Vectors for 157 Languages
+  License: CC BY-SA 3.0 https://creativecommons.org/licenses/by-sa/3.0/
+- `default_file=2` loads from https://fasttext.cc/docs/en/pretrained-vectors.html
+  paper: P. Bojanowski*, E. Grave*, A. Joulin, T. Mikolov,
+         Enriching Word Vectors with Subword Information
+  License: CC BY-SA 3.0 https://creativecommons.org/licenses/by-sa/3.0/
+
+# Obligatory Arguments
+- `data::DataFrame`: the dataset
+- `language::Symbol`: the language of the words in the dataset,
+    offically ISO 639-2 (see https://github.com/JuliaText/Embeddings.jl/issues/34#issuecomment-782604523)
+    but practically it seems more like ISO 639-1 to me with ISO 639-2 only being used
+    if ISO 639-1 isn't available (see https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes)
+
+# Optional Arguments
+- `target_col=:Word`: column with orthographic representation of words in `data`
+- `default_file::Int=1`: source of vectors, for more information see above and here: https://github.com/JuliaText/Embeddings.jl#loading-different-embeddings
+
+# Examples
+```julia
+# basic usage
+latin_small, S = JudiLing.load_S_matrix_from_fasttext(latin, :la, target_col=:Word)
+```
+"""
+function load_S_matrix_from_fasttext(data::DataFrame,
+                                     language::Symbol;
+                                     target_col=:Word,
+                                     default_file::Int=1)
+
+    embtable = load_embeddings(FastText_Text{language}, default_file,
+                                     keep_words=Set(data[!, target_col]));
+
+    # code from https://github.com/JuliaText/Embeddings.jl#basic-example
+    get_word_index = Dict(word=>ii for (ii,word) in enumerate(embtable.vocab))
+
+     function get_embedding(word)
+         ind = get_word_index[word]
+         emb = embtable.embeddings[:,ind]
+         return emb
+     end
+
+     function create_S(words)
+     	S = zeros(length(words), size(get_embedding(embtable.vocab[1]),1))
+     	for i in 1:size(S, 1)
+     		S[i,:] = get_embedding(words[i])
+     	end
+     	S
+     end
+
+     data_small = filter(row -> haskey(get_word_index, row[target_col]), data)
+
+     S_ft = create_S(data_small[!,target_col])
+
+     return data_small, S_ft
+end
+
+"""
+    load_S_matrix_from_fasttext(data_train::DataFrame,
+                                data_val::DataFrame,
+                                language::Symbol;
+                                target_col=:Word,
+                                default_file::Int=1)
+
+Load semantic matrix from fasttext, loaded using the Embeddings.jl package.
+Subset fasttext vectors to include only words in `target_col` of `data_train` and `data_val`, and
+subset data to only include words in `target_col` for which semantic vector
+is available.
+Returns subsetted train and val data and train and val semantic matrices.
+
+- `default_file=1` loads from https://fasttext.cc/docs/en/crawl-vectors.html,
+  paper: E. Grave*, P. Bojanowski*, P. Gupta, A. Joulin, T. Mikolov,
+         Learning Word Vectors for 157 Languages
+  License: CC BY-SA 3.0 https://creativecommons.org/licenses/by-sa/3.0/
+- `default_file=2` loads from https://fasttext.cc/docs/en/pretrained-vectors.html
+  paper: P. Bojanowski*, E. Grave*, A. Joulin, T. Mikolov,
+         Enriching Word Vectors with Subword Information
+  License: CC BY-SA 3.0 https://creativecommons.org/licenses/by-sa/3.0/
+
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `language::Symbol`: the language of the words in the dataset,
+    offically ISO 639-2 (see https://github.com/JuliaText/Embeddings.jl/issues/34#issuecomment-782604523)
+    but practically it seems more like ISO 639-1 to me with ISO 639-2 only being used
+    if ISO 639-1 isn't available (see https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes)
+
+# Optional Arguments
+- `target_col=:Word`: column with orthographic representation of words in `data`
+- `default_file::Int=1`: source of vectors, for more information see above and here: https://github.com/JuliaText/Embeddings.jl#loading-different-embeddings
+
+# Examples
+```julia
+# basic usage
+latin_small_train, latin_small_val, S_train, S_val = JudiLing.load_S_matrix_from_fasttext(latin_train,
+                                                      latin_val,
+                                                      :la,
+                                                      target_col=:Word)
+```
+"""
+function load_S_matrix_from_fasttext(data_train::DataFrame,
+                                     data_val::DataFrame,
+                                     language::Symbol;
+                                     target_col=:Word,
+                                     default_file::Int=1)
+
+    data_combined = copy(data_train)
+    append!(data_combined, data_val)
+
+    embtable = load_embeddings(FastText_Text{language}, default_file,
+                                     keep_words=Set(data_combined[!, target_col]));
+
+    # code from https://github.com/JuliaText/Embeddings.jl#basic-example
+    get_word_index = Dict(word=>ii for (ii,word) in enumerate(embtable.vocab))
+
+     function get_embedding(word)
+         ind = get_word_index[word]
+         emb = embtable.embeddings[:,ind]
+         return emb
+     end
+
+     function create_S(words)
+     	S = zeros(length(words), size(get_embedding(embtable.vocab[1]),1))
+     	for i in 1:size(S, 1)
+     		S[i,:] = get_embedding(words[i])
+     	end
+     	S
+     end
+
+     data_train_small = filter(row -> haskey(get_word_index,
+                                             row[target_col]),
+                                             data_train)
+
+     data_val_small = filter(row -> haskey(get_word_index,
+                                             row[target_col]),
+                                             data_val)
+
+     S_ft_train = create_S(data_train_small[!,target_col])
+     S_ft_val = create_S(data_val_small[!,target_col])
+
+     return data_train_small, data_val_small, S_ft_train, S_ft_val
+end
+
+"""
     L_Matrix_Struct(L, sd_base, sd_base_mean, sd_inflection, sd_inflection_mean, base_f, infl_f, base_f2i, infl_f2i, n_base_f, n_infl_f, ncol)
 
 Construct L_Matrix_Struct with deep mode.
