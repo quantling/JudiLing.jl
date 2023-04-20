@@ -10,6 +10,10 @@ using CSV
 using GZip
 using PyCall
 using Embeddings
+using Flux
+using BSON: @save, @load
+
+ProgressMeter.ijulia_behavior(:clear)
 
 include("utils.jl")
 include("pyndl.jl")
@@ -26,5 +30,6 @@ include("preprocess.jl")
 include("pickle.jl")
 include("test_combo.jl")
 include("display.jl")
+include("deep_learning.jl")
 
 end
