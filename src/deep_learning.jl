@@ -68,7 +68,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             optimise_for_acc::Bool=false)
 
     # set up early stopping and saving of best models
-    min_loss = 100000000
+    min_loss = typemax(Float64)
     max_acc = 0
 
     function id_func(x)
@@ -84,7 +84,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     flush(stdout)
     if ismissing(model)
         model = Chain(
-            Dense(size(X_train, 2) => hidden_dim, tanh),   # activation function inside layer
+            Dense(size(X_train, 2) => hidden_dim, relu),   # activation function inside layer
             BatchNorm(hidden_dim),
             Dense(hidden_dim => size(Y_train, 2))) |> gpu        # move model to GPU, if available
     end
@@ -151,7 +151,11 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
         end
 
         # early stopping
-        !ismissing(early_stopping) && es(mean_val_loss) && break
+        if optimise_for_acc
+            !ismissing(early_stopping) && es(-acc) && break
+        else
+            !ismissing(early_stopping) && es(mean_val_loss) && break
+        end
     end
 
     @load model_outpath model
