@@ -1386,28 +1386,7 @@ function load_S_matrix_from_fasttext(data::DataFrame,
     embtable = load_embeddings(FastText_Text{language}, default_file,
                                      keep_words=Set(data[!, target_col]));
 
-    # code from https://github.com/JuliaText/Embeddings.jl#basic-example
-    get_word_index = Dict(word=>ii for (ii,word) in enumerate(embtable.vocab))
-
-     function get_embedding(word)
-         ind = get_word_index[word]
-         emb = embtable.embeddings[:,ind]
-         return emb
-     end
-
-     function create_S(words)
-     	S = zeros(length(words), size(get_embedding(embtable.vocab[1]),1))
-     	for i in 1:size(S, 1)
-     		S[i,:] = get_embedding(words[i])
-     	end
-     	S
-     end
-
-     data_small = filter(row -> haskey(get_word_index, row[target_col]), data)
-
-     S_ft = create_S(data_small[!,target_col])
-
-     return data_small, S_ft
+    return(create_S_matrix_from_embeddings(embtable, data, target_col))
 end
 
 """
@@ -1465,6 +1444,37 @@ function load_S_matrix_from_fasttext(data_train::DataFrame,
     embtable = load_embeddings(FastText_Text{language}, default_file,
                                      keep_words=Set(data_combined[!, target_col]));
 
+    return(create_S_matrix_from_embeddings(embtable, data_train, data_val, target_col))
+end
+
+function create_S_matrix_from_embeddings(embtable, data, target_col)
+
+    # code from https://github.com/JuliaText/Embeddings.jl#basic-example
+    get_word_index = Dict(word=>ii for (ii,word) in enumerate(embtable.vocab))
+
+     function get_embedding(word)
+         ind = get_word_index[word]
+         emb = embtable.embeddings[:,ind]
+         return emb
+     end
+
+     function create_S(words)
+     	S = zeros(length(words), size(get_embedding(embtable.vocab[1]),1))
+     	for i in 1:size(S, 1)
+     		S[i,:] = get_embedding(words[i])
+     	end
+     	S
+     end
+
+     data_small = filter(row -> haskey(get_word_index, row[target_col]), data)
+
+     S_ft = create_S(data_small[!,target_col])
+
+     return data_small, S_ft
+end
+
+function create_S_matrix_from_embeddings(embtable, data_train, data_val, target_col)
+
     # code from https://github.com/JuliaText/Embeddings.jl#basic-example
     get_word_index = Dict(word=>ii for (ii,word) in enumerate(embtable.vocab))
 
@@ -1494,6 +1504,103 @@ function load_S_matrix_from_fasttext(data_train::DataFrame,
      S_ft_val = create_S(data_val_small[!,target_col])
 
      return data_train_small, data_val_small, S_ft_train, S_ft_val
+end
+
+
+function my_load_embeddings(filepath, keep_words)
+    """Method adapted from https://github.com/JuliaText/Embeddings.jl/blob/22992d82de9456418880c1f126e3ae2fdc5bfb34/src/word2vec.jl#L26,
+    fixing a bug there and taking out the vector normalisation"""
+    local indexed_words, index, LL
+
+    open(filepath,"r") do fh
+        vocab_size, vector_size = parse.(Int64, split(readline(fh)))
+        max_stored_vocab_size = vocab_size
+
+        indexed_words = Vector{String}(undef, max_stored_vocab_size)
+        LL = Array{Float32}(undef, vector_size, max_stored_vocab_size)
+        index = 1
+        @showprogress for _ in 1:vocab_size
+            word = readuntil(fh, ' ', keep=false)
+            vector = parse.(Float32, split(readline(fh)))
+            if !occursin("_", word) && (length(keep_words)==0 || word in keep_words ) #If it isn't a phrase
+                LL[:,index]=vector
+                indexed_words[index] = word
+
+                index+=1
+                if index>max_stored_vocab_size
+                    break
+                end
+            end
+
+        end
+    end
+
+    LL = LL[:,1:index-1] #throw away unused columns
+    indexed_words = indexed_words[1:index-1] #throw away unused columns
+
+    embtable = Embeddings.EmbeddingTable(LL, indexed_words)
+    return embtable
+end
+
+"""
+    load_S_matrix_from_word2vec_file(data::DataFrame,
+                                filepath::String;
+                                target_col=:Word)
+
+Load semantic matrix from word2vec filepath.
+Subset word2vec vectors to include only words in `target_col` of `data`, and
+subset data to only include words in `target_col` for which semantic vector
+is available.
+Returns subsetted data and semantic matrix.
+
+# Obligatory Arguments
+- `data::DataFrame`: the training dataset
+- `filepath::String`: path to file with word2vec vectors in .txt (not compressed in any way)
+
+# Optional Arguments
+- `target_col=:Word`: column with orthographic representation of words in `data`
+"""
+function load_S_matrix_from_word2vec_file(data::DataFrame, filepath::String; target_col=:Word)
+
+    keep_words = Set(data[!, target_col])
+    embtable = my_load_embeddings(filepath, keep_words)
+
+    return(create_S_matrix_from_embeddings(embtable, data, target_col))
+end
+
+
+"""
+    load_S_matrix_from_word2vec_file(data_train::DataFrame,
+                                data_val::DataFrame,
+                                filepath::String;
+                                target_col=:Word)
+
+Load semantic matrix from word2vec filepath.
+Subset word2vec vectors to include only words in `target_col` of `data_train` and `data_val`, and
+subset data to only include words in `target_col` for which semantic vector
+is available.
+Returns subsetted train and val data and train and val semantic matrices.
+
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `filepath::String`: path to file with word2vec vectors in .txt (not compressed in any way)
+
+# Optional Arguments
+- `target_col=:Word`: column with orthographic representation of words in `data`
+"""
+function load_S_matrix_from_word2vec_file(data_train::DataFrame,
+                                          data_val::DataFrame,
+                                          filepath::String; target_col=:Word)
+
+    data_combined = copy(data_train)
+    append!(data_combined, data_val)
+
+    keep_words = Set(data_combined[!, target_col])
+
+    embtable = my_load_embeddings(filepath, keep_words)
+
+    return(create_S_matrix_from_embeddings(embtable, data_train, data_val, target_col))
 end
 
 """
