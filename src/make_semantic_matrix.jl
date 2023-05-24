@@ -1603,6 +1603,68 @@ function load_S_matrix_from_word2vec_file(data_train::DataFrame,
     return(create_S_matrix_from_embeddings(embtable, data_train, data_val, target_col))
 end
 
+
+"""
+    load_S_matrix_from_fasttext_file(data::DataFrame,
+                                filepath::String;
+                                target_col=:Word)
+
+Load semantic matrix from fasttext filepath.
+Subset fasttext vectors to include only words in `target_col` of `data`, and
+subset data to only include words in `target_col` for which semantic vector
+is available.
+Returns subsetted data and semantic matrix.
+
+# Obligatory Arguments
+- `data::DataFrame`: the training dataset
+- `filepath::String`: path to file with fasttext vectors in .txt or .vec (not compressed in any way)
+
+# Optional Arguments
+- `target_col=:Word`: column with orthographic representation of words in `data`
+"""
+function load_S_matrix_from_fasttext_file(data::DataFrame, filepath::String; target_col=:Word)
+
+    keep_words = Set(data[!, target_col])
+    embtable = load_embeddings(FastText_Text, filepath, keep_words=keep_words)
+
+    return(create_S_matrix_from_embeddings(embtable, data, target_col))
+end
+
+
+"""
+    load_S_matrix_from_fasttext_file(data_train::DataFrame,
+                                data_val::DataFrame,
+                                filepath::String;
+                                target_col=:Word)
+
+Load semantic matrix from fasttext filepath.
+Subset fasttext vectors to include only words in `target_col` of `data_train` and `data_val`, and
+subset data to only include words in `target_col` for which semantic vector
+is available.
+Returns subsetted train and val data and train and val semantic matrices.
+
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `filepath::String`: path to file with fasttext vectors in .txt (not compressed in any way)
+
+# Optional Arguments
+- `target_col=:Word`: column with orthographic representation of words in `data`
+"""
+function load_S_matrix_from_fasttext_file(data_train::DataFrame,
+                                          data_val::DataFrame,
+                                          filepath::String; target_col=:Word)
+
+    data_combined = copy(data_train)
+    append!(data_combined, data_val)
+
+    keep_words = Set(data_combined[!, target_col])
+
+    embtable = load_embeddings(FastText_Text, filepath, keep_words)
+
+    return(create_S_matrix_from_embeddings(embtable, data_train, data_val, target_col))
+end
+
 """
     L_Matrix_Struct(L, sd_base, sd_base_mean, sd_inflection, sd_inflection_mean, base_f, infl_f, base_f2i, infl_f2i, n_base_f, n_infl_f, ncol)
 
