@@ -3,7 +3,7 @@
 
 Display matrix with rownames and colnames.
 """
-function display_matrix(M, rownames, colnames; nrow=6, ncol=6)
+function display_matrix(M, rownames, colnames; nrow=6, ncol=6, return_matrix=false)
     M_part = M[1:nrow, 1:ncol]
     rownames_part = rownames[1:nrow]
     colnames_part = colnames[1:ncol]
@@ -15,6 +15,9 @@ function display_matrix(M, rownames, colnames; nrow=6, ncol=6)
     end
 
     display(df)
+    if return_matrix
+        return(df)
+    end
 end
 
 """
@@ -32,6 +35,7 @@ Display matrix with rownames and colnames.
 # Optional Arguments
 - `nrow::Int64 = 6`: the number of rows to display
 - `ncol::Int64 = 6`: the number of columns to display
+- `return_matrix::Bool = false`: whether the created dataframe should be returned (and not only displayed)
 
 # Examples
 ```julia
@@ -52,9 +56,10 @@ function display_matrix(
     M,
     M_type;
     nrow = 6,
-    ncol = 6
+    ncol = 6,
+    return_matrix=false
     )
-    
+
     if M_type == :C || M_type == "C"
         rownames = data[:,target_col]
         colnames = [cue_obj.i2f[i] for i in 1:size(M,2)]
@@ -80,9 +85,9 @@ function display_matrix(
         rownames = data[:,target_col]
         colnames = data[:,target_col]
     else
-        throw(ArgumentError("type is incorrect, using :C," * 
+        throw(ArgumentError("type is incorrect, using :C," *
             " :S, :Chat, :Shat, :F, :G, :A and :R"))
     end
 
-    display_matrix(M, rownames, colnames, nrow=nrow, ncol=ncol)
+    display_matrix(M, rownames, colnames, nrow=nrow, ncol=ncol, return_matrix=return_matrix)
 end
