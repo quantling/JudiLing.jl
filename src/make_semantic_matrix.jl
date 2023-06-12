@@ -1352,6 +1352,14 @@ Subset fasttext vectors to include only words in `target_col` of `data`, and
 subset data to only include words in `target_col` for which semantic vector
 is available.
 
+The last parameter, default_file, specifies which vectors are loaded.
+To learn about all available vectors, use the following commands:
+```
+using Embeddings
+language_files(FastText_Text{:nl})
+```
+replacing the language code (here `:nl`) with the language you are interested in.
+In general, for all languages other than English, these files are available:
 - `default_file=1` loads from https://fasttext.cc/docs/en/crawl-vectors.html,
   paper: E. Grave*, P. Bojanowski*, P. Gupta, A. Joulin, T. Mikolov,
          Learning Word Vectors for 157 Languages
@@ -1402,6 +1410,14 @@ subset data to only include words in `target_col` for which semantic vector
 is available.
 Returns subsetted train and val data and train and val semantic matrices.
 
+The last parameter, default_file, specifies which vectors are loaded.
+To learn about all available vectors, use the following commands:
+```
+using Embeddings
+language_files(FastText_Text{:nl})
+```
+replacing the language code (here `:nl`) with the language you are interested in.
+In general, for all languages other than English, these files are available:
 - `default_file=1` loads from https://fasttext.cc/docs/en/crawl-vectors.html,
   paper: E. Grave*, P. Bojanowski*, P. Gupta, A. Joulin, T. Mikolov,
          Learning Word Vectors for 157 Languages
