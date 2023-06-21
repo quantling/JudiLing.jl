@@ -1,32 +1,37 @@
 """
-    get_and_train_model(X_train,
-                        Y_train,
-                        X_val,
-                        Y_val,
-                        data_train,
-                        data_val,
-                        target_col,
-                        model_outpath;
-                        hidden_dim = 1000,
-                        n_epochs = 100,
-                        return_losses = false,
-                        verbose = true,
-                        model = missing,
-                        early_stopping = missing,
-                        loss_func = Flux.mse,
-                        batchsize = 64,
-                        optimise_for_acc = false)
+    get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
+                        Y_train::Union{SparseMatrixCSC,Matrix},
+                        X_val::Union{SparseMatrixCSC,Matrix,Missing},
+                        Y_val::Union{SparseMatrixCSC,Matrix,Missing},
+                        data_train::Union{DataFrame,Missing},
+                        data_val::Union{DataFrame,Missing},
+                        target_col::Union{Symbol,String,Missing},
+                        model_outpath::String;
+                        hidden_dim::Int=1000,
+                        n_epochs::Int=100,
+                        batchsize::Int=64,
+                        loss_func::Function=Flux.mse,
+                        optimizer=Flux.Adam(0.001)
+                        model::Union{Missing, Chain}=missing,
+                        early_stopping::Union{Missing, Int}=missing,
+                        optimise_for_acc::Bool=false
+                        return_losses::Bool=false,
+                        verbose::Bool=true,
+                        )
 
 Trains a deep learning model from X_train to Y_train, saving the model with either the highest
 validation accuracy or lowest validation loss (depending on `optimise_for_acc`) to `outpath`.
+
 The default model looks like this:
 ```
 inp_dim = size(X_train, 2)
 out_dim = size(Y_train, 2)
-Chain(Dense(inp_dim => hidden_dim, tanh), BatchNorm(hidden_dim), Dense(hidden_dim => out_dim))
+Chain(Dense(inp_dim => hidden_dim, relu), Dense(hidden_dim => out_dim))
 ```
 Any other model with the same input and output dimensions can be provided to the function with the `model` argument.
 The default loss function is mean squared error, but any other loss function can be provded, as long as it fits with the model architecture.
+
+By default the adam optimizer (Kingma and Ba, 2015) with learning rate 0.001 is used. You can provide any other optimizer. If you want to use a different learning rate, e.g. 0.01, provide `optimizer=Flux.Adam(0.01)`. If you do not want to use an optimizer at all, and simply use normal gradient descent, provide `optimizer=Descent(0.001)`, again replacing the learning rate with the learning rate of your preference.
 
 # Obligatory arguments
 - `X_train::Union{SparseMatrixCSC,Matrix}`: training input matrix of dimension m x n
@@ -41,31 +46,33 @@ The default loss function is mean squared error, but any other loss function can
 # Optional arguments
 - `hidden_dim::Int=1000`: hidden dimension of the model
 - `n_epochs::Int=100`: number of epochs for which the model should be trained
-- `return_losses::Bool=false`: whether additional to the model per-epoch losses for the training and test data as well as per-epoch accuracy on the validation data should be returned
-- `verbose::Bool=true`: Turn on verbose mode
+- `batchsize::Int=64`: batchsize during training
+- `loss_func::Function=Flux.mse`: Loss function. Per default this is the mse loss, but other options might be a crossentropy loss (`Flux.crossentropy`). Make sure the model makes sense with the loss function!
+- `optimizer=Flux.Adam(0.001)`: optimizer to use for training
 - `model::Union{Missing, Chain} = missing`: A custom model can be provided for training. Its requirements are that it has to correspond to the input and output size of the training and validation data
 - `early_stopping::Union{Missing, Int}=missing`: If `missing`, no early stopping is used. Otherwise `early_stopping` indicates how many epochs have to pass without improvement in validation accuracy before the training is stopped.
-- `loss_func::Function=Flux.mse`: Loss function. Per default this is the mse loss, but other options might be a crossentropy loss (`Flux.crossentropy`). Make sure the model makes sense with the loss function!
-- `batchsize::Int=64`: batchsize during training
 - `optimise_for_acc::Bool=false`: if true, keep model with highest validation *accuracy*. If false, keep model with lowest validation *loss*.
+- `return_losses::Bool=false`: whether additional to the model per-epoch losses for the training and test data as well as per-epoch accuracy on the validation data should be returned
+- `verbose::Bool=true`: Turn on verbose mode
 """
 function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             Y_train::Union{SparseMatrixCSC,Matrix},
-                            X_val::Union{SparseMatrixCSC,Matrix},
-                            Y_val::Union{SparseMatrixCSC,Matrix},
-                            data_train::DataFrame,
-                            data_val::DataFrame,
-                            target_col::Union{Symbol, String},
+                            X_val::Union{SparseMatrixCSC,Matrix,Missing},
+                            Y_val::Union{SparseMatrixCSC,Matrix,Missing},
+                            data_train::Union{DataFrame,Missing},
+                            data_val::Union{DataFrame,Missing},
+                            target_col::Union{Symbol, String,Missing},
                             model_outpath::String;
                             hidden_dim::Int=1000,
                             n_epochs::Int=100,
-                            return_losses::Bool=false,
-                            verbose::Bool=true,
+                            batchsize::Int=64,
+                            loss_func::Function=Flux.mse,
+                            optimizer=Flux.Adam(0.001),
                             model::Union{Missing, Chain} = missing,
                             early_stopping::Union{Missing, Int}=missing,
-                            loss_func::Function=Flux.mse,
-                            batchsize::Int=64,
-                            optimise_for_acc::Bool=false)
+                            optimise_for_acc::Bool=false,
+                            return_losses::Bool=false,
+                            verbose::Bool=true)
 
     # set up early stopping and saving of best models
     min_loss = typemax(Float64)
@@ -76,7 +83,12 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     end
 
     if !ismissing(early_stopping)
-        es = Flux.early_stopping(id_func, early_stopping, init_score=min_loss)
+        if optimise_for_acc
+            init_score = max_acc
+        else
+            init_score = min_loss
+        end
+        es = Flux.early_stopping(id_func, early_stopping, init_score=init_score)
     end
 
     # Set up the model if not provided
@@ -85,7 +97,6 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     if ismissing(model)
         model = Chain(
             Dense(size(X_train, 2) => hidden_dim, relu),   # activation function inside layer
-            BatchNorm(hidden_dim),
             Dense(hidden_dim => size(Y_train, 2))) |> gpu        # move model to GPU, if available
     end
 
@@ -100,7 +111,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     # Set up optimizer
     verbose && println("Setting up optimizer...")
     flush(stdout)
-    optim = Flux.setup(Flux.Adam(0.001), model)  # will store optimiser momentum, etc.
+    optim = Flux.setup(optimizer, model)  # will store optimiser momentum, etc.
 
     verbose && println("Training...")
     flush(stdout)
@@ -130,31 +141,41 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
         push!(losses_train, mean_train_loss)
 
         # Compute validation loss
-        Yhat_val = model(X_val')
-        mean_val_loss = loss_func(Yhat_val, Y_val')
-        push!(losses_val, mean_val_loss)
+        if !ismissing(X_val) & !ismissing(Y_val)
+            Yhat_val = model(X_val')
+            mean_val_loss = loss_func(Yhat_val, Y_val')
+            push!(losses_val, mean_val_loss)
 
-        # Compute validation accuracy
-        acc = JudiLing.eval_SC(Yhat_val', Y_val, Y_train, data_val, data_train, target_col)
-        push!(accs_val, acc)
+            # Compute validation accuracy
+            acc = JudiLing.eval_SC(Yhat_val', Y_val, Y_train, data_val, data_train, target_col)
+            push!(accs_val, acc)
 
-        # update progress bar with training and validation losses and accuracy
-        ProgressMeter.next!(p; showvalues = [("Training loss",mean_train_loss),
-                                             ("Validation loss",mean_val_loss),
-                                             ("Validation accuracy", acc)])
 
-        # Save if model with highest accuracy
-        if (optimise_for_acc && (acc > max_acc)) || (!optimise_for_acc && (mean_val_loss < min_loss))
-            @save model_outpath model
-            max_acc = acc
-            min_loss = mean_val_loss
-        end
+            # update progress bar with training and validation losses and accuracy
+            ProgressMeter.next!(p; showvalues = [("Training loss",mean_train_loss),
+                                                 ("Validation loss",mean_val_loss),
+                                                 ("Validation accuracy", acc)])
 
-        # early stopping
-        if optimise_for_acc
-            !ismissing(early_stopping) && es(-acc) && break
+             # Save if model with highest accuracy
+             if (optimise_for_acc && (acc > max_acc)) || (!optimise_for_acc && (mean_val_loss < min_loss))
+                 @save model_outpath model
+                 max_acc = acc
+                 min_loss = mean_val_loss
+             end
+
+             # early stopping
+             if optimise_for_acc
+                 !ismissing(early_stopping) && es(-acc) && break
+             else
+                 !ismissing(early_stopping) && es(mean_val_loss) && break
+             end
         else
-            !ismissing(early_stopping) && es(mean_val_loss) && break
+
+            @save model_outpath model
+
+            # update progress bar with training and validation losses and accuracy
+            ProgressMeter.next!(p; showvalues = [("Training loss",mean_train_loss)])
+
         end
     end
 
@@ -162,7 +183,83 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
 
     return_losses && return(model, losses_train, losses_val, accs_val)
     return(model)
+
 end
+
+"""
+    get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
+                        Y_train::Union{SparseMatrixCSC,Matrix},
+                        model_outpath::String;
+                        hidden_dim::Int=1000,
+                        n_epochs::Int=100,
+                        batchsize::Int=64,
+                        loss_func::Function=Flux.mse,
+                        optimizer=Flux.Adam(0.001),
+                        model::Union{Missing, Chain} = missing,
+                        return_losses::Bool=false,
+                        verbose::Bool=true)
+
+Trains a deep learning model from X_train to Y_train, saving the model after n_epochs epochs.
+The default model looks like this:
+
+```
+inp_dim = size(X_train, 2)
+out_dim = size(Y_train, 2)
+Chain(Dense(inp_dim => hidden_dim, relu), Dense(hidden_dim => out_dim))
+```
+
+Any other model with the same input and output dimensions can be provided to the function with the `model` argument.
+The default loss function is mean squared error, but any other loss function can be provded, as long as it fits with the model architecture.
+
+By default the adam optimizer (Kingma and Ba, 2015) with learning rate 0.001 is used. You can provide any other optimizer. If you want to use a different learning rate, e.g. 0.01, provide `optimizer=Flux.Adam(0.01)`. If you do not want to use an optimizer at all, and simply use normal gradient descent, provide `optimizer=Descent(0.001)`, again replacing the learning rate with the learning rate of your preference.
+
+# Obligatory arguments
+- `X_train::Union{SparseMatrixCSC,Matrix}`: training input matrix of dimension m x n
+- `Y_train::Union{SparseMatrixCSC,Matrix}`: training output/target matrix of dimension m x k
+- `model_outpath::String`: filepath to where final model should be stored (in .bson format)
+
+# Optional arguments
+- `hidden_dim::Int=1000`: hidden dimension of the model
+- `n_epochs::Int=100`: number of epochs for which the model should be trained
+- `batchsize::Int=64`: batchsize during training
+- `loss_func::Function=Flux.mse`: Loss function. Per default this is the mse loss, but other options might be a crossentropy loss (`Flux.crossentropy`). Make sure the model makes sense with the loss function!
+- `optimizer=Flux.Adam(0.001)`: optimizer to use for training
+- `model::Union{Missing, Chain} = missing`: A custom model can be provided for training. Its requirements are that it has to correspond to the input and output size of the training and validation data
+- `return_losses::Bool=false`: whether additional to the model per-epoch losses for the training and test data as well as per-epoch accuracy on the validation data should be returned
+- `verbose::Bool=true`: Turn on verbose mode
+"""
+function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
+                            Y_train::Union{SparseMatrixCSC,Matrix},
+                            model_outpath::String;
+                            hidden_dim::Int=1000,
+                            n_epochs::Int=100,
+                            batchsize::Int=64,
+                            loss_func::Function=Flux.mse,
+                            optimizer=Flux.Adam(0.001),
+                            model::Union{Missing, Chain} = missing,
+                            return_losses::Bool=false,
+                            verbose::Bool=true)
+
+    get_and_train_model(X_train,
+                        Y_train,
+                        missing,
+                        missing,
+                        missing,
+                        missing,
+                        missing,
+                        model_outpath;
+                        hidden_dim=hidden_dim,
+                        n_epochs=n_epochs,
+                        return_losses=return_losses,
+                        verbose=verbose,
+                        model=model,
+                        early_stopping=missing,
+                        loss_func=loss_func,
+                        batchsize=batchsize,
+                        optimise_for_acc=false,
+                        optimizer=optimizer)
+end
+
 
 """
     predict_from_deep_model(model::Chain,
