@@ -106,7 +106,11 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     # create data loader for training data
     verbose && println("Setting up data structures...")
     flush(stdout)
-    loader_train = Flux.DataLoader((X_train', Y_train') |> gpu, batchsize=batchsize, shuffle=true);
+    loader_train = Flux.DataLoader((X_train', Y_train') , batchsize=batchsize, shuffle=true);
+    
+    if !ismissing(X_val) & !ismissing(Y_val)
+        loader_val = Flux.DataLoader((X_val', Y_val'), batchsize=batchsize, shuffle=true);
+    end
 
     # Set up optimizer
     verbose && println("Setting up optimizer...")
@@ -127,7 +131,9 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     # training for n_epochs epochs
     for epoch in 1:n_epochs
         all_losses_epoch_train = []
-        for (x, y) in loader_train
+        for (x_cpu, y_cpu) in loader_train
+            x = x_cpu |> gpu
+            y = y_cpu |> gpu
             loss, grads = Flux.withgradient(model) do m
                 # Evaluate model and loss inside gradient context:
                 y_hat = m(x)
@@ -141,13 +147,25 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
         push!(losses_train, mean_train_loss)
 
         # Compute validation loss
-        if !ismissing(X_val) & !ismissing(Y_val)
-            Yhat_val = model(X_val')
-            mean_val_loss = loss_func(Yhat_val, Y_val')
+        if !ismissing(X_val) & !ismissing(Y_val)        
+            all_losses_epoch_val = []
+            #create array object to append predictions to (we'll skip the first line of ones, but it needs the right shape)
+            preds_val = ones(1,size(Y_val,2))
+            
+            for (x_cpu, y_cpu) in loader_val
+                x= x_cpu |> gpu
+                y = y_cpu |> gpu
+                
+                Yhat_val = model(x)|> cpu
+                preds_val = vcat(preds_val,Yhat_val')
+                loss_val = loss_func(Yhat_val, y|> cpu)
+                push!(all_losses_epoch_val,loss_val)
+            end
+            mean_val_loss = mean(all_losses_epoch_val)
             push!(losses_val, mean_val_loss)
-
+            
             # Compute validation accuracy
-            acc = JudiLing.eval_SC(Yhat_val', Y_val, Y_train, data_val, data_train, target_col)
+            acc = JudiLing.eval_SC(preds_val[2:size(Y_val,1)+1,:], Y_val, Y_train, data_val, data_train, target_col)
             push!(accs_val, acc)
 
 
