@@ -109,7 +109,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     loader_train = Flux.DataLoader((X_train', Y_train') , batchsize=batchsize, shuffle=true);
     
     if !ismissing(X_val) & !ismissing(Y_val)
-        loader_val = Flux.DataLoader((X_val', Y_val'), batchsize=batchsize, shuffle=true);
+        loader_val = Flux.DataLoader((X_val', Y_val'), batchsize=batchsize, shuffle=false);
     end
 
     # Set up optimizer
