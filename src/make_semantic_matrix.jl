@@ -1321,7 +1321,7 @@ is available.
 
 The last parameter, default_file, specifies which vectors are loaded.
 To learn about all available vectors, use the following commands:
-```
+```julia
 using Embeddings
 language_files(FastText_Text{:nl})
 ```
@@ -1379,7 +1379,7 @@ Returns subsetted train and val data and train and val semantic matrices.
 
 The last parameter, default_file, specifies which vectors are loaded.
 To learn about all available vectors, use the following commands:
-```
+```julia
 using Embeddings
 language_files(FastText_Text{:nl})
 ```
