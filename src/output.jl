@@ -427,10 +427,23 @@ JudiLing.write2df(ts)
 function write2df(ts::Threshold_Stat_Struct)
     n = ts.timestep
 
-    df = DataFrame(vcat([Int64, Float64, Float64], [Float64 for k in 1:2n]),
-        vcat([:utterance, :threshold, :tolerance], [Symbol("thr_prop_$k") for k in 1:n], [Symbol("tlr_prop_$k") for k in 1:n]),
-        0)
 
+
+    # df = DataFrame(vcat([Int64, Float64, Float64], [Float64 for k in 1:2n]),
+    #     vcat([:utterance, :threshold, :tolerance], [Symbol("thr_prop_$k") for k in 1:n], [Symbol("tlr_prop_$k") for k in 1:n]),
+    #     0)
+
+    # utterance = Vector{Int64}()
+    # threshold = Vector{Float64}()
+    # tolerance = Vector{Float64}()
+    # threshold_prop = Matrix{Float64}(undef, 0, 2n)
+    thr_prop_dict = Dict(Symbol("thr_prop_$k") => Vector{Float64}() for k in 1:n)
+    tlr_prop_dict = Dict(Symbol("tlr_prop_$k") => Vector{Float64}() for k in 1:n)
+    df = DataFrame(merge(Dict(:utterance => Vector{Int64}(),
+                    :threshold => Vector{Float64}(),
+                    :tolerance => Vector{Float64}()),
+                    thr_prop_dict, tlr_prop_dict)
+                    )
     for i in 1:ts.n_rows
         push!(df, vcat([i, ts.threshold, ts.tolerance], ts.threshold_prop[i,:], ts.tolerance_prop[i,:]))
     end
@@ -454,7 +467,7 @@ JudiLing.save_L_matrix(L, joinpath(@__DIR__, "L.csv"))
 """
 function save_L_matrix(L, filename)
 
-    L_df = DataFrame(L.L)
+    L_df = DataFrame(L.L, :auto)
     insertcols!(L_df, 1, :col_names => L.i2f)
     CSV.write(filename, L_df, quotestrings = true, header = false)
     nothing
@@ -508,7 +521,7 @@ JudiLing.save_S_matrix(S, joinpath(@__DIR__, "S.csv"), latin, :Word)
 """
 function save_S_matrix(S, filename, data, target_col; sep = " ")
 
-    S_df = DataFrame(S)
+    S_df = DataFrame(S, :auto)
     insertcols!(S_df, 1, :col_names => data[:,target_col])
     CSV.write(filename, S_df, quotestrings = true, header = false, delim=sep)
     nothing
