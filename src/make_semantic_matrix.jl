@@ -984,6 +984,15 @@ function make_combined_L_matrix(
 )
 
     data_combined = copy(data_train)
+    data_val = copy(data_val)
+    for col in names(data_combined)
+        if any(map(x -> x isa InlineString, data_combined[!,col]))
+            data_combined[!, col] = String.(data_combined[!,col])
+        end
+        if any(map(x -> x isa InlineString, data_val[!,col]))
+            data_val[!, col] = String.(data_val[!, col])
+        end
+    end
     append!(data_combined, data_val)
 
     make_L_matrix(
