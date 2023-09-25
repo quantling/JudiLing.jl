@@ -9,6 +9,7 @@ using ProgressMeter
 using CSV
 using GZip
 using Embeddings
+using BSON: @save, @load
 using Requires
 
 function __init__()
@@ -17,6 +18,8 @@ function __init__()
      @eval include("pickle.jl")
      @eval include("pyndl.jl")
  end
+ @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" @eval include("deep_learning.jl")
+ ProgressMeter.ijulia_behavior(:clear)
 end
 
 include("utils.jl")
