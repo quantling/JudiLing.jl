@@ -168,6 +168,7 @@ end
     @test JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 2, latin_val, latin_train, :Word) == 1
     @test JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 1, latin_val, latin_train, :Word) == 1
     @test JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 2, latin_val, latin_train, :Word) == 1
+
 end
 
 @testset "accuracy_comprehension" begin
@@ -429,4 +430,56 @@ end
 
     @test JudiLing.eval_SC(Chat_train, cue_obj_train.C, cue_obj_val.C, latin_train, latin_val, :Word) ≈ 1
     @test JudiLing.eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C, latin_val, latin_train, :Word) > 0.15
+end
+
+@testset "inlinestrings" begin
+    latin_train = DataFrame(CSV.File(joinpath("data", "latin_train.csv")))
+    latin_val = DataFrame(CSV.File(joinpath("data", "latin_val.csv")))
+
+    cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(
+        latin_train,
+        latin_val,
+        grams = 3,
+        target_col = :Word,
+        tokenized = false,
+        keep_sep = false,
+    )
+
+    n_features = size(cue_obj_train.C, 2)
+    S_train, S_val = JudiLing.make_combined_S_matrix(
+        latin_train,
+        latin_val,
+        [:Lexeme],
+        [:Person],
+        ncol = n_features,
+        add_noise = false
+    )
+
+    G = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
+    Chat_val = S_val * G
+    Chat_train = S_train * G
+    F = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
+    Shat_val = cue_obj_val.C * F
+    Shat_train = cue_obj_train.C * F
+
+    JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 1, latin_val, latin_train, :Word)
+    JudiLing.eval_SC_loose(Chat_val, cue_obj_val.C, cue_obj_train.C, 2, latin_val, latin_train, :Word)
+    JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 1, latin_val, latin_train, :Word)
+    JudiLing.eval_SC_loose(Shat_val, S_val, S_train, 2, latin_val, latin_train, :Word)
+
+    JudiLing.eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C, latin_val, latin_train, :Word)
+    JudiLing.eval_SC(Chat_val, cue_obj_val.C, cue_obj_train.C, latin_val, latin_train, :Word)
+    JudiLing.eval_SC(Shat_val, S_val, S_train, latin_val, latin_train, :Word)
+    JudiLing.eval_SC(Shat_val, S_val, S_train, latin_val, latin_train, :Word)
+
+    acc_comp = JudiLing.accuracy_comprehension(
+        S_val,
+        S_train,
+        Shat_val,
+        latin_val,
+        latin_train;
+        target_col = :Word,
+        base = [:Lexeme],
+        inflections = [:Person],
+    )
 end
