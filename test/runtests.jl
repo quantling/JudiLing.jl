@@ -51,3 +51,7 @@ end
 @safetestset "wh tests" begin
     include("wh_tests.jl")
 end
+
+@safetestset "deep learning tests" begin
+    include("deep_learning_tests.jl")
+end
