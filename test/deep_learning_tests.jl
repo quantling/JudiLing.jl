@@ -56,7 +56,7 @@ end
     @test JudiLing.eval_SC(Shat_train, S_train) ≈ 1.0
     @test JudiLing.eval_SC(Shat_val, S_val) < 1.0
     @test JudiLing.eval_SC(Shat_val, S_val) >= 0.0
-    @test Flux.mse(Shat_val', S_val') == findmin(losses_val)[1]
+    @test Flux.mse(Shat_val', S_val') ≈ findmin(losses_val)[1]
 
     model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(S_train,
                                 cue_obj_train.C,

@@ -77,11 +77,6 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             return_losses::Bool=false,
                             verbose::Bool=true)
 
-    X_train = Matrix(X_train)
-    Y_train = Matrix(Y_train)
-    !ismissing(X_val) && (X_val = Matrix(X_val))
-    !ismissing(Y_val) && (Y_val = Matrix(Y_val))
-
     # set up early stopping and saving of best models
     min_loss = typemax(Float64)
     max_acc = 0
@@ -167,7 +162,9 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
 
                 Yhat_val = model(x)|> cpu
                 preds_val = vcat(preds_val,Yhat_val')
-                loss_val = loss_func(Yhat_val, y_cpu)
+                # for some reason, I have to make sure y_cpu is not sparse here.
+                # I have no idea why
+                loss_val = loss_func(Yhat_val, Matrix(y_cpu))
                 push!(all_losses_epoch_val,loss_val)
             end
             mean_val_loss = mean(all_losses_epoch_val)
