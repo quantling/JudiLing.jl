@@ -258,3 +258,11 @@ function cal_max_timestep(
 
     max_l_words + 1
 end
+
+function inlinestring2string(s)
+    if s isa InlineString
+        return String(s)
+    else
+        return s
+    end
+end

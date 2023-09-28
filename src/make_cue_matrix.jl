@@ -414,14 +414,10 @@ function make_combined_cue_matrix(
     data_combined = copy(data_train)
     data_val = copy(data_val)
     for col in names(data_combined)
-        if any(map(x -> x isa InlineString, data_combined[!,col]))
-            data_combined[!, col] = String.(data_combined[!,col])
-        end
-        if any(map(x -> x isa InlineString, data_val[!,col]))
-            data_val[!, col] = String.(data_val[!, col])
-        end
+        data_combined[!, col] = inlinestring2string.(data_combined[!,col])
+        data_val[!, col] = inlinestring2string.(data_val[!,col])
     end
-    append!(data_combined, data_val)
+    append!(data_combined, data_val, promote=true)
 
     cue_obj_combined = make_cue_matrix(
         data_combined,

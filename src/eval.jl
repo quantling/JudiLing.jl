@@ -154,15 +154,11 @@ function accuracy_comprehension(
     data_combined = copy(data_val)
     data_train = copy(data_train)
     for col in names(data_combined)
-        if any(map(x -> x isa InlineString, data_combined[!,col]))
-            data_combined[!, col] = String.(data_combined[!,col])
-        end
-        if any(map(x -> x isa InlineString, data_train[!,col]))
-            data_train[!, col] = String.(data_train[!, col])
-        end
+        data_combined[!, col] = inlinestring2string.(data_combined[!,col])
+        data_train[!, col] = inlinestring2string.(data_train[!,col])
     end
 
-    append!(data_combined, data_train)
+    append!(data_combined, data_train, promote=true)
 
     corMat = cor(Shat_val, S, dims = 2)
     top_index = [i[2] for i in argmax(corMat, dims = 2)]
@@ -370,12 +366,8 @@ function eval_SC(
     data = copy(data)
     data_rest = copy(data_rest)
     for col in names(data)
-        if any(map(x -> x isa InlineString, data[!,col]))
-            data[!, col] = String.(data[!,col])
-        end
-        if any(map(x -> x isa InlineString, data_rest[!,col]))
-            data_rest[!, col] = String.(data_rest[!, col])
-        end
+        data[!, col] = inlinestring2string.(data[!,col])
+        data_rest[!, col] = inlinestring2string.(data_rest[!,col])
     end
 
     if n_data > n_data_rest
@@ -384,8 +376,8 @@ function eval_SC(
         data_combined = similar(data_rest, 0)
     end
 
-    append!(data_combined, data)
-    append!(data_combined, data_rest)
+    append!(data_combined, data, promote=true)
+    append!(data_combined, data_rest, promote=true)
 
     eval_SC(
         SChat,
@@ -714,12 +706,8 @@ function eval_SC_loose(SChat, SC, SC_rest, k, data, data_rest, target_col; digit
     data = copy(data)
     data_rest = copy(data_rest)
     for col in names(data)
-        if any(map(x -> x isa InlineString, data[!,col]))
-            data[!, col] = String.(data[!,col])
-        end
-        if any(map(x -> x isa InlineString, data_rest[!,col]))
-            data_rest[!, col] = String.(data_rest[!, col])
-        end
+        data[!, col] = inlinestring2string.(data[!,col])
+        data_rest[!, col] = inlinestring2string.(data_rest[!,col])
     end
 
     if n_data > n_data_rest
@@ -728,8 +716,8 @@ function eval_SC_loose(SChat, SC, SC_rest, k, data, data_rest, target_col; digit
         data_combined = similar(data_rest, 0)
     end
 
-    append!(data_combined, data)
-    append!(data_combined, data_rest)
+    append!(data_combined, data, promote=true)
+    append!(data_combined, data_rest, promote=true)
 
     eval_SC_loose(SChat, SC_combined, k, data_combined, target_col, digits=digits)
 end
