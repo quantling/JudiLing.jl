@@ -184,6 +184,31 @@ end
     @test S_val[1, :] == L.L[L.f2i["F"], :]
     @test S_val[2, :] == L.L[L.f2i["M"], :]
     @test S_val[3, :] == zeros(Float64, n_features)
+
+    train = DataFrame(CSV.File(joinpath(
+        @__DIR__,
+        "data",
+        "latin_train.csv",
+    )))
+    val = DataFrame(CSV.File(joinpath(
+        @__DIR__,
+        "data",
+        "latin_val.csv",
+    )))
+
+    # check that indeed there are columns with differing string types
+    println(typeof(train.Word) != typeof(val.Word))
+
+    # but make combined cue matrix still runs
+    S_train, S_val = JudiLing.make_combined_S_matrix(
+        train,
+        val,
+        ["Lexeme"],
+        ncol = n_features,
+        seed = seed,
+        isdeep = true,
+        add_noise = false,
+    )
 end
 
 @testset "make L matrix" begin

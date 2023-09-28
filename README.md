@@ -58,6 +58,28 @@ using CSV # read csv files into dataframes
 using DataFrames # parse data into dataframes
 ```
 
+**Note:**
+With JudiLing 0.8.0, [PyCall](https://github.com/JuliaPy/PyCall.jl) and [Flux](https://fluxml.ai/Flux.jl/stable/) have become optional dependencies. This means that all code in JudiLing which requires calls to python is only available if PyCall is loaded first, like this:
+```
+using PyCall
+using JudiLing
+```
+Likewise, the code involving deep learning is only available if Julia's deep learning library Flux is loaded first, like this:
+```
+using Flux
+using JudiLing
+```
+Note that Flux and PyCall have to be installed separately.
+
+## Running Julia with multiple threads
+JudiLing supports the use of multiple threads. Simply start up Julia in your terminal as follows:
+
+```
+$ julia -t your_num_of_threads
+```
+
+For detailed information on using Julia with threads, see this [link](https://docs.julialang.org/en/v1/manual/multi-threading/).
+
 ## Quick start example
 The Latin dataset [latin.csv](https://osf.io/2ejfu/download) contains lexemes and inflectional features for 672 inflected Latin verb forms for 8 lexemes from 4 conjugation classes. Word forms are inflected for person, number, tense, voice and mood.
 
@@ -557,7 +579,7 @@ There are two types of supports in outputs. An utterance level and a set of supp
 
 ## Acknowledgments
 
-This project was supported by the ERC advanced grant WIDE-742545.
+This project was supported by the ERC advanced grant WIDE-742545 and by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany’s Excellence Strategy - EXC number 2064/1 - Project number 390727645.
 
 ## Citation
 

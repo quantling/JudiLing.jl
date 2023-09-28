@@ -98,4 +98,28 @@ end
     @test cue_obj_val.f2i["oco"] == 3
     @test cue_obj_train.A[1, 3] == 0
     @test cue_obj_val.A[1, 3] == 0
+
+    latin_train = DataFrame(CSV.File(joinpath(
+        @__DIR__,
+        "data",
+        "latin_train.csv",
+    )))
+    latin_val = DataFrame(CSV.File(joinpath(
+        @__DIR__,
+        "data",
+        "latin_val.csv",
+    )))
+
+    # check that indeed there are columns with differing string types
+    println(typeof(latin_train.Word) != typeof(latin_val.Word))
+
+    # but make combined cue matrix still runs
+    cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(
+        latin_train,
+        latin_val,
+        grams = 3,
+        target_col = :Word,
+        tokenized = false,
+        keep_sep = false,
+    )
 end

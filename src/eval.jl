@@ -152,6 +152,16 @@ function accuracy_comprehension(
     S = vcat(S_val, S_train)
 
     data_combined = copy(data_val)
+    data_train = copy(data_train)
+    for col in names(data_combined)
+        if any(map(x -> x isa InlineString, data_combined[!,col]))
+            data_combined[!, col] = String.(data_combined[!,col])
+        end
+        if any(map(x -> x isa InlineString, data_train[!,col]))
+            data_train[!, col] = String.(data_train[!, col])
+        end
+    end
+
     append!(data_combined, data_train)
 
     corMat = cor(Shat_val, S, dims = 2)
@@ -356,6 +366,17 @@ function eval_SC(
 
     n_data = size(data, 1)
     n_data_rest = size(data_rest, 1)
+
+    data = copy(data)
+    data_rest = copy(data_rest)
+    for col in names(data)
+        if any(map(x -> x isa InlineString, data[!,col]))
+            data[!, col] = String.(data[!,col])
+        end
+        if any(map(x -> x isa InlineString, data_rest[!,col]))
+            data_rest[!, col] = String.(data_rest[!, col])
+        end
+    end
 
     if n_data > n_data_rest
         data_combined = similar(data, 0)
@@ -689,6 +710,17 @@ function eval_SC_loose(SChat, SC, SC_rest, k, data, data_rest, target_col; digit
 
     n_data = size(data, 1)
     n_data_rest = size(data_rest, 1)
+
+    data = copy(data)
+    data_rest = copy(data_rest)
+    for col in names(data)
+        if any(map(x -> x isa InlineString, data[!,col]))
+            data[!, col] = String.(data[!,col])
+        end
+        if any(map(x -> x isa InlineString, data_rest[!,col]))
+            data_rest[!, col] = String.(data_rest[!, col])
+        end
+    end
 
     if n_data > n_data_rest
         data_combined = similar(data, 0)

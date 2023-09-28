@@ -56,7 +56,7 @@ word, which n-grams are best supported for a given position in the sequence of n
 - `data_val::DataFrame`: the validation dataset
 - `C_train::Union{SparseMatrixCSC, Matrix}`: the C matrix for training dataset
 - `S_val::Union{SparseMatrixCSC, Matrix}`: the S matrix for validation dataset
-- `F_train::Union{SparseMatrixCSC, Matrix}`: the F matrix for training dataset
+- `F_train::Union{SparseMatrixCSC, Matrix, Chain}`: the F matrix for training dataset, or a deep learning comprehension model trained on the training data
 - `Chat_val::Union{SparseMatrixCSC, Matrix}`: the Chat matrix for validation dataset
 - `A::SparseMatrixCSC`: the adjacency matrix
 - `i2f::Dict`: the dictionary returning features given indices
@@ -78,7 +78,7 @@ word, which n-grams are best supported for a given position in the sequence of n
 - `keep_sep::Bool=false`:if true, keep separators in cues
 - `target_col::Union{String, :Symbol}=:Words`: the column name for target strings
 - `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
-- `issparse::Symbol=:auto`: control of whether output of Mt matrix is a dense matrix or a sparse matrix
+- `issparse::Union{Symbol, Bool}=:auto`: control of whether output of Mt matrix is a dense matrix or a sparse matrix
 - `sparse_ratio::Float64=0.05`: the ratio to decide whether a matrix is sparse
 - `if_pca::Bool=false`: turn on to enable pca mode
 - `pca_eval_M::Matrix=nothing`: pass original F for pca mode
@@ -207,38 +207,38 @@ verbose=true);
 ```
 """
 function learn_paths(
-    data_train,
-    data_val,
-    C_train,
-    S_val,
+    data_train::DataFrame,
+    data_val::DataFrame,
+    C_train::Union{Matrix, SparseMatrixCSC},
+    S_val::Union{Matrix, SparseMatrixCSC},
     F_train,
-    Chat_val,
-    A,
-    i2f,
-    f2i;
-    gold_ind = nothing,
-    Shat_val = nothing,
-    check_gold_path = false,
-    max_t = 15,
-    max_can = 10,
-    threshold = 0.1,
-    is_tolerant = false,
-    tolerance = (-1000.0),
-    max_tolerance = 3,
-    grams = 3,
-    tokenized = false,
-    sep_token = nothing,
-    keep_sep = false,
-    target_col = "Words",
-    start_end_token = "#",
-    issparse = :auto,
-    sparse_ratio = 0.05,
-    if_pca = false,
-    pca_eval_M = nothing,
-    activation = nothing,
-    ignore_nan = true,
-    check_threshold_stat = false,
-    verbose = false
+    Chat_val::Union{Matrix, SparseMatrixCSC},
+    A::SparseMatrixCSC,
+    i2f::Dict,
+    f2i::Dict;
+    gold_ind::Union{Nothing, Vector} = nothing,
+    Shat_val::Union{Nothing, Matrix} = nothing,
+    check_gold_path::Bool = false,
+    max_t::Int = 15,
+    max_can::Int = 10,
+    threshold::Float64 = 0.1,
+    is_tolerant::Bool = false,
+    tolerance::Float64 = (-1000.0),
+    max_tolerance::Int = 3,
+    grams::Int = 3,
+    tokenized::Bool = false,
+    sep_token::Union{Nothing, String} = nothing,
+    keep_sep::Bool = false,
+    target_col::Union{Symbol, String} = "Words",
+    start_end_token::String = "#",
+    issparse::Union{Symbol, Bool} = :auto,
+    sparse_ratio::Float64 = 0.05,
+    if_pca::Bool = false,
+    pca_eval_M::Union{Nothing, Matrix} = nothing,
+    activation::Union{Nothing, Function} = nothing,
+    ignore_nan::Bool = true,
+    check_threshold_stat::Bool = false,
+    verbose::Bool = false
 )
 
     # initialize queues for storing paths
@@ -517,7 +517,7 @@ for users who is very new to JudiLing and learn_paths function.
 - `data::DataFrame`: the training dataset
 - `cue_obj::Cue_Matrix_Struct`: the C matrix object containing all information with C
 - `S_val::Union{SparseMatrixCSC, Matrix}`: the S matrix for validation dataset
-- `F_train::Union{SparseMatrixCSC, Matrix}`: the F matrix for training dataset
+- `F_train::Union{SparseMatrixCSC, Matrix, Chain}`: either the F matrix for training dataset, or a deep learning comprehension model trained on the training set
 - `Chat_val::Union{SparseMatrixCSC, Matrix}`: the Chat matrix for validation dataset
 
 # Optional Arguments
@@ -537,20 +537,20 @@ res = learn_paths(latin, cue_obj, S, F, Chat)
 ```
 """
 function learn_paths(
-    data,
-    cue_obj,
-    S_val,
+    data::DataFrame,
+    cue_obj::Cue_Matrix_Struct,
+    S_val::Union{SparseMatrixCSC, Matrix},
     F_train,
-    Chat_val;
-    Shat_val = nothing,
-    check_gold_path = false,
-    threshold = 0.1,
-    is_tolerant = false,
-    tolerance = (-1000.0),
-    max_tolerance = 3,
-    activation = nothing,
-    ignore_nan = true,
-    verbose = true)
+    Chat_val::Union{SparseMatrixCSC, Matrix};
+    Shat_val::Union{Nothing, Matrix} = nothing,
+    check_gold_path::Bool = false,
+    threshold::Float64 = 0.1,
+    is_tolerant::Bool = false,
+    tolerance::Float64 = (-1000.0),
+    max_tolerance::Int = 3,
+    activation::Union{Nothing, Function} = nothing,
+    ignore_nan::Bool = true,
+    verbose::Bool = true)
 
     max_t = JudiLing.cal_max_timestep(data, cue_obj.target_col,
         tokenized=cue_obj.tokenized, sep_token=cue_obj.sep_token)
@@ -796,41 +796,77 @@ end
     learn_paths_rpi(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
 
 Calculate learn_paths with results indices supports as well.
+
+# Obligatory Arguments
+- `data::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+- `C_train::Union{SparseMatrixCSC, Matrix}`: the C matrix for training dataset
+- `S_val::Union{SparseMatrixCSC, Matrix}`: the S matrix for validation dataset
+- `F_train::Union{SparseMatrixCSC, Matrix, Chain}`: the F matrix for training dataset, or a deep learning comprehension model trained on the training data
+- `Chat_val::Union{SparseMatrixCSC, Matrix}`: the Chat matrix for validation dataset
+- `A::SparseMatrixCSC`: the adjacency matrix
+- `i2f::Dict`: the dictionary returning features given indices
+- `f2i::Dict`: the dictionary returning indices given features
+
+# Optional Arguments
+- `gold_ind::Union{Nothing, Vector}=nothing`: gold paths' indices
+- `Shat_val::Union{Nothing, Matrix}=nothing`: the Shat matrix for the validation dataset
+- `check_gold_path::Bool=false`: if true, return a list of support values for the gold path; this information is returned as second output value
+- `max_t::Int64=15`: maximum timestep
+- `max_can::Int64=10`: maximum number of candidates to consider
+- `threshold::Float64=0.1`:the value set for the support such that if the support of an n-gram is higher than this value, the n-gram will be taking into consideration
+- `is_tolerant::Bool=false`: if true, select a specified number (given by `max_tolerance`) of n-grams whose supports are below threshold but above a second tolerance threshold to be added to the path
+- `tolerance::Float64=(-1000.0)`: the value set for the second threshold (in tolerant mode) such that if the support for an n-gram is in between this value and the threshold and the max_tolerance number has not been reached, then allow this n-gram to be added to the path
+- `max_tolerance::Int64=4`: maximum number of n-grams allowed in a path
+- `grams::Int64=3`: the number n of grams that make up an n-gram
+- `tokenized::Bool=false`: if true, the dataset target is tokenized
+- `sep_token::Union{Nothing, String, Char}=nothing`: separator token
+- `keep_sep::Bool=false`:if true, keep separators in cues
+- `target_col::Union{String, :Symbol}=:Words`: the column name for target strings
+- `start_end_token::Union{String, Char}="#"`: start and end token in boundary cues
+- `issparse::Union{Symbol, Bool}=:auto`: control of whether output of Mt matrix is a dense matrix or a sparse matrix
+- `sparse_ratio::Float64=0.05`: the ratio to decide whether a matrix is sparse
+- `if_pca::Bool=false`: turn on to enable pca mode
+- `pca_eval_M::Matrix=nothing`: pass original F for pca mode
+- `activation::Function=nothing`: the activation function you want to pass
+- `ignore_nan::Bool=true`: whether to ignore NaN when compare correlations, otherwise NaN will be selected as the max correlation value
+- `check_threshold_stat::Bool=false`: if true, return a threshold and torlerance proportion for each timestep
+- `verbose::Bool=false`: if true, more information is printed
 """
 function learn_paths_rpi(
-    data_train,
-    data_val,
-    C_train,
-    S_val,
+    data_train::DataFrame,
+    data_val::DataFrame,
+    C_train::Union{Matrix, SparseMatrixCSC},
+    S_val::Union{Matrix, SparseMatrixCSC},
     F_train,
-    Chat_val,
-    A,
-    i2f,
-    f2i;
-    gold_ind = nothing,
-    Shat_val = nothing,
-    check_gold_path = false,
-    max_t = 15,
-    max_can = 10,
-    threshold = 0.1,
-    is_tolerant = false,
-    tolerance = (-1000.0),
-    max_tolerance = 3,
-    grams = 3,
-    tokenized = false,
-    sep_token = nothing,
-    keep_sep = false,
-    target_col = "Words",
-    start_end_token = "#",
-    issparse = :auto,
-    sparse_ratio = 0.05,
-    if_pca = false,
-    pca_eval_M = nothing,
-    activation = nothing,
-    ignore_nan = true,
-    check_threshold_stat = false,
-    verbose = false
-    )
+    Chat_val::Union{Matrix, SparseMatrixCSC},
+    A::SparseMatrixCSC,
+    i2f::Dict,
+    f2i::Dict;
+    gold_ind::Union{Nothing, Vector} = nothing,
+    Shat_val::Union{Nothing, Matrix} = nothing,
+    check_gold_path::Bool = false,
+    max_t::Int = 15,
+    max_can::Int = 10,
+    threshold::Float64 = 0.1,
+    is_tolerant::Bool = false,
+    tolerance::Float64 = (-1000.0),
+    max_tolerance::Int = 3,
+    grams::Int = 3,
+    tokenized::Bool = false,
+    sep_token::Union{Nothing, String} = nothing,
+    keep_sep::Bool = false,
+    target_col::Union{Symbol, String} = "Words",
+    start_end_token::String = "#",
+    issparse::Union{Symbol, Bool} = :auto,
+    sparse_ratio::Float64 = 0.05,
+    if_pca::Bool = false,
+    pca_eval_M::Union{Nothing, Matrix} = nothing,
+    activation::Union{Nothing, Function} = nothing,
+    ignore_nan::Bool = true,
+    check_threshold_stat::Bool = false,
+    verbose::Bool = false
+)
 
     res = learn_paths(
         data_train,
@@ -879,7 +915,7 @@ function learn_paths_rpi(
     for i in 1:n[1]
         ci = ngrams_ind[i]
         # CHANGE needed
-        Shat[i,:] = sum(F_train[ci, :], dims = 1)
+        Shat[i,:] = predict_shat(F_train, ci)
     end
 
     tmp, rpi = learn_paths(
@@ -897,9 +933,9 @@ function learn_paths_rpi(
         check_gold_path = true,
         max_t = max_t,
         max_can = 1,
-        threshold = 1,
+        threshold = 1.,
         is_tolerant = false,
-        tolerance = 1,
+        tolerance = 1.,
         max_tolerance = 1,
         grams = grams,
         tokenized = tokenized,
@@ -928,7 +964,7 @@ end
 
 
 """
-    eval_can(candidates, S, F, i2f, max_can, if_pca, pca_eval_M)
+    eval_can(candidates, S, F::Union{Matrix,SparseMatrixCSC, Chain}, i2f, max_can, if_pca, pca_eval_M)
 
 Calculate for each candidate path the correlation between predicted semantic
 vector and the gold standard semantic vector, and select as target for production
@@ -965,7 +1001,7 @@ function eval_can(
         if size(candidates[i], 1) > 0
             for (ci, n) in candidates[i] # ci = [1,3,4]
                 # CHANGE needed
-                Shat = sum(F[ci, :], dims = 1)
+                Shat = predict_shat(F, ci)
                 Scor = cor(Shat[1, :], S[i, :])
                 push!(res, Result_Path_Info_Struct(ci, n, Scor))
             end
@@ -1051,4 +1087,20 @@ function make_ngrams_ind(
         end
     end
     ngrams_ind
+end
+
+"""
+    predict_shat(F::Union{Matrix, SparseMatrixCSC},
+                 ci::Vector{Int})
+Predicts semantic vector shat given a comprehension matrix `F` and a
+list of indices of ngrams `ci`.
+
+# Obligatory arguments
+- `F::Union{Matrix, SparseMatrixCSC}`: Comprehension matrix F.
+- `ci::Vector{Int}`: Vector of indices of ngrams in c vector. Essentially, this is a vector indicating which ngrams in a c vector are absent and which are present.
+
+"""
+function predict_shat(F::Union{Matrix, SparseMatrixCSC},
+                      ci::Vector{Int})
+    return(sum(F[ci,:], dims=1))
 end

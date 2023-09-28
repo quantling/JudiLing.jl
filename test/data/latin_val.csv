@@ -1,0 +1,7 @@
+Column1,Word,Lexeme,Person,Number,Tense,Voice,Mood
+10,clamaamus,clamare,p1,pl,present,active,ind
+11,clamaatis,clamare,p2,pl,present,active,ind
+12,clamant,clamare,p3,pl,present,active,ind
+13,vocaabam,vocare,p1,sg,past,active,ind
+14,vocaabaas,vocare,p2,sg,past,active,ind
+15,vocaabat,vocare,p3,sg,past,active,ind
