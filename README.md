@@ -49,28 +49,6 @@ $ julia -t your_num_of_threads
 
 For detailed information on using Julia with threads, see this [link](https://docs.julialang.org/en/v1/manual/multi-threading/).
 
-## Include packages
-Before we start, we first need to include two packages in julia:
-
-```julia
-using JudiLing # our package
-using CSV # read csv files into dataframes
-using DataFrames # parse data into dataframes
-```
-
-**Note:**
-With JudiLing 0.8.0, [PyCall](https://github.com/JuliaPy/PyCall.jl) and [Flux](https://fluxml.ai/Flux.jl/stable/) have become optional dependencies. This means that all code in JudiLing which requires calls to python is only available if PyCall is loaded first, like this:
-```
-using PyCall
-using JudiLing
-```
-Likewise, the code involving deep learning is only available if Julia's deep learning library Flux is loaded first, like this:
-```
-using Flux
-using JudiLing
-```
-Note that Flux and PyCall have to be installed separately.
-
 ## Running Julia with multiple threads
 JudiLing supports the use of multiple threads. Simply start up Julia in your terminal as follows:
 
