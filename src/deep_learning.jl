@@ -196,7 +196,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
              end
         else
             model_cpu = model |> cpu
-            @save model_outpath model
+            @save model_outpath model_cpu
 
             # update progress bar with training and validation losses and accuracy
             ProgressMeter.next!(p; showvalues = [("Training loss",mean_train_loss)])
@@ -299,7 +299,8 @@ Generates output of a model given input `X`.
 """
 function predict_from_deep_model(model::Chain,
                                  X::Union{SparseMatrixCSC,Matrix})
-    Yhat = model(X' |> gpu) |> cpu
+    model_cpu = model |> cpu
+    Yhat = model_cpu(X' |> cpu)
     return(convert(Matrix, Yhat'))
 end
 
