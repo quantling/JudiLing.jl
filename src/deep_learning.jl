@@ -182,7 +182,8 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
 
              # Save if model with highest accuracy
              if (optimise_for_acc && (acc > max_acc)) || (!optimise_for_acc && (mean_val_loss < min_loss))
-                 @save model_outpath model
+                model_cpu = model |> cpu
+                 @save model_outpath model_cpu
                  max_acc = acc
                  min_loss = mean_val_loss
              end
@@ -194,7 +195,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                  !ismissing(early_stopping) && es(mean_val_loss) && break
              end
         else
-
+            model_cpu = model |> cpu
             @save model_outpath model
 
             # update progress bar with training and validation losses and accuracy
@@ -203,10 +204,10 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
         end
     end
 
-    @load model_outpath model
+    @load model_outpath model_cpu
 
-    return_losses && return(model, losses_train, losses_val, accs_val)
-    return(model)
+    return_losses && return(model_cpu, losses_train, losses_val, accs_val)
+    return(model_cpu)
 
 end
 
