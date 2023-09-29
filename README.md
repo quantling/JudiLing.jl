@@ -49,15 +49,6 @@ $ julia -t your_num_of_threads
 
 For detailed information on using Julia with threads, see this [link](https://docs.julialang.org/en/v1/manual/multi-threading/).
 
-## Running Julia with multiple threads
-JudiLing supports the use of multiple threads. Simply start up Julia in your terminal as follows:
-
-```
-$ julia -t your_num_of_threads
-```
-
-For detailed information on using Julia with threads, see this [link](https://docs.julialang.org/en/v1/manual/multi-threading/).
-
 ## Quick start example
 The Latin dataset [latin.csv](https://osf.io/2ejfu/download) contains lexemes and inflectional features for 672 inflected Latin verb forms for 8 lexemes from 4 conjugation classes. Word forms are inflected for person, number, tense, voice and mood.
 
