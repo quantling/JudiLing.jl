@@ -364,13 +364,12 @@ function make_transform_matrix(X::Union{SparseMatrixCSC,Matrix},
                              sparse_ratio = 0.05,
                              verbose = false,)
     max_freq, _ = findmax(freq)
-    p = freq ./ max_freq
+    p_sqrt = sqrt.(freq ./ max_freq)
 
-    P = zeros((size(X, 1), size(X, 1)));
-    P[diagind(P)] .= p
-    P = sparse(P)
-    X_sch = sqrt.(P) * X
-    Y_sch = sqrt.(P) * Y
+    P_sqrt = spdiagm(0 => p_sqrt)
+
+    X_sch = P_sqrt * X
+    Y_sch = P_sqrt * Y
     F_f = make_transform_matrix(X_sch, Y_sch, method=method,
                                 shift=shift, multiplier=multiplier,
                                 output_format=output_format,
