@@ -16,6 +16,7 @@ function pyndl(
     data_path;
     alpha = 0.1,
     betas = (0.1, 0.1),
+    method = "openmp"
 )
 
     ndl = pyimport("pyndl.ndl")
@@ -24,7 +25,7 @@ function pyndl(
         events = data_path,
         alpha = alpha,
         betas = betas,
-        method = "openmp",
+        method = method,
         remove_duplicates = true,
     )
 
@@ -145,7 +146,9 @@ function make_S_matrix(
     data_train::DataFrame,
     data_val::DataFrame,
     pyndl_weights::Pyndl_Weight_Struct,
-    n_features_columns::Vector,
+    n_features_columns::Vector;
+    tokenized=false,
+    sep_token="_"
 )
 
     f2i = Dict(v => i for (i, v) in enumerate(pyndl_weights.outcomes))
@@ -156,16 +159,62 @@ function make_S_matrix(
     St_train = zeros(Float64, n_f, size(data_train, 1))
     for i = 1:size(data_train, 1)
         for f in data_train[i, n_features_columns]
-            St_train[f2i[f], i] = 1
+            if tokenized
+                for f_i in split(f, sep_token)
+                    St_train[f2i[f_i], i] = 1
+                end
+            else
+                St_train[f2i[f], i] = 1
+            end
         end
     end
 
     St_val = zeros(Float64, n_f, size(data_val, 1))
     for i = 1:size(data_val, 1)
         for f in data_val[i, n_features_columns]
-            St_val[f2i[f], i] = 1
+            if tokenized
+                for f_i in split(f, sep_token)
+                    St_val[f2i[f_i], i] = 1
+                end
+            else
+                St_val[f2i[f], i] = 1
+            end
         end
     end
 
     St_train', St_val'
+end
+
+"""
+    make_S_matrix(data::DataFrame, pyndl_weights::Pyndl_Weight_Struct, n_features_columns::Vector)
+
+Create semantic matrix for pyndl mode
+"""
+function make_S_matrix(
+    data::DataFrame,
+    pyndl_weights::Pyndl_Weight_Struct,
+    n_features_columns::Vector;
+    tokenized=false,
+    sep_token="_"
+)
+
+    f2i = Dict(v => i for (i, v) in enumerate(pyndl_weights.outcomes))
+    i2f = Dict(i => v for (i, v) in enumerate(pyndl_weights.outcomes))
+
+    n_f = length(pyndl_weights.outcomes)
+
+    St = zeros(Float64, n_f, size(data, 1))
+    for i = 1:size(data, 1)
+        for f in data[i, n_features_columns]
+            if tokenized
+                for f_i in split(f, sep_token)
+                    St[f2i[f_i], i] = 1
+                end
+            else
+                St[f2i[f], i] = 1
+            end
+        end
+    end
+
+    St_train
 end
