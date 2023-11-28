@@ -80,12 +80,12 @@ function make_cue_matrix(
     n_f = sum([length(v) for v in ngrams])
 
     m = size(data, 1)
-    n = length(ngrams_features)
+    n = length(pyndl_weights.cues)
     I = zeros(Int64, n_f)
     J = zeros(Int64, n_f)
     V = ones(Int64, n_f)
 
-    A = [Int64[] for i = 1:length(ngrams_features)]
+    A = [Int64[] for i = 1:length(pyndl_weights.cues)]
 
     cnt = 0
     for (i, v) in enumerate(ngrams)
