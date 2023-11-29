@@ -14,6 +14,10 @@ using Requires
 
 function __init__()
     @require PyCall="438e738f-606a-5dbb-bf0a-cddfbfd45ab0" begin
+     #using .PyCall
+     ENV["PYTHON"] = ""
+     using Pkg;
+     Pkg.build("PyCall")
      using .PyCall
      using Conda
      @eval include("pickle.jl")
