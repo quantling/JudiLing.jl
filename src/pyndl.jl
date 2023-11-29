@@ -216,5 +216,5 @@ function make_S_matrix(
         end
     end
 
-    St_train
+    St'
 end

@@ -15,8 +15,11 @@ using Requires
 function __init__()
     @require PyCall="438e738f-606a-5dbb-bf0a-cddfbfd45ab0" begin
      using .PyCall
+     using Conda
      @eval include("pickle.jl")
      @eval include("pyndl.jl")
+     Conda.pip_interop(true)
+     Conda.pip("install -U","pyndl")
  end
  @require Flux="587475ba-b771-5e3f-ad9e-33799f191a9c" @eval include("deep_learning.jl")
  ProgressMeter.ijulia_behavior(:clear)

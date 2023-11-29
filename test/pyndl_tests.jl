@@ -50,4 +50,22 @@ cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(train, val, targe
 
     @test all(S_train[:, weights_latin.outcomes .== "currere"] .== (train.Lexeme .== "currere"))
     @test all(S_train[:, weights_latin.outcomes .== "p3"] .== (train.Person .== "p3"))
+
+    S_train = JudiLing.make_S_matrix(train,
+    weights_latin,
+    feature_columns,
+    tokenized=false)
+
+    S_val = JudiLing.make_S_matrix(val,
+    weights_latin,
+    feature_columns,
+    tokenized=false)
+
+    @test size(S_train,2) == length(unique_features)
+    @test size(S_val,2) == length(unique_features)
+
+    @test all((vec(sum(S_train, dims=2))) .== length(feature_columns))
+
+    @test all(S_train[:, weights_latin.outcomes .== "currere"] .== (train.Lexeme .== "currere"))
+    @test all(S_train[:, weights_latin.outcomes .== "p3"] .== (train.Person .== "p3"))
 end
