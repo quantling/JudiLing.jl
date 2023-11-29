@@ -3,6 +3,10 @@ using PyCall
 using JudiLing
 using CSV, DataFrames
 
+using Conda
+Conda.pip_interop(true)
+Conda.pip("install -U","pyndl")
+
 train = DataFrame(CSV.File(joinpath("data", "careful", "latin_train.csv")))
 val = DataFrame(CSV.File(joinpath("data", "careful", "latin_val.csv")))
 
