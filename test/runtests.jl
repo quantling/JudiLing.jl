@@ -1,5 +1,9 @@
 using SafeTestsets
 
+@safetestset "pyndl tests" begin
+    include("pyndl_tests.jl")
+end
+
 @safetestset "cholesky tests" begin
     include("cholesky_tests.jl")
 end
