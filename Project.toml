@@ -26,6 +26,7 @@ SuiteSparse = "4607b0f0-06f3-5cda-b6b1-a6196a1729e9"
 [compat]
 BenchmarkTools = "1.0 - 1.5"
 CSV = "0.10"
+DataDeps = "0.5"
 DataFrames = ">= 0.21"
 DataStructures = "0.18"
 Distributions = "0.23 - 0.25"
