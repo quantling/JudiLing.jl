@@ -52,6 +52,8 @@ end
     include("wh_tests.jl")
 end
 
-@safetestset "deep learning tests" begin
-    include("deep_learning_tests.jl")
+if VERSION >= v"1.9"
+    @safetestset "deep learning tests" begin
+        include("deep_learning_tests.jl")
+    end
 end

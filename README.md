@@ -38,7 +38,7 @@ Likewise, the code involving deep learning is only available if Julia's deep lea
 using Flux
 using JudiLing
 ```
-Note that Flux and PyCall have to be installed separately.
+Note that Flux and PyCall have to be installed separately, and the newest version of Flux requires at least Julia 1.9.
 
 ## Running Julia with multiple threads
 JudiLing supports the use of multiple threads. Simply start up Julia in your terminal as follows:
