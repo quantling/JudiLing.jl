@@ -2,7 +2,7 @@
 
 julia_version = "1.9.1"
 manifest_format = "2.0"
-project_hash = "fc11b34313656aa4a9fcb827be49abd0e858606c"
+project_hash = "549fed61e826254e6339e11c646f767eb32f706c"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -167,10 +167,10 @@ uuid = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
 version = "0.6.8"
 
 [[deps.Embeddings]]
-deps = ["AutoHashEquals", "DataDeps", "GoogleDrive", "PrecompileTools", "Statistics"]
-git-tree-sha1 = "08dc94fa93039a6f4b9d17a91123b35c711acf35"
+deps = ["AutoHashEquals", "DataDeps", "Statistics"]
+git-tree-sha1 = "8e9491c3a9d297679593cd086c5b5b74472c7259"
 uuid = "c5bfea45-b7f1-5224-a596-15500f5db411"
-version = "0.4.5"
+version = "0.4.1"
 
 [[deps.ExceptionUnwrapping]]
 deps = ["Test"]
@@ -208,12 +208,6 @@ deps = ["Libdl"]
 git-tree-sha1 = "8d838ee3772e00c75d6cc06bb08891379868c18d"
 uuid = "92fee26a-97fe-5a0c-ad85-20a5f3185b63"
 version = "0.5.2"
-
-[[deps.GoogleDrive]]
-deps = ["DataDeps", "Dates", "Downloads", "HTTP", "Random"]
-git-tree-sha1 = "f916ded6fdb10109f9cdb7a4b2c77feafc8e24e5"
-uuid = "91feb7a0-3508-11ea-1e8e-afea2c1c9a19"
-version = "0.1.3"
 
 [[deps.HTTP]]
 deps = ["Base64", "CodecZlib", "ConcurrentUtilities", "Dates", "ExceptionUnwrapping", "Logging", "LoggingExtras", "MbedTLS", "NetworkOptions", "OpenSSL", "Random", "SimpleBufferStream", "Sockets", "URIs", "UUIDs"]
