@@ -1755,9 +1755,10 @@ Merge base f2i dictionary and inflectional f2i dictionary.
 function merge_f2i(base_f2i, infl_f2i, n_base_f, n_infl_f)
     # add infl_f2i into base_f2i
     # infl_f2i need shift n_base_f
-    f2i = copy(base_f2i)
+    #f2i = copy(base_f2i)
+    f2i = Dict(inlinestring2string(k)=>v for (k,v) in base_f2i)
     for (k, v) in infl_f2i
-        f2i[k] = v + n_base_f
+        f2i[inlinestring2string(k)] = v + n_base_f
     end
     f2i
 end

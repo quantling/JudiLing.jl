@@ -73,13 +73,13 @@ function display_matrix(
         rownames = data[:,target_col]
         colnames = ["S$i" for i in 1:size(M,2)]
     elseif M_type == :F || M_type == "F"
-        rownames = colnames = [cue_obj.i2f[i] for i in 1:size(M,2)]
+        rownames = [cue_obj.i2f[i] for i in 1:size(M,1)]
         colnames = ["S$i" for i in 1:size(M,2)]
     elseif M_type == :G || M_type == "G"
-        rownames = ["S$i" for i in 1:size(M,2)]
+        rownames = ["S$i" for i in 1:size(M,1)]
         colnames = [cue_obj.i2f[i] for i in 1:size(M,2)]
     elseif M_type == :A || M_type == "A"
-        rownames = [cue_obj.i2f[i] for i in 1:size(M,2)]
+        rownames = [cue_obj.i2f[i] for i in 1:size(M,1)]
         colnames = [cue_obj.i2f[i] for i in 1:size(M,2)]
     elseif M_type == :R || M_type == "R"
         rownames = data[:,target_col]
