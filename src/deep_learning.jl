@@ -300,7 +300,8 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
                 return_losses::Bool=false,
                 verbose::Bool=true,
                 n_batch_eval::Int=100,
-                measures_func::Union{Function, Missing}=missing)
+                measures_func::Union{Function, Missing}=missing,
+                kargs...)
 
     data = deepcopy(data)
 
@@ -393,7 +394,8 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
         # this will need to be implemented properly with all possible arguments
         # a measures function may need
         if !ismissing(measures_func)
-            data = measures_func(X_train, Y_train, preds, data, target_col, step)
+            data = measures_func(X_train, Y_train, preds, data, target_col, model_cpu, step;
+                                kargs...)
         end
 
         # update progress bar with training and validation losses and accuracy
@@ -403,7 +405,8 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
     end
 
     if !ismissing(measures_func)
-        data = measures_func(X_train, Y_train, preds, data, target_col, "final")
+        data = measures_func(X_train, Y_train, preds, data, target_col, model_cpu, "final";
+                            kargs...)
     end
 
     res = Vector{Any}([model |> cpu])
