@@ -157,7 +157,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
             preds_val = Matrix{Float64}(undef, 0, size(Y_val,2))
 
             for (x_cpu, y_cpu) in loader_val
-                x= x_cpu |> gpu
+                x = x_cpu |> gpu
                 y = y_cpu |> gpu
 
                 Yhat_val = model(x)|> cpu
@@ -285,6 +285,137 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                         optimizer=optimizer)
 end
 
+
+function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
+                Y_train::Union{SparseMatrixCSC,Matrix},
+                learn_seq::Vector,
+                data::DataFrame,
+                target_col::Union{Symbol, String},
+                model_outpath::String;
+                hidden_dim::Int=1000,
+                batchsize::Int=64,
+                loss_func::Function=Flux.mse,
+                optimizer=Flux.Adam(0.001),
+                model::Union{Missing, Chain} = missing,
+                return_losses::Bool=false,
+                verbose::Bool=true,
+                n_batch_eval::Int=100,
+                measures_func::Union{Function, Missing}=missing)
+
+    data = deepcopy(data)
+
+    # Set up the model if not provided
+    verbose && println("Setting up model...")
+    flush(stdout)
+    if ismissing(model)
+        model = Chain(
+            Dense(size(X_train, 2) => hidden_dim, relu),   # activation function inside layer
+            Dense(hidden_dim => size(Y_train, 2))) |> gpu        # move model to GPU, if available
+    else
+        model = model |> gpu
+    end
+
+    verbose && @show model
+    flush(stdout)
+
+    # Set up optimizer
+    verbose && println("Setting up optimizer...")
+    flush(stdout)
+    optim = Flux.setup(optimizer, model)  # will store optimiser momentum, etc.
+
+    verbose && println("Setting up data for evaluation...")
+    flush(stdout)
+    loader_data = Flux.DataLoader((X_train', Y_train') , batchsize=batchsize, shuffle=false); # has to be unshuffled, otherwise the accuracy calculation will be wrong
+
+    verbose && println("Training...")
+    flush(stdout)
+
+    # Some lists for storing losses and accuracies
+    losses_train = []
+    losses = []
+    accs = []
+
+    # Setting up progress bar
+    p = Progress(Int(ceil(length(learn_seq)/(batchsize * n_batch_eval))))
+
+    step = 0
+    for subseq in Iterators.partition(learn_seq, batchsize * n_batch_eval)
+        if batchsize > length(subseq)
+            batchsize = length(subseq)
+        end
+
+        step += batchsize * n_batch_eval
+
+        # set up loader for current step
+        loader_train = Flux.DataLoader((X_train[subseq,:]', Y_train[subseq,:]') , batchsize=batchsize, shuffle=false);
+
+        # train current step
+        all_losses_epoch_train = []
+        for (x_cpu, y_cpu) in loader_train
+            x = x_cpu |> gpu
+            y = y_cpu |> gpu
+            loss, grads = Flux.withgradient(model) do m
+                # Evaluate model and loss inside gradient context:
+                y_hat = m(x)
+                loss_func(y_hat, y)
+            end
+            Flux.update!(optim, model, grads[1])
+            push!(all_losses_epoch_train, loss)  # logging, outside gradient context
+        end
+        # store mean loss of epoch
+        mean_train_loss = mean(all_losses_epoch_train)
+        push!(losses_train, mean_train_loss)
+
+        all_losses_epoch = []
+        preds = Matrix{Float64}(undef, 0, size(Y_train,2))
+
+        for (x_cpu, y_cpu) in loader_data
+            x = x_cpu |> gpu
+            y = y_cpu |> gpu
+
+            Yhat = model(x)|> cpu
+            preds = vcat(preds,Yhat')
+            # for some reason, I have to make sure y_cpu is not sparse here.
+            # I have no idea why
+            loss = loss_func(Yhat, Matrix(y_cpu))
+            push!(all_losses_epoch,loss)
+        end
+        mean_loss = mean(all_losses_epoch)
+        push!(losses, mean_loss)
+
+        # Compute validation accuracy
+        acc = JudiLing.eval_SC(preds, Y_train, data, target_col)
+        push!(accs, acc)
+
+        model_cpu = model |> cpu
+        @save model_outpath model_cpu
+
+        # this will need to be implemented properly with all possible arguments
+        # a measures function may need
+        if !ismissing(measures_func)
+            data = measures_func(X_train, Y_train, preds, data, target_col, step)
+        end
+
+        # update progress bar with training and validation losses and accuracy
+        ProgressMeter.next!(p; showvalues = [("Step loss", mean_train_loss),
+                                             ("Overall loss", mean_loss),
+                                             ("Overall accuracy", acc)])
+    end
+
+    if !ismissing(measures_func)
+        data = measures_func(X_train, Y_train, preds, data, target_col, "final")
+    end
+
+    res = Vector{Any}([model |> cpu])
+    if !ismissing(measures_func)
+        append!(res, [data])
+    end
+    if return_losses
+        append!(res, [losses_train, losses, accs])
+    end
+    return(res)
+
+end
 
 """
     predict_from_deep_model(model::Chain,
