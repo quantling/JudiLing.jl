@@ -405,6 +405,16 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
     end
 
     if !ismissing(measures_func)
+        preds = Matrix{Float64}(undef, 0, size(Y_train,2))
+
+        for (x_cpu, y_cpu) in loader_data
+            x = x_cpu |> gpu
+            y = y_cpu |> gpu
+
+            Yhat = model(x)|> cpu
+            preds = vcat(preds,Yhat')
+        end
+
         data = measures_func(X_train, Y_train, preds, data, target_col, model_cpu, "final";
                             kargs...)
     end
