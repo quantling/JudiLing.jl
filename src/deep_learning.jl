@@ -415,7 +415,7 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
             preds = vcat(preds,Yhat')
         end
 
-        data = measures_func(X_train, Y_train, preds, data, target_col, model_cpu, "final";
+        data = measures_func(X_train, Y_train, preds, data, target_col, model |> cpu, "final";
                             kargs...)
     end
 
