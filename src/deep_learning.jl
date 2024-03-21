@@ -246,7 +246,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
         append!(res, [data_train, data_val])
     end
     if return_losses
-        append!(res, [losses_train, losses, accs])
+        append!(res, [losses_train, losses_val, accs_val])
     end
     return(res)
 end
