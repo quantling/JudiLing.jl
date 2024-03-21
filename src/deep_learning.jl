@@ -77,7 +77,8 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             optimise_for_acc::Bool=false,
                             return_losses::Bool=false,
                             verbose::Bool=true,
-                            measures_func::Union{Missing, Function}=missing)
+                            measures_func::Union{Missing, Function}=missing,
+                            kargs...)
 
     # set up early stopping and saving of best models
     min_loss = typemax(Float64)
@@ -304,7 +305,8 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             model::Union{Missing, Chain} = missing,
                             return_losses::Bool=false,
                             verbose::Bool=true,
-                            measures_func::Union{Missing, Function}=missing)
+                            measures_func::Union{Missing, Function}=missing,
+                            kargs...)
 
     get_and_train_model(X_train,
                         Y_train,
@@ -324,7 +326,8 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                         batchsize=batchsize,
                         optimise_for_acc=false,
                         optimizer=optimizer,
-                        measures_func=measures_func)
+                        measures_func=measures_func,
+                        kargs...)
 end
 
 
