@@ -20,6 +20,7 @@ using BSON: @save, @load
                         optimise_for_acc::Bool=false
                         return_losses::Bool=false,
                         verbose::Bool=true,
+                        measures_func::Union{Missing, Function}=missing
                         )
 
 Trains a deep learning model from X_train to Y_train, saving the model with either the highest
@@ -75,7 +76,8 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             early_stopping::Union{Missing, Int}=missing,
                             optimise_for_acc::Bool=false,
                             return_losses::Bool=false,
-                            verbose::Bool=true)
+                            verbose::Bool=true,
+                            measures_func::Union{Missing, Function}=missing)
 
     # set up early stopping and saving of best models
     min_loss = typemax(Float64)
@@ -149,6 +151,18 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
         mean_train_loss = mean(all_losses_epoch_train)
         push!(losses_train, mean_train_loss)
 
+        if !ismissing(measures_func)
+
+            preds_train = Matrix{Float64}(undef, 0, size(Y_train,2))
+            for (x_cpu, y_cpu) in loader_train
+                x = x_cpu |> gpu
+                y = y_cpu |> gpu
+
+                Yhat_train = model(x)|> cpu
+                preds_train = vcat(preds_train,Yhat_train')
+            end
+        end
+
         # Compute validation loss
         if !ismissing(X_val) & !ismissing(Y_val)
             all_losses_epoch_val = []
@@ -174,6 +188,17 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
             acc = JudiLing.eval_SC(preds_val, Y_val, Y_train, data_val, data_train, target_col)
             push!(accs_val, acc)
 
+            # this will need to be implemented properly with all possible arguments
+            # a measures function may need
+
+            if !ismissing(measures_func)
+
+                data_train, data_val = measures_func(X_train, Y_train, X_val, Y_val,
+                                                    preds_train, preds_val, data_train,
+                                                    data_val, target_col, model |> cpu, epoch;
+                                                    kargs...)
+            end
+
 
             # update progress bar with training and validation losses and accuracy
             ProgressMeter.next!(p; showvalues = [("Training loss",mean_train_loss),
@@ -195,6 +220,15 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                  !ismissing(early_stopping) && es(mean_val_loss) && break
              end
         else
+
+            if !ismissing(measures_func)
+
+                data_train, _ = measures_func(X_train, Y_train, missing, missing,
+                                            preds_train, missing, data_train,
+                                            missing, target_col, model |> cpu, epoch;
+                                            kargs...)
+            end
+
             model_cpu = model |> cpu
             @save model_outpath model_cpu
 
@@ -206,9 +240,14 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
 
     @load model_outpath model_cpu
 
-    return_losses && return(model_cpu, losses_train, losses_val, accs_val)
-    return(model_cpu)
-
+    res = Vector{Any}([model_cpu])
+    if !ismissing(measures_func)
+        append!(res, [data_train, data_val])
+    end
+    if return_losses
+        append!(res, [losses_train, losses, accs])
+    end
+    return(res)
 end
 
 """
@@ -222,7 +261,8 @@ end
                         optimizer=Flux.Adam(0.001),
                         model::Union{Missing, Chain} = missing,
                         return_losses::Bool=false,
-                        verbose::Bool=true)
+                        verbose::Bool=true,
+                        measures_func::Union{Missing, Function}=missing)
 
 Trains a deep learning model from X_train to Y_train, saving the model after n_epochs epochs.
 The default model looks like this:
@@ -263,7 +303,8 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             optimizer=Flux.Adam(0.001),
                             model::Union{Missing, Chain} = missing,
                             return_losses::Bool=false,
-                            verbose::Bool=true)
+                            verbose::Bool=true,
+                            measures_func::Union{Missing, Function}=missing)
 
     get_and_train_model(X_train,
                         Y_train,
@@ -282,7 +323,8 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                         loss_func=loss_func,
                         batchsize=batchsize,
                         optimise_for_acc=false,
-                        optimizer=optimizer)
+                        optimizer=optimizer,
+                        measures_func=measures_func)
 end
 
 
@@ -348,7 +390,7 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
         step += batchsize * n_batch_eval
 
         # set up loader for current step
-        loader_train = Flux.DataLoader((X_train[subseq,:]', Y_train[subseq,:]') , batchsize=batchsize, shuffle=false);
+        loader_train = Flux.DataLoader((X_train[subseq,:]', Y_train[subseq,:]'), batchsize=batchsize, shuffle=false);
 
         # train current step
         all_losses_epoch_train = []
