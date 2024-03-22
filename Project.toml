@@ -1,7 +1,7 @@
 name = "JudiLing"
 uuid = "b43a184b-0e9d-488b-813a-80fd5dbc9fd8"
 authors = ["Xuefeng Luo", "Maria Heitmeier"]
-version = "0.8.1"
+version = "0.8.2"
 
 [deps]
 BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
