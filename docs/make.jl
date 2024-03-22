@@ -1,4 +1,5 @@
 using PyCall
+using Flux
 using JudiLing
 using Documenter
 
@@ -29,6 +30,8 @@ makedocs(;
             "Pickle" => "man/pickle.md",
             "Pyndl" => "man/pyndl.md",
             "Widrow-Hoff Learning" => "man/wh.md",
+            "Deep learning" => "man/deep_learning.md",
+            "Measures function" => "man/measures_func.md"
         ],
         "All Manual index" => "man/all_manual.md"
     ],

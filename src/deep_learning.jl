@@ -25,7 +25,7 @@ using BSON: @save, @load
                         ...kargs
                         )
 
-Trains a deep learning model from X_train to Y_train, saving the model with either the highest
+Trains a deep learning model from `X_train` to `Y_train`, saving the model with either the highest
 validation accuracy or lowest validation loss (depending on `optimise_for_acc`) to `outpath`.
 
 The default model looks like this:
@@ -38,6 +38,15 @@ Any other model with the same input and output dimensions can be provided to the
 The default loss function is mean squared error, but any other loss function can be provded, as long as it fits with the model architecture.
 
 By default the adam optimizer (Kingma and Ba, 2015) with learning rate 0.001 is used. You can provide any other optimizer. If you want to use a different learning rate, e.g. 0.01, provide `optimizer=Flux.Adam(0.01)`. If you do not want to use an optimizer at all, and simply use normal gradient descent, provide `optimizer=Descent(0.001)`, again replacing the learning rate with the learning rate of your preference.
+
+Returns a named tuple with the following values:
+- `model`: the trained model
+- `data_train`: the training data, including any measures if computed by `measures_func`
+- `data_val`: the validation data, including any measures if computed by `measures_func`
+- `losses_train`: The losses of the training data for each epoch.
+- `losses_val`: The losses of the validation data after each epoch.
+- `accs_train`: The accuracies of the training data after each epoch, if `return_train_acc=true`.
+- `accs_val`: The accuracies of the validation data after each epoch.
 
 # Obligatory arguments
 - `X_train::Union{SparseMatrixCSC,Matrix}`: training input matrix of dimension m x n
@@ -60,7 +69,7 @@ By default the adam optimizer (Kingma and Ba, 2015) with learning rate 0.001 is 
 - `optimise_for_acc::Bool=false`: if true, keep model with highest validation *accuracy*. If false, keep model with lowest validation *loss*.
 - `return_losses::Bool=false`: whether additional to the model per-epoch losses for the training and test data as well as per-epoch accuracy on the validation data should be returned
 - `verbose::Bool=true`: Turn on verbose mode
-- `measures_func::Union{Missing, Function}=missing`: A measures function which is run at the end of every epoch. If given, the second and third returned values are the training and validation dataframes with any additional columns computed in the measures_func.
+- `measures_func::Union{Missing, Function}=missing`: A measures function which is run at the end of every epoch. For more information see [The `measures_func` argument](@ref).
 - `return_train_acc::Bool=false`: If true, a vector with training accuracies is returned at the end of the training.
 - `...kargs`: any additional keyword arguments are passed to the measures_func
 """
@@ -77,7 +86,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             batchsize::Int=64,
                             loss_func::Function=Flux.mse,
                             optimizer=Flux.Adam(0.001),
-                            model::Union{Missing, Flux.Chain} = missing,
+                            model::Union{Missing, Chain} = missing,
                             early_stopping::Union{Missing, Int}=missing,
                             optimise_for_acc::Bool=false,
                             return_losses::Bool=false,
@@ -310,7 +319,7 @@ end
                         return_train_acc::Bool=false,
                         ...kargs)
 
-Trains a deep learning model from X_train to Y_train, saving the model after n_epochs epochs.
+Trains a deep learning model from `X_train` to `Y_train`, saving the model after n_epochs epochs.
 The default model looks like this:
 
 ```
@@ -323,6 +332,15 @@ Any other model with the same input and output dimensions can be provided to the
 The default loss function is mean squared error, but any other loss function can be provded, as long as it fits with the model architecture.
 
 By default the adam optimizer (Kingma and Ba, 2015) with learning rate 0.001 is used. You can provide any other optimizer. If you want to use a different learning rate, e.g. 0.01, provide `optimizer=Flux.Adam(0.01)`. If you do not want to use an optimizer at all, and simply use normal gradient descent, provide `optimizer=Descent(0.001)`, again replacing the learning rate with the learning rate of your preference.
+
+Returns a named tuple with the following values:
+- `model`: the trained model
+- `data_train`: the data, including any measures if computed by `measures_func`
+- `data_val`: missing for this function
+- `losses_train`: The losses of the training data for each epoch.
+- `losses_val`: missing for this function
+- `accs_train`: The accuracies of the training data after each epoch, if `return_train_acc=true`.
+- `accs_val`: missing for this function
 
 # Obligatory arguments
 - `X_train::Union{SparseMatrixCSC,Matrix}`: training input matrix of dimension m x n
@@ -340,7 +358,7 @@ By default the adam optimizer (Kingma and Ba, 2015) with learning rate 0.001 is 
 - `model::Union{Missing, Chain} = missing`: A custom model can be provided for training. Its requirements are that it has to correspond to the input and output size of the training and validation data
 - `return_losses::Bool=false`: whether additional to the model per-epoch losses for the training and test data as well as per-epoch accuracy on the validation data should be returned
 - `verbose::Bool=true`: Turn on verbose mode
-- `measures_func::Union{Missing, Function}=missing`: A measures function which is run at the end of every epoch. If given, the second value is the training dataframe with any additional columns computed in the measures_func.
+- `measures_func::Union{Missing, Function}=missing`: A measures function which is run at the end of every epoch. For more information see [The `measures_func` argument](@ref).
 - `return_train_acc::Bool=false`: If true, a vector with training accuracies is returned at the end of the training.
 - `...kargs`: any additional keyword arguments are passed to the measures_func
 """
@@ -354,7 +372,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             batchsize::Int=64,
                             loss_func::Function=Flux.mse,
                             optimizer=Flux.Adam(0.001),
-                            model::Union{Missing, Flux.Chain} = missing,
+                            model::Union{Missing, Chain} = missing,
                             return_losses::Bool=false,
                             verbose::Bool=true,
                             measures_func::Union{Missing, Function}=missing,
@@ -384,7 +402,53 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                         kargs...)
 end
 
+"""
+    fiddl(X_train::Union{SparseMatrixCSC,Matrix},
+            Y_train::Union{SparseMatrixCSC,Matrix},
+            learn_seq::Vector,
+            data::DataFrame,
+            target_col::Union{Symbol, String},
+            model_outpath::String;
+            hidden_dim::Int=1000,
+            batchsize::Int=64,
+            loss_func::Function=Flux.mse,
+            optimizer=Flux.Adam(0.001),
+            model::Union{Missing, Chain} = missing,
+            return_losses::Bool=false,
+            verbose::Bool=true,
+            n_batch_eval::Int=100,
+            measures_func::Union{Function, Missing}=missing,
+            kargs...)
 
+Trains a deep learning model using the FIDDL method (frequency-informed deep discriminative learning).
+Optionally, after each `n_batch_eval` batches `measures_func` can be run to compute any measures which are then added to the data.
+
+Returns a named tuple with the following values:
+- `model`: the trained model
+- `data`: the data, including any measures if computed by `measures_func`
+- `losses_train`: The losses of the data the model is trained on within each `n_batch_eval` batches.
+- `losses`: The losses of the full dataset after each `n_batch_eval` batches.
+- `accs`: The accuracies of the full dataset after each `n_batch_eval` batches.
+
+# Obligatory arguments
+- `X_train::Union{SparseMatrixCSC,Matrix}`: training input matrix of dimension m x n
+- `Y_train::Union{SparseMatrixCSC,Matrix}`: training output/target matrix of dimension m x k
+- `learn_seq::Vector`: List of indices in the order that the vectors in X_train and Y_train should be presented to the model for training.
+- `data::DataFrame`: The full data.
+- `target_col::Union{Symbol, String}`: The column with target word forms in the data.
+- `model_outpath::String`: filepath to where final model should be stored (in .bson format)
+
+# Optional arguments
+- `hidden_dim::Int=1000`: hidden dimension of the model
+- `n_epochs::Int=100`: number of epochs for which the model should be trained
+- `batchsize::Int=64`: batchsize during training
+- `loss_func::Function=Flux.mse`: Loss function. Per default this is the mse loss, but other options might be a crossentropy loss (`Flux.crossentropy`). Make sure the model makes sense with the loss function!
+- `optimizer=Flux.Adam(0.001)`: optimizer to use for training
+- `model::Union{Missing, Chain} = missing`: A custom model can be provided for training. Its requirements are that it has to correspond to the input and output size of the training and validation data
+- `return_losses::Bool=false`: whether additional to the model per-epoch losses for the training and test data as well as per-epoch accuracy on the validation data should be returned
+- `verbose::Bool=true`: Turn on verbose mode
+- `measures_func::Union{Missing, Function}=missing`: A measures function which is run each `n_batch_eval` batches. For more information see [The `measures_func` argument](@ref).
+"""
 function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
                 Y_train::Union{SparseMatrixCSC,Matrix},
                 learn_seq::Vector,
@@ -395,7 +459,7 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
                 batchsize::Int=64,
                 loss_func::Function=Flux.mse,
                 optimizer=Flux.Adam(0.001),
-                model::Union{Missing, Flux.Chain} = missing,
+                model::Union{Missing, Chain} = missing,
                 return_losses::Bool=false,
                 verbose::Bool=true,
                 n_batch_eval::Int=100,
@@ -483,7 +547,7 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
         mean_loss = mean(all_losses_epoch)
         push!(losses, mean_loss)
 
-        # Compute validation accuracy
+        # Compute accuracy
         acc = JudiLing.eval_SC(preds, Y_train, data, target_col)
         push!(accs, acc)
 
@@ -539,7 +603,7 @@ Generates output of a model given input `X`.
 - `X::Union{SparseMatrixCSC,Matrix}`: Input matrix of size (number_of_samples, inp_dim) where inp_dim is the input dimension of `model`
 
 """
-function predict_from_deep_model(model::Flux.Chain,
+function predict_from_deep_model(model::Chain,
                                  X::Union{SparseMatrixCSC,Matrix})
     model_cpu = model |> cpu
     Yhat = model_cpu(X' |> cpu)
@@ -558,7 +622,7 @@ list of indices of ngrams `ci`.
 - `ci::Vector{Int}`: Vector of indices of ngrams in c vector. Essentially, this is a vector indicating which ngrams in a c vector are absent and which are present.
 
 """
-function predict_shat(model::Flux.Chain,
+function predict_shat(model::Chain,
                      ci::Vector{Int})
     dim = size(Flux.params(model[1])[1])[2]
     c = zeros(1, dim)
