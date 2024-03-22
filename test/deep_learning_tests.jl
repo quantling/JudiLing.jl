@@ -109,8 +109,6 @@ end
 
     accs_train = res.accs_train
 
-    print(accs_train)
-
     @test !ismissing(accs_train)
     @test length(accs_train) == 100
     @test accs_train[end] ≈ 1.0
@@ -461,4 +459,193 @@ end
 
 @testset "fiddl" begin
 
+    @testset "basic setup" begin
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=1,
+                        n_batch_eval=1)
+
+        @test length(res.accs) == length(res.losses) == length(res.losses_train) == 3
+        @test size(Flux.params(res.model[1])[1],1) == 1000
+
+    end
+
+    @testset "learn_seq" begin
+
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3,1,2,3],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=1,
+                        n_batch_eval=1)
+
+        @test length(res.accs) == length(res.losses) == length(res.losses_train) == 6
+
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3,3,3,3,3,3,3,3,3,3],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=1,
+                        n_batch_eval=1)
+
+        @test length(res.accs) == length(res.losses) == length(res.losses_train) == 12
+        println(res.losses)
+        Shat = JudiLing.predict_from_deep_model(res.model, cue_obj_train.C)
+        _, corr = JudiLing.eval_SC(Shat, S_train, R=true)
+        target_corr = diag(corr)
+        @test target_corr[1] < target_corr[3]
+        @test target_corr[2] < target_corr[3]
+
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3,1,1,1,1,1,1],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=1,
+                        n_batch_eval=1)
+
+        @test length(res.accs) == length(res.losses) == length(res.losses_train) == 9
+        Shat = JudiLing.predict_from_deep_model(res.model, cue_obj_train.C)
+        _, corr = JudiLing.eval_SC(Shat, S_train, R=true)
+        target_corr = diag(corr)
+        @test target_corr[1] > target_corr[3]
+        @test target_corr[1] > target_corr[2]
+    end
+
+    @testset "n_batch_eval" begin
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3,1,2,3,1,2,3],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=1,
+                        n_batch_eval=2)
+
+        @test length(res.accs) == length(res.losses) == length(res.losses_train) == 5
+    end
+
+    @testset "batchsize" begin
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3,1,2,3,1,2,3],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=3,
+                        n_batch_eval=1)
+
+        @test length(res.accs) == length(res.losses) == length(res.losses_train) == 3
+    end
+
+    @testset "measures_func" begin
+
+        # standard setup
+        function compute_target_corr(X_train, Y_train,
+                                        Yhat_train, data, target_col, model, step)
+            _, corr = JudiLing.eval_SC(Yhat_train, Y_train, R=true)
+            data[!, string("target_corr_", step)] = diag(corr)
+            return(data)
+        end
+
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3,1,2,3,1,2,3],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=1,
+                        n_batch_eval=1,
+                        measures_func=compute_target_corr)
+
+        @test size(res.data, 1) == size(train,1)
+        @test size(res.data, 2) - size(train,2) == 10
+
+        expected_cols = [string("target_corr_", step) for step in 1:9]
+        @test all(expected_cols .∈ [names(res.data)])
+        @test "target_corr_final" ∈ names(res.data)
+
+        @test res.data[1, "target_corr_1"] < res.data[1, "target_corr_3"] < res.data[1, "target_corr_final"]
+
+        # see if correlation acc improves as expected
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3,3,3,3,3,3,3],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=1,
+                        n_batch_eval=1,
+                        measures_func=compute_target_corr)
+
+        @test size(res.data, 1) == size(train,1)
+        @test size(res.data, 2) - size(train,2) == 10
+
+        expected_cols = [string("target_corr_", step) for step in 1:9]
+        @test all(expected_cols .∈ [names(res.data)])
+        @test "target_corr_final" ∈ names(res.data)
+
+        @test res.data[3, "target_corr_1"] < res.data[3, "target_corr_3"] < res.data[3, "target_corr_final"]
+
+        # change batch size
+        function compute_target_corr(X_train, Y_train,
+                                        Yhat_train, data, target_col, model, step)
+            _, corr = JudiLing.eval_SC(Yhat_train, Y_train, R=true)
+            data[!, string("target_corr_", step)] = diag(corr)
+            return(data)
+        end
+
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3,1,2,3,1,2,3],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=2,
+                        n_batch_eval=1,
+                        measures_func=compute_target_corr)
+
+        @test size(res.data, 1) == size(train,1)
+        @test size(res.data, 2) - size(train,2) == 6
+
+        expected_cols = [string("target_corr_", step) for step in [2,4,6,8,9]]
+        @test all(expected_cols .∈ [names(res.data)])
+        @test "target_corr_final" ∈ names(res.data)
+
+        # pass karg
+        function compute_target_corr(X_train, Y_train,
+                                        Yhat_train, data, target_col, model, step;
+                                        dummy_string="x")
+            _, corr = JudiLing.eval_SC(Yhat_train, Y_train, R=true)
+            data[!, string("target_corr_", step, "_", dummy_string)] = diag(corr)
+            return(data)
+        end
+
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3,1,2,3,1,2,3],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=1,
+                        n_batch_eval=1,
+                        measures_func=compute_target_corr,
+                        dummy_string="y")
+
+        @test size(res.data, 1) == size(train,1)
+        @test size(res.data, 2) - size(train,2) == 10
+
+        expected_cols = [string("target_corr_", step, "_y") for step in 1:9]
+        @test all(expected_cols .∈ [names(res.data)])
+        @test "target_corr_final_y" ∈ names(res.data)
+    end
 end
