@@ -1315,9 +1315,9 @@ end
 
 """
     load_S_matrix_from_fasttext(data::DataFrame,
-                                language::Symbol;
-                                target_col=:Word,
-                                default_file::Int=1)
+                                     language::Symbol;
+                                     target_col=:Word,
+                                     default_file::Int=1)
 
 Load semantic matrix from fasttext, loaded using the Embeddings.jl package.
 Subset fasttext vectors to include only words in `target_col` of `data`, and
@@ -1371,10 +1371,10 @@ end
 
 """
     load_S_matrix_from_fasttext(data_train::DataFrame,
-                                data_val::DataFrame,
-                                language::Symbol;
-                                target_col=:Word,
-                                default_file::Int=1)
+                                     data_val::DataFrame,
+                                     language::Symbol;
+                                     target_col=:Word,
+                                     default_file::Int=1)
 
 Load semantic matrix from fasttext, loaded using the Embeddings.jl package.
 Subset fasttext vectors to include only words in `target_col` of `data_train` and `data_val`, and
