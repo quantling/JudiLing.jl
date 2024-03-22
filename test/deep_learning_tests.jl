@@ -2,6 +2,7 @@ using Test
 using Flux
 using JudiLing
 using CSV, DataFrames
+using LinearAlgebra: diag
 
 train = DataFrame(CSV.File(joinpath("data", "latin_train.csv")))
 val = DataFrame(CSV.File(joinpath("data", "latin_val.csv")))
@@ -87,6 +88,158 @@ end
     @test JudiLing.eval_SC(Chat_val, cue_obj_val.C) >= 0.0
     @test Flux.mse(Chat_val', cue_obj_val.C')  ≈ findmin(losses_val)[1]
 
+end
+
+@testset "training acc" begin
+
+    @test_throws ArgumentError JudiLing.get_and_train_model(cue_obj_train.C,
+                                S_train,
+                                "test.bson",
+                                batchsize=3,
+                                return_train_acc = true)
+
+    res = JudiLing.get_and_train_model(cue_obj_train.C,
+                                S_train,
+                                "test.bson",
+                                batchsize=3,
+                                return_train_acc = true,
+                                data_train=train,
+                                target_col = :Word)
+
+
+    accs_train = res.accs_train
+
+    print(accs_train)
+
+    @test !ismissing(accs_train)
+    @test length(accs_train) == 100
+    @test accs_train[end] ≈ 1.0
+
+    res = JudiLing.get_and_train_model(cue_obj_train.C,
+                                S_train,
+                                cue_obj_val.C,
+                                S_val,
+                                train, val,
+                                :Word,
+                                "test.bson",
+                                return_losses=true,
+                                batchsize=3,
+                                return_train_acc = true)
+
+    accs_train = res.accs_train
+    accs_val = res.accs_val
+
+    @test !ismissing(accs_train)
+    @test length(accs_train) == length(accs_val) == 100
+    @test accs_train[end] ≈ 1.0
+    @test accs_train[5] > accs_val[5]
+end
+
+@testset "measures_func" begin
+
+    @testset "training data only" begin
+
+        function compute_target_corr(X_train, Y_train, X_val, Y_val,
+                                        Yhat_train, Yhat_val, data_train,
+                                        data_val, target_col, model, epoch)
+            _, corr = JudiLing.eval_SC(Yhat_train, Y_train, R=true)
+            data_train[!, string("target_corr_", epoch)] = diag(corr)
+            return(data_train, missing)
+        end
+
+        res = JudiLing.get_and_train_model(cue_obj_train.C,
+                                    S_train,
+                                    "test.bson",
+                                    batchsize=3,
+                                    return_train_acc = true,
+                                    data_train = train,
+                                    target_col = :Word,
+                                    measures_func=compute_target_corr)
+
+        data_train = res.data_train
+
+        @test size(data_train, 1) == size(train,1)
+        @test size(data_train, 2) - size(train,2) == 101
+        expected_cols = [string("target_corr_", epoch) for epoch in 1:100]
+        @test all(expected_cols .∈ [names(data_train)])
+        @test "target_corr_final" ∈ names(data_train)
+
+        @test data_train[1, "target_corr_1"] < data_train[1, "target_corr_50"] < data_train[1, "target_corr_100"]
+        @test data_train[1, "target_corr_100"] == data_train[1, "target_corr_final"]
+
+    end
+
+    @testset "Passing kargs to measures_func" begin
+
+        function compute_target_corr(X_train, Y_train, X_val, Y_val,
+                                        Yhat_train, Yhat_val, data_train,
+                                        data_val, target_col, model, epoch; dummy_string="x")
+            _, corr = JudiLing.eval_SC(Yhat_train, Y_train, R=true)
+            data_train[!, string("target_corr_", epoch, "_", dummy_string)] = diag(corr)
+            return(data_train, missing)
+        end
+
+        res = JudiLing.get_and_train_model(cue_obj_train.C,
+                                    S_train,
+                                    "test.bson",
+                                    batchsize=3,
+                                    return_train_acc = true,
+                                    data_train = train,
+                                    target_col = :Word,
+                                    measures_func=compute_target_corr,
+                                    dummy_string="y")
+
+        data_train = res.data_train
+
+        expected_cols = [string("target_corr_", epoch, "_y") for epoch in 1:100]
+        @test all(expected_cols .∈ [names(data_train)])
+        @test "target_corr_final_y" ∈ names(data_train)
+
+    end
+
+    @testset "with training and validation data" begin
+        function compute_target_corr(X_train, Y_train, X_val, Y_val,
+                                        Yhat_train, Yhat_val, data_train,
+                                        data_val, target_col, model, epoch)
+            _, corr = JudiLing.eval_SC(Yhat_train, Y_train, R=true)
+            data_train[!, string("target_corr_", epoch)] = diag(corr)
+            _, corr = JudiLing.eval_SC(Yhat_val, Y_val, R=true)
+            data_val[!, string("target_corr_", epoch)] = diag(corr)
+            return(data_train, data_val)
+        end
+
+        res = JudiLing.get_and_train_model(cue_obj_train.C,
+                                    S_train,
+                                    cue_obj_val.C,
+                                    S_val,
+                                    train, val,
+                                    :Word,
+                                    "test.bson",
+                                    return_losses=true,
+                                    batchsize=3,
+                                    measures_func=compute_target_corr)
+
+        data_train = res.data_train
+        data_val = res.data_val
+
+        @test size(data_train, 1) == size(train,1)
+        @test size(data_val, 1) == size(val,1)
+        @test size(data_train, 2) - size(train,2) == 101
+        @test size(data_val, 2) - size(val,2) == 101
+        expected_cols = [string("target_corr_", epoch) for epoch in 1:100]
+        @test all(expected_cols .∈ [names(data_train)])
+        @test all(expected_cols .∈ [names(data_val)])
+
+        @test "target_corr_final" ∈ names(data_train)
+        @test "target_corr_final" ∈ names(data_val)
+
+        @test data_train[1, "target_corr_1"] < data_train[1, "target_corr_50"] < data_train[1, "target_corr_100"]
+        @test data_train[1, "target_corr_100"] == data_train[1, "target_corr_final"]
+
+        @test data_val[1, "target_corr_1"] < data_val[1, "target_corr_50"] < data_val[1, "target_corr_100"]
+        @test data_val[1, "target_corr_100"] == data_val[1, "target_corr_final"]
+
+    end
 end
 
 @testset "early stopping" begin
@@ -304,4 +457,8 @@ end
     Chat_train = JudiLing.predict_from_deep_model(model_prod, S_train)
 
     res_learn = JudiLing.learn_paths(train, cue_obj_train, S_train, model_comp, Chat_train)
+end
+
+@testset "fiddl" begin
+
 end

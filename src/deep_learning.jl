@@ -126,6 +126,9 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     # if we want to compute training accuracy, we additionally need a
     # training loader where the data is not shuffled
     if !ismissing(measures_func) || return_train_acc
+        if ismissing(data_train) || ismissing(target_col)
+            throw(ArgumentError("If measures_func and/or return_train_acc are provided, the training data and target_col must be included."))
+        end
         loader_train_not_shuffled = Flux.DataLoader((X_train', Y_train'),
         batchsize=batchsize, shuffle=false);
     end
@@ -219,6 +222,13 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                                                     preds_train, preds_val, data_train,
                                                     data_val, target_col, model |> cpu, epoch;
                                                     kargs...)
+
+                if n_epochs == epoch
+                    data_train, data_val = measures_func(X_train, Y_train, X_val, Y_val,
+                                                        preds_train, preds_val, data_train,
+                                                        data_val, target_col, model |> cpu, "final";
+                                                        kargs...)
+                end
             end
 
 
@@ -250,6 +260,12 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                                             preds_train, missing, data_train,
                                             missing, target_col, model |> cpu, epoch;
                                             kargs...)
+                if n_epochs == epoch
+                    data_train, _ = measures_func(X_train, Y_train, missing, missing,
+                                                preds_train, missing, data_train,
+                                                missing, target_col, model |> cpu, "final";
+                                                kargs...)
+                end
             end
 
             model_cpu = model |> cpu
@@ -474,8 +490,7 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
         model_cpu = model |> cpu
         @save model_outpath model_cpu
 
-        # this will need to be implemented properly with all possible arguments
-        # a measures function may need
+        # run measures_func
         if !ismissing(measures_func)
             data = measures_func(X_train, Y_train, preds, data, target_col, model_cpu, step;
                                 kargs...)
@@ -502,13 +517,13 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
                             kargs...)
     end
 
-    res = Vector{Any}([model |> cpu])
-    if !ismissing(measures_func)
-        append!(res, [data])
-    end
-    if return_losses
-        append!(res, [losses_train, losses, accs])
-    end
+    res = (model = model |> cpu,
+            data = data,
+            losses_train = losses_train,
+            losses=losses,
+            accs = accs)
+
+
     return(res)
 
 end
