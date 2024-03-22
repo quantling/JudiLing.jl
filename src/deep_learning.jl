@@ -20,7 +20,9 @@ using BSON: @save, @load
                         optimise_for_acc::Bool=false
                         return_losses::Bool=false,
                         verbose::Bool=true,
-                        measures_func::Union{Missing, Function}=missing
+                        measures_func::Union{Missing, Function}=missing,
+                        return_train_acc::Bool=false,
+                        ...kargs
                         )
 
 Trains a deep learning model from X_train to Y_train, saving the model with either the highest
@@ -58,6 +60,9 @@ By default the adam optimizer (Kingma and Ba, 2015) with learning rate 0.001 is 
 - `optimise_for_acc::Bool=false`: if true, keep model with highest validation *accuracy*. If false, keep model with lowest validation *loss*.
 - `return_losses::Bool=false`: whether additional to the model per-epoch losses for the training and test data as well as per-epoch accuracy on the validation data should be returned
 - `verbose::Bool=true`: Turn on verbose mode
+- `measures_func::Union{Missing, Function}=missing`: A measures function which is run at the end of every epoch. If given, the second and third returned values are the training and validation dataframes with any additional columns computed in the measures_func.
+- `return_train_acc::Bool=false`: If true, a vector with training accuracies is returned at the end of the training.
+- `...kargs`: any additional keyword arguments are passed to the measures_func
 """
 function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             Y_train::Union{SparseMatrixCSC,Matrix},
@@ -72,13 +77,17 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             batchsize::Int=64,
                             loss_func::Function=Flux.mse,
                             optimizer=Flux.Adam(0.001),
-                            model::Union{Missing, Chain} = missing,
+                            model::Union{Missing, Flux.Chain} = missing,
                             early_stopping::Union{Missing, Int}=missing,
                             optimise_for_acc::Bool=false,
                             return_losses::Bool=false,
                             verbose::Bool=true,
                             measures_func::Union{Missing, Function}=missing,
+                            return_train_acc::Bool=false,
                             kargs...)
+
+    data_train = deepcopy(data_train)
+    data_val = deepcopy(data_val)
 
     # set up early stopping and saving of best models
     min_loss = typemax(Float64)
@@ -114,6 +123,13 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     flush(stdout)
     loader_train = Flux.DataLoader((X_train', Y_train') , batchsize=batchsize, shuffle=true);
 
+    # if we want to compute training accuracy, we additionally need a
+    # training loader where the data is not shuffled
+    if !ismissing(measures_func) || return_train_acc
+        loader_train_not_shuffled = Flux.DataLoader((X_train', Y_train'),
+        batchsize=batchsize, shuffle=false);
+    end
+
     if !ismissing(X_val) & !ismissing(Y_val)
         loader_val = Flux.DataLoader((X_val', Y_val'), batchsize=batchsize, shuffle=false);
     end
@@ -130,6 +146,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     losses_train = []
     losses_val = []
     accs_val = []
+    accs_train = []
 
     # Setting up progress bar
     p = Progress(n_epochs)
@@ -152,10 +169,11 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
         mean_train_loss = mean(all_losses_epoch_train)
         push!(losses_train, mean_train_loss)
 
-        if !ismissing(measures_func)
+        # predict for the training data, using the non-shuffled training loader
+        if !ismissing(measures_func) || return_train_acc
 
             preds_train = Matrix{Float64}(undef, 0, size(Y_train,2))
-            for (x_cpu, y_cpu) in loader_train
+            for (x_cpu, y_cpu) in loader_train_not_shuffled
                 x = x_cpu |> gpu
                 y = y_cpu |> gpu
 
@@ -164,11 +182,16 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
             end
         end
 
+        # compute training accuracy
+        if return_train_acc
+            acc_train = JudiLing.eval_SC(preds_train, Y_train, data_train, target_col)
+            push!(accs_train, acc_train)
+        end
+
         # Compute validation loss
         if !ismissing(X_val) & !ismissing(Y_val)
             all_losses_epoch_val = []
-            #create array object to append predictions to (we'll skip the first line of ones, but it needs the right shape)
-            #preds_val = ones(1,size(Y_val,2))
+
             preds_val = Matrix{Float64}(undef, 0, size(Y_val,2))
 
             for (x_cpu, y_cpu) in loader_val
@@ -189,9 +212,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
             acc = JudiLing.eval_SC(preds_val, Y_val, Y_train, data_val, data_train, target_col)
             push!(accs_val, acc)
 
-            # this will need to be implemented properly with all possible arguments
-            # a measures function may need
-
+            # run the measures_func
             if !ismissing(measures_func)
 
                 data_train, data_val = measures_func(X_train, Y_train, X_val, Y_val,
@@ -202,9 +223,11 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
 
 
             # update progress bar with training and validation losses and accuracy
-            ProgressMeter.next!(p; showvalues = [("Training loss",mean_train_loss),
-                                                 ("Validation loss",mean_val_loss),
-                                                 ("Validation accuracy", acc)])
+            showvalues = [("Training loss",mean_train_loss),
+                         ("Validation loss",mean_val_loss),
+                         ("Validation accuracy", acc)]
+            return_train_acc && append!(showvalues, [("Training accuracy", acc_train)])
+            ProgressMeter.next!(p; showvalues = showvalues)
 
              # Save if model with highest accuracy
              if (optimise_for_acc && (acc > max_acc)) || (!optimise_for_acc && (mean_val_loss < min_loss))
@@ -223,7 +246,6 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
         else
 
             if !ismissing(measures_func)
-
                 data_train, _ = measures_func(X_train, Y_train, missing, missing,
                                             preds_train, missing, data_train,
                                             missing, target_col, model |> cpu, epoch;
@@ -234,20 +256,23 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
             @save model_outpath model_cpu
 
             # update progress bar with training and validation losses and accuracy
-            ProgressMeter.next!(p; showvalues = [("Training loss",mean_train_loss)])
+            showvalues = [("Training loss",mean_train_loss)]
+            return_train_acc && append!(showvalues, [("Training accuracy", acc_train)])
+            ProgressMeter.next!(p; showvalues = showvalues)
 
         end
     end
 
     @load model_outpath model_cpu
 
-    res = Vector{Any}([model_cpu])
-    if !ismissing(measures_func)
-        append!(res, [data_train, data_val])
-    end
-    if return_losses
-        append!(res, [losses_train, losses_val, accs_val])
-    end
+    res = (model = model_cpu,
+           data_train = data_train,
+           data_val = data_val,
+           losses_train = losses_train,
+           losses_val = losses_val,
+           accs_val = accs_val,
+           accs_train = accs_train)
+
     return(res)
 end
 
@@ -255,6 +280,8 @@ end
     get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                         Y_train::Union{SparseMatrixCSC,Matrix},
                         model_outpath::String;
+                        data_train::Union{Missing, DataFrame}=missing,
+                        target_col::Union{Missing, Symbol, String}=missing,
                         hidden_dim::Int=1000,
                         n_epochs::Int=100,
                         batchsize::Int=64,
@@ -263,7 +290,9 @@ end
                         model::Union{Missing, Chain} = missing,
                         return_losses::Bool=false,
                         verbose::Bool=true,
-                        measures_func::Union{Missing, Function}=missing)
+                        measures_func::Union{Missing, Function}=missing,
+                        return_train_acc::Bool=false,
+                        ...kargs)
 
 Trains a deep learning model from X_train to Y_train, saving the model after n_epochs epochs.
 The default model looks like this:
@@ -285,6 +314,8 @@ By default the adam optimizer (Kingma and Ba, 2015) with learning rate 0.001 is 
 - `model_outpath::String`: filepath to where final model should be stored (in .bson format)
 
 # Optional arguments
+- `data_train::Union{Missing, DataFrame}=missing`: The training data. Only necessary if a measures_func is included or return_train_acc=true.
+- `target_col::Union{Missing, Symbol, String}=missing`: The column with target word forms in the training data. Only necessary if a measures_func is included or return_train_acc=true.
 - `hidden_dim::Int=1000`: hidden dimension of the model
 - `n_epochs::Int=100`: number of epochs for which the model should be trained
 - `batchsize::Int=64`: batchsize during training
@@ -293,21 +324,25 @@ By default the adam optimizer (Kingma and Ba, 2015) with learning rate 0.001 is 
 - `model::Union{Missing, Chain} = missing`: A custom model can be provided for training. Its requirements are that it has to correspond to the input and output size of the training and validation data
 - `return_losses::Bool=false`: whether additional to the model per-epoch losses for the training and test data as well as per-epoch accuracy on the validation data should be returned
 - `verbose::Bool=true`: Turn on verbose mode
+- `measures_func::Union{Missing, Function}=missing`: A measures function which is run at the end of every epoch. If given, the second value is the training dataframe with any additional columns computed in the measures_func.
+- `return_train_acc::Bool=false`: If true, a vector with training accuracies is returned at the end of the training.
+- `...kargs`: any additional keyword arguments are passed to the measures_func
 """
 function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             Y_train::Union{SparseMatrixCSC,Matrix},
                             model_outpath::String;
                             data_train::Union{Missing, DataFrame}=missing,
-                            target_col::Union{Symbol, String}=missing,
+                            target_col::Union{Missing, Symbol, String}=missing,
                             hidden_dim::Int=1000,
                             n_epochs::Int=100,
                             batchsize::Int=64,
                             loss_func::Function=Flux.mse,
                             optimizer=Flux.Adam(0.001),
-                            model::Union{Missing, Chain} = missing,
+                            model::Union{Missing, Flux.Chain} = missing,
                             return_losses::Bool=false,
                             verbose::Bool=true,
                             measures_func::Union{Missing, Function}=missing,
+                            return_train_acc::Bool=false,
                             kargs...)
 
     get_and_train_model(X_train,
@@ -329,6 +364,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                         optimise_for_acc=false,
                         optimizer=optimizer,
                         measures_func=measures_func,
+                        return_train_acc=return_train_acc,
                         kargs...)
 end
 
@@ -343,7 +379,7 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
                 batchsize::Int=64,
                 loss_func::Function=Flux.mse,
                 optimizer=Flux.Adam(0.001),
-                model::Union{Missing, Chain} = missing,
+                model::Union{Missing, Flux.Chain} = missing,
                 return_losses::Bool=false,
                 verbose::Bool=true,
                 n_batch_eval::Int=100,
@@ -488,7 +524,7 @@ Generates output of a model given input `X`.
 - `X::Union{SparseMatrixCSC,Matrix}`: Input matrix of size (number_of_samples, inp_dim) where inp_dim is the input dimension of `model`
 
 """
-function predict_from_deep_model(model::Chain,
+function predict_from_deep_model(model::Flux.Chain,
                                  X::Union{SparseMatrixCSC,Matrix})
     model_cpu = model |> cpu
     Yhat = model_cpu(X' |> cpu)
@@ -507,7 +543,7 @@ list of indices of ngrams `ci`.
 - `ci::Vector{Int}`: Vector of indices of ngrams in c vector. Essentially, this is a vector indicating which ngrams in a c vector are absent and which are present.
 
 """
-function predict_shat(model::Chain,
+function predict_shat(model::Flux.Chain,
                      ci::Vector{Int})
     dim = size(Flux.params(model[1])[1])[2]
     c = zeros(1, dim)

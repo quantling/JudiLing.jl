@@ -12,10 +12,13 @@ S_train, S_val = JudiLing.make_combined_S_matrix(train, val, ["Lexeme"],
 
 @testset "basic setup" begin
 
-    model = JudiLing.get_and_train_model(cue_obj_train.C,
+    res = JudiLing.get_and_train_model(cue_obj_train.C,
                                 S_train,
                                 "test.bson",
                                 batchsize=3)
+
+
+    model = res.model
 
     @test model isa Chain
 
@@ -23,9 +26,11 @@ S_train, S_val = JudiLing.make_combined_S_matrix(train, val, ["Lexeme"],
 
     @test JudiLing.eval_SC(Shat_train, S_train) ≈ 1.0
 
-    model = JudiLing.get_and_train_model(S_train, cue_obj_train.C,
+    res = JudiLing.get_and_train_model(S_train, cue_obj_train.C,
                                 "test.bson",
                                 batchsize=3)
+
+    model = res.model
 
     @test model isa Chain
 
@@ -37,7 +42,7 @@ end
 
 @testset "validation data" begin
 
-    model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(cue_obj_train.C,
+    res = JudiLing.get_and_train_model(cue_obj_train.C,
                                 S_train,
                                 cue_obj_val.C,
                                 S_val,
@@ -46,6 +51,8 @@ end
                                 "test.bson",
                                 return_losses=true,
                                 batchsize=3)
+
+    model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
 
     @test model isa Chain
     @test length(losses_train) == length(losses_val) == length(accs_val) == 100
@@ -58,7 +65,7 @@ end
     @test JudiLing.eval_SC(Shat_val, S_val) >= 0.0
     @test Flux.mse(Shat_val', S_val') ≈ findmin(losses_val)[1]
 
-    model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(S_train,
+    res = JudiLing.get_and_train_model(S_train,
                                 cue_obj_train.C,
                                 S_val,
                                 cue_obj_val.C,
@@ -67,6 +74,8 @@ end
                                 "test.bson",
                                 return_losses=true,
                                 batchsize=3)
+
+    model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
 
     @test model isa Chain
 
@@ -90,7 +99,7 @@ end
     ["Person", "Number", "Tense", "Voice", "Mood"])
 
 
-    model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(cue_obj_train.C,
+    res = JudiLing.get_and_train_model(cue_obj_train.C,
                                 S_train,
                                 cue_obj_val.C,
                                 S_val,
@@ -102,9 +111,11 @@ end
                                 n_epochs=1000,
                                 batchsize=2)
 
+    model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
+
     @test model isa Chain
 
-    @test length(losses_train) == length(losses_val) == length(accs_val) != 1000
+    @test length(losses_train) == length(losses_val) == length(accs_val) < 1000
 
     Shat_train = JudiLing.predict_from_deep_model(model, cue_obj_train.C)
     Shat_val = JudiLing.predict_from_deep_model(model, cue_obj_val.C)
@@ -112,7 +123,7 @@ end
     @test JudiLing.eval_SC(Shat_train, S_train) ≈ 1.0
     @test Flux.mse(Shat_val', S_val') ≈ findmin(losses_val)[1]
 
-    model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(cue_obj_train.C,
+    res = JudiLing.get_and_train_model(cue_obj_train.C,
                                 S_train,
                                 cue_obj_val.C,
                                 S_val,
@@ -123,6 +134,8 @@ end
                                 early_stopping=20,
                                 optimise_for_acc = true,
                                 batchsize=2)
+
+    model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
 
     Shat_train = JudiLing.predict_from_deep_model(model, cue_obj_train.C)
     Shat_val = JudiLing.predict_from_deep_model(model, cue_obj_val.C)
@@ -139,7 +152,7 @@ end
     ["Person", "Number", "Tense", "Voice", "Mood"])
 
     @testset "batchsize" begin
-        model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(S_train,
+        res = JudiLing.get_and_train_model(S_train,
                                     cue_obj_train.C,
                                     S_val,
                                     cue_obj_val.C,
@@ -148,10 +161,12 @@ end
                                     "test.bson",
                                     return_losses=true,
                                     batchsize=2)
+
+        model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
     end
 
     @testset "number of epochs" begin
-        model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(S_train,
+        res = JudiLing.get_and_train_model(S_train,
                                     cue_obj_train.C,
                                     S_val,
                                     cue_obj_val.C,
@@ -162,12 +177,14 @@ end
                                     batchsize=3,
                                     n_epochs=500)
 
+        model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
+
         @test length(losses_train) == length(losses_val) == length(accs_val) == 500
     end
 
     @testset "optimizer" begin
 
-    model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(S_train,
+    res = JudiLing.get_and_train_model(S_train,
                                 cue_obj_train.C,
                                 S_val,
                                 cue_obj_val.C,
@@ -178,7 +195,9 @@ end
                                 batchsize=3,
                                 optimizer=Flux.Adam(0.00001))
 
-    model2, losses_train2, losses_val2, accs_val2 = JudiLing.get_and_train_model(S_train,
+    model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
+
+    res2 = JudiLing.get_and_train_model(S_train,
                                 cue_obj_train.C,
                                 S_val,
                                 cue_obj_val.C,
@@ -189,11 +208,13 @@ end
                                 batchsize=3,
                                 optimizer=Flux.Adam(0.1))
 
+    model2, losses_train2, losses_val2, accs_val2 = res2.model, res2.losses_train, res2.losses_val, res2.accs_val
+
     @test losses_train[end] - losses_train2[end] > 0.1
     end
 
     @testset "hidden dim" begin
-        model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(S_train,
+        res = JudiLing.get_and_train_model(S_train,
                                     cue_obj_train.C,
                                     S_val,
                                     cue_obj_val.C,
@@ -203,13 +224,16 @@ end
                                     return_losses=true,
                                     batchsize=3,
                                     hidden_dim=200)
+
+        model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
+
         @test size(Flux.params(model[1])[1],1) == 200
     end
 
     @testset "supplying model" begin
         model = Chain(Dense(size(S_train,2)=>500), Dense(500=>500), Dense(500=>size(cue_obj_train.C, 2)))
 
-        model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(S_train,
+        res = JudiLing.get_and_train_model(S_train,
                                     cue_obj_train.C,
                                     S_val,
                                     cue_obj_val.C,
@@ -219,6 +243,8 @@ end
                                     return_losses=true,
                                     batchsize=3,
                                     model=model)
+
+        model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
 
         @test size(Flux.params(model[1])[1],1) == 500
         @test size(Flux.params(model[2])[1],1) == 500
@@ -232,7 +258,7 @@ end
             Dense(size(S_train, 2) => 1000, relu),   # activation function inside layer
             Dense(1000 => size(cue_obj_train.C, 2)),
             sigmoid) |> gpu
-        model, losses_train, losses_val, accs_val = JudiLing.get_and_train_model(S_train,
+        res = JudiLing.get_and_train_model(S_train,
                                     cue_obj_train.C,
                                     S_val,
                                     cue_obj_val.C,
@@ -244,6 +270,8 @@ end
                                     loss_func=Flux.binarycrossentropy,
                                     model=model_prod,
                                     return_losses=true)
+
+        model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
 
         Chat_train = JudiLing.predict_from_deep_model(model, S_train)
         Chat_val = JudiLing.predict_from_deep_model(model, S_val)
@@ -261,13 +289,17 @@ end
     S_train, S_val = JudiLing.make_combined_S_matrix(train, val, ["Lexeme"],
     ["Person", "Number", "Tense", "Voice", "Mood"])
 
-    model_comp = JudiLing.get_and_train_model(cue_obj_train.C, S_train,
+    res = JudiLing.get_and_train_model(cue_obj_train.C, S_train,
                                 "test.bson",
                                 batchsize=3)
 
-    model_prod = JudiLing.get_and_train_model(S_train, cue_obj_train.C,
+    model_comp = res.model
+
+    res = JudiLing.get_and_train_model(S_train, cue_obj_train.C,
                                 "test.bson",
                                 batchsize=3)
+
+    model_prod = res.model
 
     Chat_train = JudiLing.predict_from_deep_model(model_prod, S_train)
 
