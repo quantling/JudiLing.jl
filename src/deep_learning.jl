@@ -69,7 +69,7 @@ Returns a named tuple with the following values:
 - `optimise_for_acc::Bool=false`: if true, keep model with highest validation *accuracy*. If false, keep model with lowest validation *loss*.
 - `return_losses::Bool=false`: whether additional to the model per-epoch losses for the training and test data as well as per-epoch accuracy on the validation data should be returned
 - `verbose::Bool=true`: Turn on verbose mode
-- `measures_func::Union{Missing, Function}=missing`: A measures function which is run at the end of every epoch. For more information see [The `measures_func` argument](@ref).
+- `measures_func::Union{Missing, Function}=missing`: A measures function which is run at the end of every epoch. For more information see [The `measures_func` argument](@ref). If a measure is tagged for each epoch, the one tagged with "final" will be the one for the finally returned model.
 - `return_train_acc::Bool=false`: If true, a vector with training accuracies is returned at the end of the training.
 - `...kargs`: any additional keyword arguments are passed to the measures_func
 """
@@ -231,13 +231,6 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                                                     preds_train, preds_val, data_train,
                                                     data_val, target_col, model |> cpu, epoch;
                                                     kargs...)
-
-                if n_epochs == epoch
-                    data_train, data_val = measures_func(X_train, Y_train, X_val, Y_val,
-                                                        preds_train, preds_val, data_train,
-                                                        data_val, target_col, model |> cpu, "final";
-                                                        kargs...)
-                end
             end
 
 
@@ -254,6 +247,13 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                  @save model_outpath model_cpu
                  max_acc = acc
                  min_loss = mean_val_loss
+
+                if !ismissing(measures_func)
+                    data_train, data_val = measures_func(X_train, Y_train, X_val, Y_val,
+                                                        preds_train, preds_val, data_train,
+                                                        data_val, target_col, model |> cpu, "final";
+                                                        kargs...)
+                end
              end
 
              # early stopping

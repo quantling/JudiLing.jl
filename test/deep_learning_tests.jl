@@ -232,10 +232,10 @@ end
         @test "target_corr_final" ∈ names(data_val)
 
         @test data_train[1, "target_corr_1"] < data_train[1, "target_corr_50"] < data_train[1, "target_corr_100"]
-        @test data_train[1, "target_corr_100"] == data_train[1, "target_corr_final"]
+        @test data_train[1, string("target_corr_", findmin(res.losses_val)[2])]  == data_train[1, "target_corr_final"]
 
         @test data_val[1, "target_corr_1"] < data_val[1, "target_corr_50"] < data_val[1, "target_corr_100"]
-        @test data_val[1, "target_corr_100"] == data_val[1, "target_corr_final"]
+        @test data_val[1, string("target_corr_", findmin(res.losses_val)[2])]  == data_val[1, "target_corr_final"]
 
     end
 end
