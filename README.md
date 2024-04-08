@@ -12,7 +12,6 @@ Original codebase: Xuefeng Luo [@MegamindHenry](https://github.com/MegamindHenry
 
 ## Installation
 
-JudiLing is now on the Julia package system. You can install JudiLing by the follow commands:
 ```
 using Pkg
 Pkg.add("JudiLing")
@@ -103,7 +102,7 @@ For the production model, we want to predict correct forms given their lexemes a
 
 We use letter trigrams to encode our forms. For word `vocoo`, for example, we use trigrams `#vo`, `voc`, `oco`, `coo` and `oo#`. Here, `#` is used as start/end token to encode the initial trigram and finial trigram of a word. The row vectors of the C matrix specify for each word which of the trigrams are realized in that word.
 
-To make the C matrix, we use the make\_cue\_matrix function:
+To make the C matrix, we use the `make_cue_matrix` function:
 
 ```julia
 cue_obj = JudiLing.make_cue_matrix(
@@ -115,7 +114,7 @@ cue_obj = JudiLing.make_cue_matrix(
     )
 ```
 
-Next, we simulate the semantic matrix S using the make\_S\_matrix function:
+Next, we simulate the semantic matrix S using the `make_S_matrix` function:
 ```julia
 n_features = size(cue_obj.C, 2)
 S = JudiLing.make_S_matrix(
@@ -124,7 +123,7 @@ S = JudiLing.make_S_matrix(
     ["Person","Number","Tense","Voice","Mood"],
     ncol=n_features)
 ```
-For this simulation, first random vectors are assigned to every lexeme and inflectional feature, and next the vectors of those features are summed up to obtain the semantic vector of the inflected form. Similar dimensions for C and S work best. Therefore, we retrieve the number of columns from the C matrix and pass it to make\_S\_Matrix when constructing S.
+For this simulation, first random vectors are assigned to every lexeme and inflectional feature, and next the vectors of those features are summed up to obtain the semantic vector of the inflected form. Similar dimensions for C and S work best. Therefore, we retrieve the number of columns from the C matrix and pass it to `make_S_matrix` when constructing S.
 
 Then, the next step is to calculate a mapping from S to C by solving equation C = SG. We use Cholesky decomposition to solve this equation:
 
@@ -147,8 +146,7 @@ Output:
 JudiLing.eval_SC(Chat, cue_obj.C) = 0.9926
 ```
 
-!!! note
-    Accuracy may be different depending on the simulated semantic matrix.
+> **_NOTE:_** Accuracy may be different depending on the simulated semantic matrix.
 
 Similar to G and Chat, we can solve S = CF:
 ```julia
@@ -164,19 +162,17 @@ Output:
 ```output
 JudiLing.eval_SC(Shat, S) = 0.9911
 ```
-
-!!! note
-    Accuracy may be different depending on the simulated semantic matrix.
+> **_NOTE:_** Accuracy may be different depending on the simulated semantic matrix.
 
 To model speech production, the proper triphones have to be selected and put into the right order. We have two algorithms that accomplish this. Both algorithms construct paths in a triphone space that start with word-initial triphones and end with word-final triphones.
 
-The first step is to construct an adjacency matrix that specify which triphone can follow each other. In this example, we use the adjacency matrix constructed by make\_cue\_matrix, but we can also make use of a independently constructed adjacency matrix if required.
+The first step is to construct an adjacency matrix that specify which triphone can follow each other. In this example, we use the adjacency matrix constructed by `make_cue_matrix`, but we can also make use of a independently constructed adjacency matrix if required.
 
 ```julia
 A = cue_obj.A
 ```
 
-For our sequencing algorithms, we calculate the number of timesteps we need for our algorithms. For the Latin dataset, the max timestep is equal to the length of the longest word. The argument :Word specifies the column in the Latin dataset that lists the words' forms.
+For our sequencing algorithms, we calculate the number of timesteps we need for our algorithms. For the Latin dataset, the max timestep is equal to the length of the longest word. The argument `:Word` specifies the column in the Latin dataset that lists the words' forms.
 
 ```julia
 max_t = JudiLing.cal_max_timestep(latin, :Word)
@@ -365,21 +361,23 @@ display(df_build)
 │ 2518 │ 672       │ cuccurissent   │ #cu:cuc:ucc:ccu:cur:uri:ris:iss:sse:sem:em#     │ cuccurissem  │ 0             │
 │ 2519 │ 672       │ cuccurissent   │ #cu:cur:uri:ris:iss:sse:sem:em#                 │ curissem     │ 0             │
 ```
-The model also provides functionality for cross-validation. Here, you can download our datasets, [latin_train.csv](https://osf.io/yr9a3/download) and [latin_val.csv](https://osf.io/bm7y6/download). Please notice that currently our model only support validation datasets that have all their n-grams present in the training datasets.
+
+## Cross-validation
+
+The model also provides functionality for cross-validation. Here, we first split the dataset randomly into 90% training and 10% validation data:
 
 ```
-download("https://osf.io/2ejfu/download", joinpath(@__DIR__, "data", "latin_train.csv"))
-download("https://osf.io/bm7y6/download", joinpath(@__DIR__, "data", "latin_val.csv"))
-
-latin_train =
-    DataFrame(CSV.File(joinpath(@__DIR__, "data", "latin_train.csv")))
-latin_val =
-    DataFrame(CSV.File(joinpath(@__DIR__, "data", "latin_val.csv")))
+latin_train, latin_val = JudiLing.loading_data_randomly_split("latin.csv",
+                                                                "data",
+                                                                "latin",
+                                                                val_ratio=0.1,
+                                                                random_seed=42)
 ```
 
-Then, we make the C and S matrices passing both training and validation datasets to the `make_cue_matrix` function.
+Then, we make the C matrix by passing both training and validation datasets to the `make_combined_cue_matrix` function which ensures that the C matrix contains columns for
+both training and validation data.
 ```
-cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
+cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(
     latin_train,
     latin_val,
     grams = 3,
@@ -387,9 +385,13 @@ cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
     tokenized = false,
     keep_sep = false
 )
+```
 
+Next, we simulate semantic vectors, again for both the training and validation data,
+using `make_combined_S_matrix`:
+```
 n_features = size(cue_obj_train.C, 2)
-S_train, S_val = JudiLing.make_S_matrix(
+S_train, S_val = JudiLing.make_combined_S_matrix(
     latin_train,
     latin_val,
     ["Lexeme"],
@@ -398,7 +400,7 @@ S_train, S_val = JudiLing.make_S_matrix(
 )
 ```
 
-After that, we make the transformation matrices, but this time we only use training dataset. We use these transformation matrices to predict the validation dataset.
+After that, we make the transformation matrices, but this time we only use the training dataset. We use these transformation matrices to predict the validation dataset.
 ```
 G_train = JudiLing.make_transform_matrix(S_train, cue_obj_train.C)
 F_train = JudiLing.make_transform_matrix(cue_obj_train.C, S_train)
@@ -416,9 +418,9 @@ Shat_val = cue_obj_val.C * F_train
 
 Output:
 ```output
-JudiLing.eval_SC(Chat_train, cue_obj_train.C) = 0.9926
-JudiLing.eval_SC(Chat_val, cue_obj_val.C) = 0.3955
-JudiLing.eval_SC(Shat_train, S_train) = 0.9911
+JudiLing.eval_SC(Chat_train, cue_obj_train.C) = 0.995
+JudiLing.eval_SC(Chat_val, cue_obj_val.C) = 0.403
+JudiLing.eval_SC(Shat_train, S_train) = 0.9917
 JudiLing.eval_SC(Shat_val, S_val) = 1.0
 ```
 
@@ -525,22 +527,13 @@ acc_build_val = JudiLing.eval_acc(res_build_val, cue_obj_val.gold_ind, verbose =
 
 Output:
 ```output
-acc_learn_train = 0.9985
-acc_learn_val = 0.8433
-acc_build_train = 0.9955
-acc_build_val = 0.8433
+acc_learn_train = 0.9983
+acc_learn_val = 0.6866
+acc_build_train = 1.0
+acc_build_val = 0.3284
 ```
 
 Alternatively, we  have a wrapper function incorporating all above functionalities. With this function, you can quickly explore datasets with different parameter settings. Please find more in the [Test Combo Introduction](@ref).
-
-Once you are done, you may want to clean up your output directory:
-
-```julia
-rm(joinpath(@__DIR__, "data"), force = true, recursive = true)
-rm(joinpath(@__DIR__, "latin_out"), force = true, recursive = true)
-```
-
-You can download and try out this script [here](https://osf.io/sa89x/download).
 
 ## Supports
 
@@ -552,9 +545,9 @@ This project was supported by the ERC advanced grant WIDE-742545 and by the Deut
 
 ## Citation
 
-If you find this package helpful, please cite this as follow:
+If you find this package helpful, please cite it as follows:
 
-Luo, X., Chuang, Y. Y., Baayen, R. H. JudiLing: an implementation in Julia of Linear Discriminative Learning algorithms for language model. Eberhard Karls Universität Tübingen, Seminar für Sprachwissenschaft.
+Luo, X., Heitmeier, M., Chuang, Y. Y., Baayen, R. H. JudiLing: an implementation of the Discriminative Lexicon Model in Julia. Eberhard Karls Universität Tübingen, Seminar für Sprachwissenschaft.
 
 The following studies have made use of several algorithms now implemented in JudiLing instead of WpmWithLdl:
 
@@ -562,6 +555,18 @@ The following studies have made use of several algorithms now implemented in Jud
 
 - Baayen, R. H., Chuang, Y. Y., and Blevins, J. P. (2018). Inflectional morphology with linear mappings. The Mental Lexicon, 13 (2), 232-270.
 
-- Chuang, Y.-Y., Lõo, K., Blevins, J. P., and Baayen, R. H. (in press). Estonian case inflection made simple. A case study in Word and Paradigm morphology with Linear Discriminative Learning. In Körtvélyessy, L., and Štekauer, P. (Eds.) Complex Words: Advances in Morphology, 1-19.
+- Chuang, Y.-Y., Lõo, K., Blevins, J. P., and Baayen, R. H. (2020). Estonian case inflection made simple. A case study in Word and Paradigm morphology with Linear Discriminative Learning. In Körtvélyessy, L., and Štekauer, P. (Eds.) Complex Words: Advances in Morphology, 1-19.
 
-- Chuang, Y-Y., Bell, M. J., Banke, I., and Baayen, R. H. (accepted). Bilingual and multilingual mental lexicon: a modeling study with Linear Discriminative Learning. Language Learning, 1-55.
+- Chuang, Y-Y., Bell, M. J., Banke, I., and Baayen, R. H. (2020). Bilingual and multilingual mental lexicon: a modeling study with Linear Discriminative Learning. Language Learning, 1-55.
+
+- Heitmeier, M., Chuang, Y-Y., Baayen, R. H. (2021). Modeling morphology with Linear Discriminative Learning: considerations and design choices. Frontiers in Psychology, 12, 4929.
+
+- Denistia, K., and Baayen, R. H. (2022). The morphology of Indonesian: Data and quantitative modeling. In Shei, C., and Li, S. (Eds.) The Routledge Handbook of Asian Linguistics, (pp. 605-634). Routledge, London.
+
+- Heitmeier, M., Chuang, Y.-Y., and Baayen, R. H. (2023). How trial-to-trial learning shapes mappings in the mental lexicon: Modelling lexical decision with linear discriminative learning. Cognitive Psychology, 1-30.
+
+- Chuang, Y. Y., Kang, M., Luo, X. F. and Baayen, R. H. (2023). Vector Space Morphology with Linear Discriminative Learning. In Crepaldi, D. (Ed.) Linguistic morphology in the mind and brain. 
+
+- Heitmeier, M., Chuang, Y. Y., Axen, S. D., & Baayen, R. H. (2024). Frequency effects in linear discriminative learning. Frontiers in Human Neuroscience, 17, 1242720.
+
+- Plag, I., Heitmeier, M. & Domahs, F. (to appear). German nominal number interpretation in an impaired mental lexicon: A naive discriminative learning perspective. The Mental Lexicon.
