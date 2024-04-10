@@ -997,7 +997,9 @@ function make_combined_L_matrix(
         inflections;
         ncol = ncol,
         sd_base_mean = sd_base_mean,
+        sd_inflection_mean = sd_inflection_mean,
         sd_base = sd_base,
+        sd_inflection = sd_inflection,
         seed = seed,
         isdeep = isdeep,
     )
@@ -1055,6 +1057,8 @@ function make_combined_L_matrix(
         ncol = ncol,
         sd_base_mean = sd_base_mean,
         sd_base = sd_base,
+        sd_inflection_mean = sd_inflection_mean,
+        sd_inflection = sd_inflection,
         seed = seed,
         isdeep = isdeep,
     )
@@ -1224,6 +1228,8 @@ function make_combined_S_matrix(
         ncol = ncol,
         sd_base_mean = sd_base_mean,
         sd_base = sd_base,
+        sd_inflection_mean = sd_inflection_mean,
+        sd_inflection = sd_inflection,
         seed = seed,
         isdeep = isdeep,
     )
@@ -1298,6 +1304,8 @@ function make_combined_S_matrix(
         ncol = ncol,
         sd_base_mean = sd_base_mean,
         sd_base = sd_base,
+        sd_inflection_mean = sd_inflection_mean,
+        sd_inflection = sd_inflection,
         seed = seed,
         isdeep = isdeep,
     )
