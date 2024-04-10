@@ -640,8 +640,7 @@ function eval_SC_loose(SChat, SC, k; digits=4)
     )
 
     for i = 1:total
-        p = sortperm(rSC[i, :], rev = true)
-        p = p[1:k, :]
+        p = partialsortperm(rSC[i, :], 1:k, rev = true)
         if i in p
             correct += 1
         end
@@ -681,8 +680,7 @@ function eval_SC_loose(SChat, SC, k, data, target_col; digits=4)
     )
 
     for i = 1:total
-        p = sortperm(rSC[i, :], rev = true)
-        p = p[1:k]
+        p = partialsortperm(rSC[i, :], 1:k, rev = true)
         if i in p
             correct += 1
         else
