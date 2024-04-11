@@ -18,16 +18,14 @@ Pkg.add("JudiLing")
 ```
 
 ## Include packages
-Before we start, we first need to include two packages in julia:
+Before we start, we first need to load the JudiLing package:
 
 ```julia
-using JudiLing # our package
-using CSV # read csv files into dataframes
-using DataFrames # parse data into dataframes
+using JudiLing
 ```
 
 **Note:**
-With JudiLing 0.8.0, [PyCall](https://github.com/JuliaPy/PyCall.jl) and [Flux](https://fluxml.ai/Flux.jl/stable/) have become optional dependencies. This means that all code in JudiLing which requires calls to python is only available if PyCall is loaded first, like this:
+As of JudiLing 0.8.0, [PyCall](https://github.com/JuliaPy/PyCall.jl) and [Flux](https://fluxml.ai/Flux.jl/stable/) have become optional dependencies. This means that all code in JudiLing which requires calls to python is only available if PyCall is loaded first, like this:
 ```julia
 using PyCall
 using JudiLing
@@ -66,7 +64,7 @@ We first download and read the csv file into Julia:
 ```julia
 download("https://osf.io/2ejfu/download", "latin.csv")
 
-latin = DataFrame(CSV.File(joinpath(@__DIR__, "latin.csv")));
+latin = JudiLing.load_dataset("latin.csv");
 ```
 
 and we can inspect the latin dataframe:
@@ -565,7 +563,7 @@ The following studies have made use of several algorithms now implemented in Jud
 
 - Heitmeier, M., Chuang, Y.-Y., and Baayen, R. H. (2023). How trial-to-trial learning shapes mappings in the mental lexicon: Modelling lexical decision with linear discriminative learning. Cognitive Psychology, 1-30.
 
-- Chuang, Y. Y., Kang, M., Luo, X. F. and Baayen, R. H. (2023). Vector Space Morphology with Linear Discriminative Learning. In Crepaldi, D. (Ed.) Linguistic morphology in the mind and brain. 
+- Chuang, Y. Y., Kang, M., Luo, X. F. and Baayen, R. H. (2023). Vector Space Morphology with Linear Discriminative Learning. In Crepaldi, D. (Ed.) Linguistic morphology in the mind and brain.
 
 - Heitmeier, M., Chuang, Y. Y., Axen, S. D., & Baayen, R. H. (2024). Frequency effects in linear discriminative learning. Frontiers in Human Neuroscience, 17, 1242720.
 
