@@ -997,7 +997,9 @@ function make_combined_L_matrix(
         inflections;
         ncol = ncol,
         sd_base_mean = sd_base_mean,
+        sd_inflection_mean = sd_inflection_mean,
         sd_base = sd_base,
+        sd_inflection = sd_inflection,
         seed = seed,
         isdeep = isdeep,
     )
@@ -1055,6 +1057,8 @@ function make_combined_L_matrix(
         ncol = ncol,
         sd_base_mean = sd_base_mean,
         sd_base = sd_base,
+        sd_inflection_mean = sd_inflection_mean,
+        sd_inflection = sd_inflection,
         seed = seed,
         isdeep = isdeep,
     )
@@ -1224,6 +1228,8 @@ function make_combined_S_matrix(
         ncol = ncol,
         sd_base_mean = sd_base_mean,
         sd_base = sd_base,
+        sd_inflection_mean = sd_inflection_mean,
+        sd_inflection = sd_inflection,
         seed = seed,
         isdeep = isdeep,
     )
@@ -1298,6 +1304,8 @@ function make_combined_S_matrix(
         ncol = ncol,
         sd_base_mean = sd_base_mean,
         sd_base = sd_base,
+        sd_inflection_mean = sd_inflection_mean,
+        sd_inflection = sd_inflection,
         seed = seed,
         isdeep = isdeep,
     )
@@ -1315,9 +1323,9 @@ end
 
 """
     load_S_matrix_from_fasttext(data::DataFrame,
-                                language::Symbol;
-                                target_col=:Word,
-                                default_file::Int=1)
+                                     language::Symbol;
+                                     target_col=:Word,
+                                     default_file::Int=1)
 
 Load semantic matrix from fasttext, loaded using the Embeddings.jl package.
 Subset fasttext vectors to include only words in `target_col` of `data`, and
@@ -1371,10 +1379,10 @@ end
 
 """
     load_S_matrix_from_fasttext(data_train::DataFrame,
-                                data_val::DataFrame,
-                                language::Symbol;
-                                target_col=:Word,
-                                default_file::Int=1)
+                                     data_val::DataFrame,
+                                     language::Symbol;
+                                     target_col=:Word,
+                                     default_file::Int=1)
 
 Load semantic matrix from fasttext, loaded using the Embeddings.jl package.
 Subset fasttext vectors to include only words in `target_col` of `data_train` and `data_val`, and

@@ -1,5 +1,9 @@
 using SafeTestsets
 
+@safetestset "input tests" begin
+    include("input_tests.jl")
+end
+
 @safetestset "cholesky tests" begin
     include("cholesky_tests.jl")
 end

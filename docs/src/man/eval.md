@@ -9,6 +9,16 @@ CurrentModule = JudiLing
     eval_SC
     eval_SC_loose
     accuracy_comprehension(S, Shat, data)
+    accuracy_comprehension(
+        S_val,
+        S_train,
+        Shat_val,
+        data_val,
+        data_train;
+        target_col = :Words,
+        base = nothing,
+        inflections = nothing,
+    )
     eval_SC(SChat::AbstractArray, SC::AbstractArray)
     eval_SC(SChat::AbstractArray, SC::AbstractArray, SC_rest::AbstractArray)
     eval_SC(SChat::AbstractArray, SC::AbstractArray, data::DataFrame, target_col::Union{String, Symbol})
