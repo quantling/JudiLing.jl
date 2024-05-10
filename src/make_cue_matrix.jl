@@ -458,13 +458,43 @@ function make_combined_cue_matrix(
 end
 
 
-function make_cue_matrix_from_CFBS(features)
+"""
+    make_cue_matrix_from_CFBS(features::Vector{Vector{T}};
+                              pad_val::T = 0.,
+                              ncol::Union{Missing,Int}=missing) where {T}
+
+Create a cue matrix from a vector of feature vectors (usually CFBS vectors).
+It is expected (though of course not necessary) that the vectors have varying lengths. They are consequently padded on the right with the provided `pad_val`.
+
+# Obligatory arguments
+- `features::Vector{Vector{T}}`: vector of vectors containing C-FBS features
+
+# Optional arguments
+- `pad_val::T = 0.`: Value with which the feature vectors will be padded
+- `ncol::Union{Missing,Int}=missing`: Number of columns of the C matrix. If not set, will be set to the maximum number of features
+
+# Examples
+```julia
+C = JudiLing.make_cue_matrix_from_CFBS(features)
+```
+"""
+function make_cue_matrix_from_CFBS(features::Vector{Vector{T}};
+                                    pad_val::T = 0.,
+                                    ncol::Union{Missing,Int}=missing) where {T}
 
     m = findmax([length(v) for v in features])[1]
 
+    if !ismissing(ncol)
+        if ncol >= m
+            m = ncol
+        else
+            error("ncol is set to be smaller than the maximum number of features")
+        end
+    end
+
     n = length(features)
 
-    C = zeros(n, m)
+    C = fill(pad_val, (n, m))
     for i in 1:n
         C[i, 1:length(features[i])] = features[i]
     end
@@ -472,19 +502,55 @@ function make_cue_matrix_from_CFBS(features)
     return C
 end
 
-function make_combined_cue_matrix_from_CFBS(features_train, features_test)
+
+"""
+    make_combined_cue_matrix_from_CFBS(features_train::Vector{Vector{T}},
+                                       features_test::Vector{Vector{T}};
+                                       pad_val::T = 0.,
+                                       ncol::Union{Missing,Int}=missing) where {T}
+
+
+Create cue matrices from two vectors of feature vectors (usually CFBS vectors).
+It is expected (though of course not necessary) that the vectors have varying lengths. They are consequently padded on the right with the provided `pad_val`.
+The cue matrices are set to have to the size of the maximum number of feature values in `features_train` and `features_test`.
+
+# Obligatory arguments
+- `features_train::Vector{Vector{T}}`: vector of vectors containing C-FBS features
+- `features_test::Vector{Vector{T}}`: vector of vectors containing C-FBS features
+
+# Optional arguments
+- `pad_val::T = 0.`: Value with which the feature vectors will be padded
+- `ncol::Union{Missing,Int}=missing`: Number of columns of the C matrices. If not set, will be set to the maximum number of features in `features_train` and `features_test`
+
+# Examples
+```julia
+C_train, C_test = JudiLing.make_combined_cue_matrix_from_CFBS(features_train, features_test)
+```
+"""
+function make_combined_cue_matrix_from_CFBS(features_train::Vector{Vector{T}},
+                                            features_test::Vector{Vector{T}};
+                                            pad_val::T = 0.,
+                                            ncol::Union{Missing,Int}=missing) where {T}
 
     m = findmax([length(v) for v in [features_train;features_test]])[1]
+
+    if !ismissing(ncol)
+        if ncol >= m
+            m = ncol
+        else
+            error("ncol is set to be smaller than the maximum number of features")
+        end
+    end
 
     n_train = length(features_train)
     n_test = length(features_test)
 
-    C_train = zeros(n_train, m)
+    C_train = fill(pad_val, (n_train, m))
     for i in 1:n_train
         C_train[i, 1:length(features_train[i])] = features_train[i]
     end
 
-    C_test = zeros(n_test, m)
+    C_test = fill(pad_val, (n_test, m))
     for i in 1:n_test
         C_test[i, 1:length(features_test[i])] = features_test[i]
     end
