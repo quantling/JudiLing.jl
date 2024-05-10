@@ -457,6 +457,41 @@ function make_combined_cue_matrix(
     cue_obj_train, cue_obj_val
 end
 
+
+function make_cue_matrix_from_CFBS(features)
+
+    m = findmax([length(v) for v in features])[1]
+
+    n = length(features)
+
+    C = zeros(n, m)
+    for i in 1:n
+        C[i, 1:length(features[i])] = features[i]
+    end
+
+    return C
+end
+
+function make_combined_cue_matrix_from_CFBS(features_train, features_test)
+
+    m = findmax([length(v) for v in [features_train;features_test]])[1]
+
+    n_train = length(features_train)
+    n_test = length(features_test)
+
+    C_train = zeros(n_train, m)
+    for i in 1:n_train
+        C_train[i, 1:length(features_train[i])] = features_train[i]
+    end
+
+    C_test = zeros(n_test, m)
+    for i in 1:n_test
+        C_test[i, 1:length(features_test[i])] = features_test[i]
+    end
+
+    return C_train, C_test
+end
+
 """
     make_ngrams(tokens, grams, keep_sep, sep_token, start_end_token)
 
