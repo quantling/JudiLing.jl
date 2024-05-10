@@ -4,6 +4,10 @@ using SafeTestsets
     include("pyndl_tests.jl")
 end
 
+@safetestset "input tests" begin
+    include("input_tests.jl")
+end
+
 @safetestset "cholesky tests" begin
     include("cholesky_tests.jl")
 end
@@ -56,6 +60,8 @@ end
     include("wh_tests.jl")
 end
 
-@safetestset "deep learning tests" begin
-    include("deep_learning_tests.jl")
+if VERSION >= v"1.9"
+    @safetestset "deep learning tests" begin
+        include("deep_learning_tests.jl")
+    end
 end

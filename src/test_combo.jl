@@ -20,6 +20,7 @@ KWARGS_DEFAULT = Dict([
         (:sd_noise, 1),
         (:normalized, false),
         (:if_combined, false),
+        (:ncol, 0),
         (:learn_mode, :cholesky),
         (:method, :additive),
         (:shift, 0.02),
@@ -128,13 +129,13 @@ function test_combo(test_mode; kwargs...)
     verbose && println("="^20)
     verbose && println("Preparing datasets...")
     verbose && println("="^20)
-    
+
     # split and load data
     if test_mode == :train_only
         data_path = get_kwarg(kwargs, :data_path, required=true)
 
-        data_train, data_val = loading_data_train_only(data_path, 
-            train_sample_size = train_sample_size, 
+        data_train, data_val = loading_data_train_only(data_path,
+            train_sample_size = train_sample_size,
             val_sample_size = val_sample_size)
     elseif test_mode == :pre_split
         data_path = get_kwarg(kwargs, :data_path, required=true)
@@ -142,8 +143,8 @@ function test_combo(test_mode; kwargs...)
         extension = get_kwarg(kwargs, :extension, required=false)
 
         data_train, data_val = loading_data_pre_split(
-            data_path, data_prefix, 
-            train_sample_size = train_sample_size, 
+            data_path, data_prefix,
+            train_sample_size = train_sample_size,
             val_sample_size = val_sample_size, extension=extension)
 
     elseif test_mode == :random_split
@@ -184,7 +185,7 @@ function test_combo(test_mode; kwargs...)
             random_seed = random_seed,
             verbose=verbose)
     else
-        throw(ArgumentError("test_mode is incorrect, using :train_only," * 
+        throw(ArgumentError("test_mode is incorrect, using :train_only," *
             " :pre_split, :careful_split or :random_split"))
     end
 
@@ -250,7 +251,10 @@ function test_combo(test_mode; kwargs...)
     verbose && println("Making S matrix...")
     verbose && println("="^20)
 
-    n_features = size(cue_obj_train.C, 2)
+    n_features = get_kwarg(kwargs, :ncol, required=false)
+    if n_features == 0
+        n_features = size(cue_obj_train.C, 2)
+    end
     S_train, S_val = make_S_train_val(data_train, data_val,
         n_features_base, n_features_inflections,
         n_features, sd_base_mean, sd_inflection_mean, sd_base,
@@ -330,7 +334,7 @@ function test_combo(test_mode; kwargs...)
             verbose = verbose,
         )
     else
-        throw(ArgumentError("learn_mode is incorrect, using :cholesky," * 
+        throw(ArgumentError("learn_mode is incorrect, using :cholesky," *
             ":wh"))
     end
 
@@ -347,7 +351,7 @@ function test_combo(test_mode; kwargs...)
     max_t = get_kwarg(kwargs, :max_t, required=false)
 
     if max_t == 0
-        max_t = cal_max_timestep(data_train, data_val, 
+        max_t = cal_max_timestep(data_train, data_val,
             n_grams_target_col, tokenized = n_grams_tokenized,
             sep_token = n_grams_sep_token)
     end
@@ -372,7 +376,7 @@ function test_combo(test_mode; kwargs...)
         elseif A_mode == :train_only
             A = cue_obj_train.A
         else
-            throw(ArgumentError("A_mode $A_mode is not supported!" * 
+            throw(ArgumentError("A_mode $A_mode is not supported!" *
                 "Please choose from :combined or :train_only"))
         end
     end
@@ -557,11 +561,11 @@ function test_combo(test_mode; kwargs...)
     println(accio, "Acc for Shat train: $acc_Shat_train")
     println(accio, "Acc for Shat train homophones: $acc_Shat_train_homo")
     println(accio, "Acc for Chat val: $acc_Chat_val")
-    println(accio, "Acc for Chat val for both train and val: $acc_Chat_val_tv")
+    println(accio, "Acc for Chat val for against both train and val: $acc_Chat_val_tv")
     println(accio, "Acc for Shat val: $acc_Shat_val")
-    println(accio, "Acc for Acc for Shat val for both train and val: $acc_Shat_val_tv")
+    println(accio, "Acc for Acc for Shat val against both train and val: $acc_Shat_val_tv")
     println(accio, "Acc for Shat val homophones: $acc_Shat_val_homo")
-    println(accio, "Acc for Shat val homophones for both train and val: $acc_Shat_val_homo_tv")
+    println(accio, "Acc for Shat val homophones against both train and val: $acc_Shat_val_homo_tv")
     println(accio, "Acc for learn_path train: $acc_learn_train")
     println(accio, "Acc for learn_path val: $acc_learn_val")
     println(accio, "Acc for build_path train: $acc_build_train")
@@ -661,7 +665,7 @@ end
 
 function loading_data_train_only(
     data_path;
-    train_sample_size = 0, 
+    train_sample_size = 0,
     val_sample_size = 0)
 
     data = DataFrame(CSV.File(data_path))

@@ -35,5 +35,6 @@ include("output.jl")
 include("preprocess.jl")
 include("test_combo.jl")
 include("display.jl")
+include("input.jl")
 
 end

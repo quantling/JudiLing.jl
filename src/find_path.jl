@@ -46,7 +46,40 @@ correlation with the target semantic vector (through synthesis by analysis) is s
 function build_paths end
 
 """
-    learn_paths(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
+    learn_paths(
+        data_train::DataFrame,
+        data_val::DataFrame,
+        C_train::Union{Matrix, SparseMatrixCSC},
+        S_val::Union{Matrix, SparseMatrixCSC},
+        F_train,
+        Chat_val::Union{Matrix, SparseMatrixCSC},
+        A::SparseMatrixCSC,
+        i2f::Dict,
+        f2i::Dict;
+        gold_ind::Union{Nothing, Vector} = nothing,
+        Shat_val::Union{Nothing, Matrix} = nothing,
+        check_gold_path::Bool = false,
+        max_t::Int = 15,
+        max_can::Int = 10,
+        threshold::Float64 = 0.1,
+        is_tolerant::Bool = false,
+        tolerance::Float64 = (-1000.0),
+        max_tolerance::Int = 3,
+        grams::Int = 3,
+        tokenized::Bool = false,
+        sep_token::Union{Nothing, String} = nothing,
+        keep_sep::Bool = false,
+        target_col::Union{Symbol, String} = "Words",
+        start_end_token::String = "#",
+        issparse::Union{Symbol, Bool} = :auto,
+        sparse_ratio::Float64 = 0.05,
+        if_pca::Bool = false,
+        pca_eval_M::Union{Nothing, Matrix} = nothing,
+        activation::Union{Nothing, Function} = nothing,
+        ignore_nan::Bool = true,
+        check_threshold_stat::Bool = false,
+        verbose::Bool = false
+    )
 
 A sequence finding algorithm using discrimination learning to predict, for a given
 word, which n-grams are best supported for a given position in the sequence of n-grams.
@@ -508,10 +541,24 @@ function learn_paths(
 end
 
 """
-    learn_paths(data, cue_obj, S_val, F_train, Chat_val)
+    learn_paths(
+        data::DataFrame,
+        cue_obj::Cue_Matrix_Struct,
+        S_val::Union{SparseMatrixCSC, Matrix},
+        F_train,
+        Chat_val::Union{SparseMatrixCSC, Matrix};
+        Shat_val::Union{Nothing, Matrix} = nothing,
+        check_gold_path::Bool = false,
+        threshold::Float64 = 0.1,
+        is_tolerant::Bool = false,
+        tolerance::Float64 = (-1000.0),
+        max_tolerance::Int = 3,
+        activation::Union{Nothing, Function} = nothing,
+        ignore_nan::Bool = true,
+        verbose::Bool = true)
 
-A high-level wrapper function for learn_paths with much less control. It aims
-for users who is very new to JudiLing and learn_paths function.
+A high-level wrapper function for `learn_paths` with much less control. It aims
+for users who is very new to JudiLing and `learn_paths` function.
 
 # Obligatory Arguments
 - `data::DataFrame`: the training dataset
@@ -586,7 +633,29 @@ function learn_paths(
 end
 
 """
-    build_paths(data_val, C_train, S_val, F_train, Chat_val, A, i2f, C_train_ind)
+    build_paths(
+        data_val,
+        C_train,
+        S_val,
+        F_train,
+        Chat_val,
+        A,
+        i2f,
+        C_train_ind;
+        rC = nothing,
+        max_t = 15,
+        max_can = 10,
+        n_neighbors = 10,
+        grams = 3,
+        tokenized = false,
+        sep_token = nothing,
+        target_col = :Words,
+        start_end_token = "#",
+        if_pca = false,
+        pca_eval_M = nothing,
+        ignore_nan = true,
+        verbose = false,
+    )
 
 The build_paths function constructs paths by only considering those n-grams that are
 close to the target. It first takes the predicted c-hat vector and finds the
@@ -793,7 +862,40 @@ function build_paths(
 end
 
 """
-    learn_paths_rpi(data_train, data_val, C_train, S_val, F_train, Chat_val, A, i2f, f2i)
+    learn_paths_rpi(
+        data_train::DataFrame,
+        data_val::DataFrame,
+        C_train::Union{Matrix, SparseMatrixCSC},
+        S_val::Union{Matrix, SparseMatrixCSC},
+        F_train,
+        Chat_val::Union{Matrix, SparseMatrixCSC},
+        A::SparseMatrixCSC,
+        i2f::Dict,
+        f2i::Dict;
+        gold_ind::Union{Nothing, Vector} = nothing,
+        Shat_val::Union{Nothing, Matrix} = nothing,
+        check_gold_path::Bool = false,
+        max_t::Int = 15,
+        max_can::Int = 10,
+        threshold::Float64 = 0.1,
+        is_tolerant::Bool = false,
+        tolerance::Float64 = (-1000.0),
+        max_tolerance::Int = 3,
+        grams::Int = 3,
+        tokenized::Bool = false,
+        sep_token::Union{Nothing, String} = nothing,
+        keep_sep::Bool = false,
+        target_col::Union{Symbol, String} = "Words",
+        start_end_token::String = "#",
+        issparse::Union{Symbol, Bool} = :auto,
+        sparse_ratio::Float64 = 0.05,
+        if_pca::Bool = false,
+        pca_eval_M::Union{Nothing, Matrix} = nothing,
+        activation::Union{Nothing, Function} = nothing,
+        ignore_nan::Bool = true,
+        check_threshold_stat::Bool = false,
+        verbose::Bool = false
+    )
 
 Calculate learn_paths with results indices supports as well.
 
