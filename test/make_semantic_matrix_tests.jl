@@ -4,15 +4,48 @@ using Test
 using DataFrames
 
 @testset "make prelinguistic semantic matrix for utterance" begin
+
+    function test_cues(features, idx, s_obj)
+        some_cues = split(features[idx], "_")
+        tgt_vec = zeros(length(keys(s_obj.f2i)))
+        for cue in some_cues
+            i = s_obj.f2i[cue]
+            tgt_vec[i] = 1
+        end
+        @test tgt_vec == s_obj.pS[idx,:]
+    end
+
     utterance = DataFrame(CSV.File(joinpath(
         @__DIR__,
         "data",
         "utterance_mini.csv",
     )))
+
+    cues_split = [split(d, "_") for d in utterance.CommunicativeIntention]
+    unique_cues = Set(vcat(cues_split...))
+
     s_obj_train = JudiLing.make_pS_matrix(utterance)
+
+    @test length(unique_cues) == size(s_obj_train.pS, 2)
+    test_cues(utterance.CommunicativeIntention, 5, s_obj_train)
+    test_cues(utterance.CommunicativeIntention, 15, s_obj_train)
+    test_cues(utterance.CommunicativeIntention, 23, s_obj_train)
 
     utterance_val = utterance[101:end, :]
     s_obj_val = JudiLing.make_pS_matrix(utterance_val, s_obj_train)
+    test_cues(utterance_val.CommunicativeIntention, 5, s_obj_val)
+    test_cues(utterance_val.CommunicativeIntention, 6, s_obj_val)
+
+    @test length(unique_cues) == size(s_obj_val.pS, 2)
+
+    s_obj_train, s_obj_val = JudiLing.make_combined_pS_matrix(utterance, utterance_val)
+
+    @test length(unique_cues) == size(s_obj_train.pS, 2)
+    test_cues(utterance.CommunicativeIntention, 5, s_obj_train)
+    test_cues(utterance.CommunicativeIntention, 15, s_obj_train)
+    test_cues(utterance.CommunicativeIntention, 23, s_obj_train)
+    test_cues(utterance_val.CommunicativeIntention, 5, s_obj_val)
+    test_cues(utterance_val.CommunicativeIntention, 6, s_obj_val)
 end
 
 @testset "make semantic matrix" begin
