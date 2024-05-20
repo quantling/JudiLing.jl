@@ -9,8 +9,14 @@ CurrentModule = JudiLing
 ```@docs
     PS_Matrix_Struct
     make_pS_matrix
-    make_pS_matrix(utterances)
-    make_pS_matrix(utterances, utterances_train)
+    make_pS_matrix(data)
+    make_pS_matrix(data_val, pS_obj)
+    make_combined_pS_matrix(
+        data_train,
+        data_val;
+        features_col = :CommunicativeIntention,
+        sep_token = "_",
+    )
 ```
 
 ## Simulate semantic vectors
