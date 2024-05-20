@@ -523,8 +523,8 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
     accs = []
 
     # Setting up progress bar
-    max_steps = Int(ceil(length(learn_seq)/(batchsize * n_batch_eval)))
     progress_steps = min(10, batchsize)
+    max_steps = Int(ceil(length(learn_seq)/progress_steps))
     p = Progress(max_steps)
 
     step = 0
