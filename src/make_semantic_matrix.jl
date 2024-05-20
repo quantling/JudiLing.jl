@@ -49,7 +49,7 @@ Make combined simulated Lexome matrix, where combined features from both trainin
 function make_combined_L_matrix end
 
 """
-    make_pS_matrix(utterances)
+    make_pS_matrix(data)
 
 Create a discrete semantic matrix given a dataframe.
 
@@ -69,27 +69,27 @@ s_obj_train = JudiLing.make_pS_matrix(
 ```
 """
 function make_pS_matrix(
-    utterances;
+    data;
     features_col = :CommunicativeIntention,
     sep_token = "_",
 )
 
     # find out all possible features in this dataset
-    features = unique(vcat(split.(utterances[:, features_col], sep_token)...))
+    features = unique(vcat(split.(data[:, features_col], sep_token)...))
 
     # using dict to store feature names
     f2i = Dict(v => i for (i, v) in enumerate(features))
     i2f = Dict(i => v for (i, v) in enumerate(features))
 
     # find out features for each utterance
-    vs = unique.(split.(utterances[:, features_col], sep_token))
+    vs = unique.(split.(data[:, features_col], sep_token))
 
     # total number of feature in the entire dataset
     # to initialize a sparse matrix
     n_f = sum([length(v) for v in vs])
 
     # initialize sparse matrix components
-    m = size(utterances, 1)
+    m = size(data, 1)
     n = length(i2f)
     I = zeros(Int64, n_f)
     J = zeros(Int64, n_f)
@@ -112,14 +112,14 @@ function make_pS_matrix(
 end
 
 """
-    make_pS_matrix(utterances, utterances_train)
+    make_pS_matrix(data_val, pS_obj)
 
 Construct discrete semantic matrix for the validation datasets given by the
 exemplar in the dataframe, and given the S matrix for the training datasets.
 
 # Obligatory Arguments
-- `utterances::DataFrame`: the dataset
-- `utterances_train::PS_Matrix_Struct`: training PS object
+- `data_val::DataFrame`: the dataset
+- `pS_obj::PS_Matrix_Struct`: training PS object
 
 # Optional Arguments
 - `features_col::Symbol=:CommunicativeIntention`: the column name for target
@@ -128,35 +128,35 @@ exemplar in the dataframe, and given the S matrix for the training datasets.
 # Examples
 ```julia
 s_obj_val = JudiLing.make_pS_matrix(
-    utterance_val,
+    data_val,
     s_obj_train,
     features_col=:CommunicativeIntention,
     sep_token="_")
 ```
 """
 function make_pS_matrix(
-    utterances,
-    utterances_train;
+    data_val,
+    pS_obj;
     features_col = :CommunicativeIntention,
     sep_token = "_",
 )
 
     # find out all possible features in this dataset
-    features = unique(vcat(split.(utterances[:, features_col], sep_token)...))
+    features = unique(vcat(split.(data_val[:, features_col], sep_token)...))
 
     # using dict to store feature names
-    f2i = utterances_train.f2i
-    i2f = utterances_train.i2f
+    f2i = pS_obj.f2i
+    i2f = pS_obj.i2f
 
     # find out features for each utterance
-    vs = unique.(split.(utterances[:, features_col], sep_token))
+    vs = unique.(split.(data_val[:, features_col], sep_token))
 
     # total number of feature in the entire dataset
     # to initialize a sparse matrix
     n_f = sum([length(v) for v in vs])
 
     # initialize sparse matrix components
-    m = size(utterances, 1)
+    m = size(data_val, 1)
     n = length(i2f)
     I = zeros(Int64, n_f)
     J = zeros(Int64, n_f)
@@ -177,6 +177,73 @@ function make_pS_matrix(
 
     PS_Matrix_Struct(pS, f2i, i2f)
 end
+
+
+"""
+    make_combined_pS_matrix(
+        data_train,
+        data_val;
+        features_col = :CommunicativeIntention,
+        sep_token = "_",
+    )
+
+Create discrete semantic matrices for a train and validation dataframe.
+
+# Obligatory Arguments
+- `data_train::DataFrame`: the training dataset
+- `data_val::DataFrame`: the validation dataset
+
+# Optional Arguments
+- `features_col::Symbol=:CommunicativeIntention`: the column name for target
+- `sep_token::String="_"`: separator
+
+# Examples
+```julia
+s_obj_train, s_obj_val = JudiLing.make_combined_pS_matrix(
+    data_train,
+    data_val,
+    features_col=:CommunicativeIntention,
+    sep_token="_")
+```
+"""
+function make_combined_pS_matrix(
+    data_train,
+    data_val;
+    features_col = :CommunicativeIntention,
+    sep_token = "_",
+)
+
+    data_combined = copy(data_train)
+    data_val = copy(data_val)
+    for col in names(data_combined)
+        data_combined[!, col] = inlinestring2string.(data_combined[!,col])
+        data_val[!, col] = inlinestring2string.(data_val[!,col])
+    end
+    append!(data_combined, data_val, promote=true)
+
+    pS_obj_combined = make_pS_matrix(
+        data_combined;
+        features_col = features_col,
+        sep_token = sep_token,
+    )
+
+    pS_obj_train = make_pS_matrix(
+        data_train,
+        pS_obj_combined;
+        features_col = features_col,
+        sep_token = sep_token,
+    )
+
+    pS_obj_val = make_pS_matrix(
+        data_val,
+        pS_obj_combined;
+        features_col = features_col,
+        sep_token = sep_token,
+    )
+
+    return pS_obj_train, pS_obj_val
+end
+
 
 """
     make_S_matrix(data::DataFrame, base::Vector, inflections::Vector)

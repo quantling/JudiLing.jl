@@ -2,6 +2,7 @@ name: CI
 on:
   - push
   - pull_request
+  - workflow_dispatch
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -43,6 +44,12 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install pyndl (Linux)
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          pip install pyndl
+        env:
+          PYTHON: 3.8
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
