@@ -616,6 +616,8 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
                             kargs...)
     end
 
+    verbose && println("Done!")
+
     res = (model = model |> cpu,
             data = data,
             losses_train = losses_train,
