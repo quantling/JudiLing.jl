@@ -31,7 +31,6 @@ CurrentModule = JudiLing
     make_S_matrix(data_train::DataFrame, data_val::DataFrame, base::Vector, inflections::Vector)
     make_S_matrix(data::DataFrame, base::Vector)
     make_S_matrix(data_train::DataFrame, data_val::DataFrame, base::Vector)
-    make_S_matrix(data_train::DataFrame, data_val::DataFrame, pyndl_weights::Pyndl_Weight_Struct, n_features_columns::Vector)
     make_S_matrix(data_train::DataFrame, base::Vector, inflections::Vector, L::L_Matrix_Struct)
     make_S_matrix(data_train::DataFrame, data_val::Union{DataFrame, Nothing}, base::Vector, L::L_Matrix_Struct)
     make_S_matrix(data::DataFrame, base::Vector, L::L_Matrix_Struct)
