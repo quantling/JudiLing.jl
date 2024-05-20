@@ -53,6 +53,10 @@ The default loss function is mean squared error, but any other loss function can
 
 By default the adam optimizer (Kingma and Ba, 2015) with learning rate 0.001 is used. You can provide any other optimizer. If you want to use a different learning rate, e.g. 0.01, provide `optimizer=Flux.Adam(0.01)`. If you do not want to use an optimizer at all, and simply use normal gradient descent, provide `optimizer=Descent(0.001)`, again replacing the learning rate with the learning rate of your preference.
 
+!!! note
+    If you get an OutOfMemory error, chances are that this is due to the `eval_SC` function being evaluated after each `n_batch_eval` batches. Setting `compute_accuracy=false` disables computing the mapping accuracy.
+
+
 Returns a named tuple with the following values:
 - `model`: the trained model
 - `data_train`: the training data, including any measures if computed by `measures_func`
@@ -114,7 +118,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
 
     # set up early stopping and saving of best models
     min_loss = typemax(Float64)
-    max_acc = 0
+    max_acc = -1
 
     function id_func(x)
         return (x)
