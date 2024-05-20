@@ -3,6 +3,7 @@ using Flux
 using JudiLing
 using CSV, DataFrames
 using LinearAlgebra: diag
+using DataLoaders
 
 train = DataFrame(CSV.File(joinpath("data", "latin_train.csv")))
 val = DataFrame(CSV.File(joinpath("data", "latin_val.csv")))
@@ -459,6 +460,40 @@ end
 
 @testset "fiddl" begin
 
+    @testset "dataloader" begin
+        X1 = [[1 2 3]
+              [4 5 6]
+              [7 8 9]]
+        Y1 = [[1 0]
+              [2 1]
+              [3 2]]
+
+        learn_seq = [3,2,1,2,3]
+        data = JudiLing.FIDDLDataset(X1', Y1', learn_seq)
+
+        x_expected = [X1[3:3,:]', X1[2:2,:]', X1[1:1,:]', X1[2:2,:]', X1[3:3,:]']
+        x_batches = []
+        y_expected = [Y1[3:3,:]', Y1[2:2,:]', Y1[1:1,:]', Y1[2:2,:]', Y1[3:3,:]']
+        y_batches = []
+        for (i, batch) in enumerate(DataLoaders.DataLoader(data, 1))
+            push!(x_batches, batch[1])
+            push!(y_batches, batch[2])
+        end
+        @test x_batches == x_expected
+        @test y_batches == y_expected
+
+        x_expected = [X1[[3,2],:]', X1[[1,2],:]', X1[3:3,:]']
+        x_batches = []
+        y_expected = [Y1[[3,2],:]', Y1[[1,2],:]', Y1[3:3,:]']
+        y_batches = []
+        for (i, batch) in enumerate(DataLoaders.DataLoader(data, 2))
+            push!(x_batches, batch[1])
+            push!(y_batches, batch[2])
+        end
+        @test x_batches == x_expected
+        @test y_batches == y_expected
+    end
+
     @testset "basic setup" begin
         res = JudiLing.fiddl(cue_obj_train.C,
                         S_train,
@@ -497,7 +532,6 @@ end
                         n_batch_eval=1)
 
         @test length(res.accs) == length(res.losses) == length(res.losses_train) == 12
-        println(res.losses)
         Shat = JudiLing.predict_from_deep_model(res.model, cue_obj_train.C)
         _, corr = JudiLing.eval_SC(Shat, S_train, R=true)
         target_corr = diag(corr)

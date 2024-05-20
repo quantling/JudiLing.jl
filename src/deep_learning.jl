@@ -1,5 +1,19 @@
 using .Flux
 using BSON: @save, @load
+import DataLoaders.LearnBase: getobs, nobs
+import DataLoaders: DataLoader
+
+
+struct FIDDLDataset
+    X_train::Matrix
+    Y_train::Matrix
+    learn_seq::Vector
+end
+nobs(data::FIDDLDataset) = length(data.learn_seq)
+function getobs(data::FIDDLDataset, i::Int)
+    return (data.X_train[:,data.learn_seq[i]], data.Y_train[:,data.learn_seq[i]])
+end
+
 
 """
     get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
@@ -491,6 +505,11 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
     flush(stdout)
     loader_data = Flux.DataLoader((X_train', Y_train') , batchsize=batchsize, shuffle=false); # has to be unshuffled, otherwise the accuracy calculation will be wrong
 
+    verbose && println("Setting up data loader...")
+    flush(stdout)
+    dataset = FIDDLDataset(X_train', Y_train', learn_seq)
+    fiddl_data_loader = DataLoader(dataset, batchsize)
+
     verbose && println("Training...")
     flush(stdout)
 
@@ -500,70 +519,72 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
     accs = []
 
     # Setting up progress bar
-    p = Progress(Int(ceil(length(learn_seq)/(batchsize * n_batch_eval))))
+    max_steps = Int(ceil(length(learn_seq)/(batchsize * n_batch_eval)))
+    p = Progress(max_steps)
 
     step = 0
-    for subseq in Iterators.partition(learn_seq, batchsize * n_batch_eval)
-        if batchsize > length(subseq)
-            batchsize = length(subseq)
+    all_losses_epoch_train = []
+    for (x_cpu, y_cpu) in fiddl_data_loader
+
+        x = x_cpu |> gpu
+        y = y_cpu |> gpu
+        loss, grads = Flux.withgradient(model) do m
+            # Evaluate model and loss inside gradient context:
+            y_hat = m(x)
+            loss_func(y_hat, y)
+        end
+        Flux.update!(optim, model, grads[1])
+        push!(all_losses_epoch_train, loss)
+
+        # how many learning steps have we done?
+        if step + batchsize <= length(learn_seq)
+            step += batchsize
+        else
+            step = length(learn_seq)
         end
 
-        step += batchsize * n_batch_eval
+        if (step % n_batch_eval == 0) || (step == length(learn_seq))
+            # store mean loss of epoch
+            mean_train_loss = mean(all_losses_epoch_train)
+            push!(losses_train, mean_train_loss)
+            all_losses_epoch_train = []
 
-        # set up loader for current step
-        loader_train = Flux.DataLoader((X_train[subseq,:]', Y_train[subseq,:]'), batchsize=batchsize, shuffle=false);
+            all_losses_epoch = []
+            preds = Matrix{Float64}(undef, 0, size(Y_train,2))
 
-        # train current step
-        all_losses_epoch_train = []
-        for (x_cpu, y_cpu) in loader_train
-            x = x_cpu |> gpu
-            y = y_cpu |> gpu
-            loss, grads = Flux.withgradient(model) do m
-                # Evaluate model and loss inside gradient context:
-                y_hat = m(x)
-                loss_func(y_hat, y)
+            for (x_cpu, y_cpu) in loader_data
+                x = x_cpu |> gpu
+                y = y_cpu |> gpu
+
+                Yhat = model(x)|> cpu
+                preds = vcat(preds,Yhat')
+                # for some reason, I have to make sure y_cpu is not sparse here.
+                # I have no idea why
+                loss = loss_func(Yhat, Matrix(y_cpu))
+                push!(all_losses_epoch,loss)
             end
-            Flux.update!(optim, model, grads[1])
-            push!(all_losses_epoch_train, loss)  # logging, outside gradient context
-        end
-        # store mean loss of epoch
-        mean_train_loss = mean(all_losses_epoch_train)
-        push!(losses_train, mean_train_loss)
+            mean_loss = mean(all_losses_epoch)
+            push!(losses, mean_loss)
 
-        all_losses_epoch = []
-        preds = Matrix{Float64}(undef, 0, size(Y_train,2))
+            # Compute accuracy
+            acc = JudiLing.eval_SC(preds, Y_train, data, target_col)
+            push!(accs, acc)
 
-        for (x_cpu, y_cpu) in loader_data
-            x = x_cpu |> gpu
-            y = y_cpu |> gpu
+            model_cpu = model |> cpu
+            @save model_outpath model_cpu
 
-            Yhat = model(x)|> cpu
-            preds = vcat(preds,Yhat')
-            # for some reason, I have to make sure y_cpu is not sparse here.
-            # I have no idea why
-            loss = loss_func(Yhat, Matrix(y_cpu))
-            push!(all_losses_epoch,loss)
-        end
-        mean_loss = mean(all_losses_epoch)
-        push!(losses, mean_loss)
+            # run measures_func
+            if !ismissing(measures_func)
+                data = measures_func(X_train, Y_train, preds, data, target_col, model_cpu, step;
+                                    kargs...)
+            end
 
-        # Compute accuracy
-        acc = JudiLing.eval_SC(preds, Y_train, data, target_col)
-        push!(accs, acc)
-
-        model_cpu = model |> cpu
-        @save model_outpath model_cpu
-
-        # run measures_func
-        if !ismissing(measures_func)
-            data = measures_func(X_train, Y_train, preds, data, target_col, model_cpu, step;
-                                kargs...)
+            # update progress bar with training and validation losses and accuracy
+            ProgressMeter.next!(p; showvalues = [("Step loss", mean_train_loss),
+                                                 ("Overall loss", mean_loss),
+                                                 ("Overall accuracy", acc)])
         end
 
-        # update progress bar with training and validation losses and accuracy
-        ProgressMeter.next!(p; showvalues = [("Step loss", mean_train_loss),
-                                             ("Overall loss", mean_loss),
-                                             ("Overall accuracy", acc)])
     end
 
     if !ismissing(measures_func)
