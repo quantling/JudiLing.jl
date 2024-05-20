@@ -431,6 +431,7 @@ end
             return_losses::Bool=false,
             verbose::Bool=true,
             n_batch_eval::Int=100,
+            compute_accuracy::Bool=true,
             measures_func::Union{Function, Missing}=missing,
             kargs...)
 
@@ -461,6 +462,8 @@ Returns a named tuple with the following values:
 - `model::Union{Missing, Chain} = missing`: A custom model can be provided for training. Its requirements are that it has to correspond to the input and output size of the training and validation data
 - `return_losses::Bool=false`: whether additional to the model per-epoch losses for the training and test data as well as per-epoch accuracy on the validation data should be returned
 - `verbose::Bool=true`: Turn on verbose mode
+- `n_batch_eval::Int=100`: Loss, accuracy and `measures_func` are evaluated every `n_batch_eval` batches.
+- `compute_accuracy::Bool=true`: Whether accuracy should be computed every `n_batch_eval` batches.
 - `measures_func::Union{Missing, Function}=missing`: A measures function which is run each `n_batch_eval` batches. For more information see [The `measures_func` argument](@ref).
 """
 function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
@@ -477,6 +480,7 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
                 return_losses::Bool=false,
                 verbose::Bool=true,
                 n_batch_eval::Int=100,
+                compute_accuracy::Bool=true,
                 measures_func::Union{Function, Missing}=missing,
                 kargs...)
 
@@ -567,8 +571,10 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
             push!(losses, mean_loss)
 
             # Compute accuracy
-            acc = JudiLing.eval_SC(preds, Y_train, data, target_col)
-            push!(accs, acc)
+            if compute_accuracy
+                acc = JudiLing.eval_SC(preds, Y_train, data, target_col)
+                push!(accs, acc)
+            end
 
             model_cpu = model |> cpu
             @save model_outpath model_cpu
@@ -580,9 +586,12 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
             end
 
             # update progress bar with training and validation losses and accuracy
-            ProgressMeter.next!(p; showvalues = [("Step loss", mean_train_loss),
-                                                 ("Overall loss", mean_loss),
-                                                 ("Overall accuracy", acc)])
+            showvalues = [("Step loss", mean_train_loss),
+                          ("Overall loss", mean_loss)]
+            if compute_accuracy
+                push!(showvalues, ("Overall accuracy", acc))
+            end
+            ProgressMeter.next!(p; showvalues = showvalues)
         end
 
     end

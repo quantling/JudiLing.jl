@@ -682,4 +682,17 @@ end
         @test all(expected_cols .∈ [names(res.data)])
         @test "target_corr_final_y" ∈ names(res.data)
     end
+
+    @testset "compute accuracy" begin
+        res = JudiLing.fiddl(cue_obj_train.C,
+                        S_train,
+                        [1,2,3,1,2,3,1,2,3],
+                        train,
+                        :Word,
+                        "test.bson";
+                        batchsize=3,
+                        n_batch_eval=1,
+                        compute_accuracy=false)
+        @test length(res.accs) == 0
+    end
 end
