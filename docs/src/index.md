@@ -1,7 +1,9 @@
 # JudiLing
 
-!!! note
-    If you encounter an error like "ERROR: UndefVarError: DataFrame! not defined", this is because our dependency CSV.jl changed their APIs in v0.8. Please use "data = DataFrame(CSV.File(path_to_csv_file))" to read a CSV file and include DataFrames package by "using DataFrames".
+JudiLing: An implementation for Linear Discriminative Learning in Julia
+
+Maintainer: Maria Heitmeier [@MariaHei](https://github.com/MariaHei)
+Original codebase: Xuefeng Luo [@MegamindHenry](https://github.com/MegamindHenry)
 
 ## Installation
 
