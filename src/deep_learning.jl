@@ -593,7 +593,7 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
         end
 
         # update progress bar with training and validation losses and accuracy
-        if step % progress_steps == 0
+        if step % (progress_steps * batchsize) == 0
             showvalues = [("Step loss", mean_train_loss),
                           ("Overall loss", mean_loss)]
             compute_accuracy && push!(showvalues, ("Overall accuracy", acc))
