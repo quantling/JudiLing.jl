@@ -524,10 +524,15 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
 
     # Setting up progress bar
     max_steps = Int(ceil(length(learn_seq)/(batchsize * n_batch_eval)))
+    progress_steps = min(10, batchsize)
     p = Progress(max_steps)
 
     step = 0
     all_losses_epoch_train = []
+    mean_train_loss = missing
+    mean_loss = missing
+    acc = missing
+
     for (x_cpu, y_cpu) in fiddl_data_loader
 
         x = x_cpu |> gpu
@@ -546,6 +551,7 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
         else
             step = length(learn_seq)
         end
+
 
         if (step % n_batch_eval == 0) || (step == length(learn_seq))
             # store mean loss of epoch
@@ -584,14 +590,15 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
                 data = measures_func(X_train, Y_train, preds, data, target_col, model_cpu, step;
                                     kargs...)
             end
+        end
 
-            # update progress bar with training and validation losses and accuracy
+        # update progress bar with training and validation losses and accuracy
+        if step % progress_steps == 0
             showvalues = [("Step loss", mean_train_loss),
                           ("Overall loss", mean_loss)]
             compute_accuracy && push!(showvalues, ("Overall accuracy", acc))
             ProgressMeter.next!(p; showvalues = showvalues)
         end
-
     end
 
     if !ismissing(measures_func)
