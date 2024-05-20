@@ -1,5 +1,16 @@
 """
-    wh_learn(X, Y)
+    wh_learn(
+        X,
+        Y;
+        eta = 0.01,
+        n_epochs = 1,
+        weights = nothing,
+        learn_seq = nothing,
+        save_history = false,
+        history_cols = nothing,
+        history_rows = nothing,
+        verbose = false,
+        )
 
 Widrow-Hoff Learning.
 
@@ -90,9 +101,21 @@ function wh_learn(
 end
 
 """
-    make_learn_seq(freq)
+    make_learn_seq(freq; random_seed = 314)
 
-Make Widrow-Hoff learning sequence.
+Make Widrow-Hoff learning sequence from frequencies.
+Creates a randomly ordered sequences of indices where each index appears according to its frequncy.
+
+# Obligatory arguments
+- `freq`: Vector with frequencies.
+
+# Optional arguments
+- `random_seed = 314`: Random seed to control randomness.
+
+# Example
+```julia
+learn_seq = JudiLing.make_learn_seq(data.frequency)
+```
 """
 function make_learn_seq(freq; random_seed = 314)
     if isnothing(freq)
