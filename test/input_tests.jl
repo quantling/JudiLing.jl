@@ -15,13 +15,13 @@ end
 
 @testset "random_split" begin
     # testing aliases
-    data_train1, data_val1 = JudiLing.loading_data_randomly_split("data/latin_mini.csv", "data/random", "latin",
+    data_train1, data_val1 = JudiLing.loading_data_randomly_split("data/latin_mini.csv", "data/random_test", "latin",
     val_ratio=0.1)
-    data_train2, data_val2 = JudiLing.loading_data_random_split("data/latin_mini.csv", "data/random", "latin",
+    data_train2, data_val2 = JudiLing.loading_data_random_split("data/latin_mini.csv", "data/random_test", "latin",
     val_ratio=0.1)
-    data_train3, data_val3 = JudiLing.load_data_randomly_split("data/latin_mini.csv", "data/random", "latin",
+    data_train3, data_val3 = JudiLing.load_data_randomly_split("data/latin_mini.csv", "data/random_test", "latin",
     val_ratio=0.1)
-    data_train4, data_val4 = JudiLing.load_data_random_split("data/latin_mini.csv", "data/random", "latin",
+    data_train4, data_val4 = JudiLing.load_data_random_split("data/latin_mini.csv", "data/random_test", "latin",
     val_ratio=0.1)
 
     @test data_train1 == data_train2
@@ -41,22 +41,22 @@ end
     @test length(intersect(Set(data_train1.Word), Set(data_val1.Word))) == 0
 
     # clean up
-    rm("data/random", recursive=true)
+    rm("data/random_test", recursive=true)
 end
 
 
 @testset "careful_split" begin
     # testing aliases
-    data_train1, data_val1 = JudiLing.loading_data_careful_split("data/latin_mini.csv", "latin", "data/careful",
+    data_train1, data_val1 = JudiLing.loading_data_careful_split("data/latin_mini.csv", "latin", "data/careful_test",
     ["Lexeme","Person","Number","Tense","Voice","Mood"],
     val_ratio=0.1, n_grams_target_col = "Word")
-    data_train2, data_val2 = JudiLing.loading_data_careful_split("data/latin_mini.csv", "latin", "data/careful",
+    data_train2, data_val2 = JudiLing.loading_data_careful_split("data/latin_mini.csv", "latin", "data/careful_test",
     ["Lexeme","Person","Number","Tense","Voice","Mood"],
     val_ratio=0.1, n_grams_target_col = "Word")
-    data_train3, data_val3 = JudiLing.load_data_carefully_split("data/latin_mini.csv", "latin", "data/careful",
+    data_train3, data_val3 = JudiLing.load_data_carefully_split("data/latin_mini.csv", "latin", "data/careful_test",
     ["Lexeme","Person","Number","Tense","Voice","Mood"],
     val_ratio=0.1, n_grams_target_col = "Word")
-    data_train4, data_val4 = JudiLing.load_data_carefully_split("data/latin_mini.csv", "latin", "data/careful",
+    data_train4, data_val4 = JudiLing.load_data_carefully_split("data/latin_mini.csv", "latin", "data/careful_test",
     ["Lexeme","Person","Number","Tense","Voice","Mood"],
     val_ratio=0.1, n_grams_target_col = "Word")
 
@@ -83,5 +83,5 @@ end
     end
 
     # clean up
-    rm("data/careful", recursive=true)
+    rm("data/careful_test", recursive=true)
 end
