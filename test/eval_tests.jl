@@ -171,6 +171,61 @@ end
 
 end
 
+@testset "token_accuracy" begin
+    S = [[1. 2. 3.]
+         [4. 5. 6.]
+         [7. 8. 9.]]
+
+    S2 = [[1. 2. 3.]
+          [0. 0.1 0.1]
+          [9. 8. 7.]]
+
+    @test JudiLing.eval_SC(S, S2) ≈ 0.3333
+    @test JudiLing.eval_SC(S, S2, freq=[1,1,1]) ≈ 0.3333
+    @test JudiLing.eval_SC(S, S2, freq=[1,2,3]) ≈ 0.1667
+    @test JudiLing.eval_SC(S, S2, freq=[3,2,1]) ≈ 0.5
+    @test JudiLing.eval_SC(S, S, freq=[1,2,3]) == JudiLing.eval_SC(S, S)
+
+    S3 = [7. 8. 9.]
+
+    @test JudiLing.eval_SC(S, S2, S3) ≈ 0.3333
+    @test JudiLing.eval_SC(S, S2, S3, freq=[1,1,1]) ≈ 0.3333
+    @test JudiLing.eval_SC(S, S2, S3, freq=[1,2,3]) ≈ 0.1667
+    @test JudiLing.eval_SC(S, S2, S3, freq=[3,2,1]) ≈ 0.5
+    @test JudiLing.eval_SC(S2, S2, S3, freq=[1,2,3]) == JudiLing.eval_SC(S2, S2)
+
+    S4 = [[1. 2. 3.]
+         [6. 5. 4.]
+         [7. 8. 9.]]
+
+    S5 = [[1. 2. 3.]
+          [9. 3. 1.]
+          [0. 0.1 0.1]]
+
+    S6 = [6. 5. 4.]
+
+    @test JudiLing.eval_SC(S4, S5) ≈ 0.6667
+    @test JudiLing.eval_SC(S4, S5, S6) ≈ 0.3333
+    @test JudiLing.eval_SC(S4, S5, freq=[1,1,1]) ≈ 0.6667
+    @test JudiLing.eval_SC(S4, S5, S6, freq=[1,1,1]) ≈ 0.3333
+    @test JudiLing.eval_SC(S4, S5, S6, freq=[1,2,3]) ≈ 0.1667
+    @test JudiLing.eval_SC(S4, S5, S6, freq=[3,2,1]) ≈ 0.5
+
+    data = DataFrame("Word"=>["a", "b", "a"])
+    @test JudiLing.eval_SC(S, S2, data, "Word") ≈ 0.6667
+    @test JudiLing.eval_SC(S, S2, data, "Word", freq=[1,1,1]) ≈ 0.6667
+    @test JudiLing.eval_SC(S, S2, data, "Word", freq=[1,3,2]) ≈ 0.5
+    @test JudiLing.eval_SC(S, S2, data, "Word", freq=[3,1,2]) ≈ round(5/6, digits=4)
+    @test JudiLing.eval_SC(S2, S2, data, "Word", freq=[3,1,2]) ≈ 1.0
+
+    data = DataFrame("Word"=>["a", "b", "c"])
+    data2 = DataFrame("Word"=>["b"])
+    @test JudiLing.eval_SC(S4, S5, S6, data, data2, "Word") ≈ 0.6667
+    @test JudiLing.eval_SC(S4, S5, S6, data, data2, "Word", freq=[1,1,1]) ≈ 0.6667
+    @test JudiLing.eval_SC(S4, S5, S6, data, data2, "Word", freq=[3,2,1]) ≈ round(5/6, digits=4)
+    @test JudiLing.eval_SC(S4, S5, S6, data, data2, "Word", freq=[1,2,3]) ≈ 0.5
+end
+
 @testset "accuracy_comprehension" begin
     latin = DataFrame(
         Word = ["ABC", "BCD", "CDE", "BCD"],
