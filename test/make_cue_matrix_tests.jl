@@ -123,3 +123,61 @@ end
         keep_sep = false,
     )
 end
+
+
+@testset "CFBS" begin
+
+    features = [[0., 0.1, 1.0, 3.2, 3.1], [-1., 0.5], [-0.]]
+
+    C = JudiLing.make_cue_matrix_from_CFBS(features)
+    target_C = [[0. 0.1 1.0 3.2 3.1]
+                [-1. 0.5 0. 0. 0.]
+                [-0. 0. 0. 0. 0.]]
+    @test C == target_C
+
+    C = JudiLing.make_cue_matrix_from_CFBS(features, ncol = 6)
+    target_C = [[0. 0.1 1.0 3.2 3.1 0.]
+                [-1. 0.5 0. 0. 0. 0.]
+                [-0. 0. 0. 0. 0. 0.]]
+    @test C == target_C
+
+    C = JudiLing.make_cue_matrix_from_CFBS(features, pad_val = 1.)
+    target_C = [[0. 0.1 1.0 3.2 3.1]
+                [-1. 0.5 1. 1. 1.]
+                [-0. 1. 1. 1. 1.]]
+    @test C == target_C
+
+    @test_throws TypeError JudiLing.make_cue_matrix_from_CFBS(features, pad_val = 1)
+
+    @test_throws ErrorException JudiLing.make_cue_matrix_from_CFBS(features, ncol=4)
+
+    features2 = [[0., 0.1, 1.0, 3.2, 3.1, 4.05]]
+
+    C1, C2 = JudiLing.make_combined_cue_matrix_from_CFBS(features, features2)
+    target_C1 = [[0. 0.1 1.0 3.2 3.1 0.]
+                [-1. 0.5 0. 0. 0. 0.]
+                [-0. 0. 0. 0. 0. 0.]]
+    target_C2 = [0. 0.1 1.0 3.2 3.1 4.05]
+    @test C1 == target_C1
+    @test C2 == target_C2
+
+    C1, C2 = JudiLing.make_combined_cue_matrix_from_CFBS(features, features2, ncol = 7)
+    target_C1 = [[0. 0.1 1.0 3.2 3.1 0. 0.]
+                [-1. 0.5 0. 0. 0. 0. 0.]
+                [-0. 0. 0. 0. 0. 0. 0.]]
+    target_C2 = [0. 0.1 1.0 3.2 3.1 4.05 0.]
+    @test C1 == target_C1
+    @test C2 == target_C2
+
+    C1, C2 = JudiLing.make_combined_cue_matrix_from_CFBS(features, features2, pad_val = 1.)
+    target_C1 = [[0. 0.1 1.0 3.2 3.1 1.]
+                [-1. 0.5 1. 1. 1. 1.]
+                [-0. 1. 1. 1. 1. 1.]]
+    target_C2 = [0. 0.1 1.0 3.2 3.1 4.05]
+    @test C1 == target_C1
+    @test C2 == target_C2
+
+    @test_throws TypeError JudiLing.make_combined_cue_matrix_from_CFBS(features, features2, pad_val = 1)
+
+    @test_throws ErrorException JudiLing.make_combined_cue_matrix_from_CFBS(features, features2, ncol=4)
+end
