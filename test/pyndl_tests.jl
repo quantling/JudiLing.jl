@@ -23,7 +23,8 @@ cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(train, val, targe
     train,
     weights_latin;
     grams = 3,
-    target_col = "Word"
+    target_col = "Word",
+    verbose=true
     );
 
     cue_obj_val = JudiLing.make_cue_matrix(
