@@ -327,7 +327,7 @@ end
 """
     make_transform_matrix(X::Union{SparseMatrixCSC,Matrix},
                             Y::Union{SparseMatrixCSC,Matrix},
-                            freq::Array{Int64,1})
+                            freq::Union{Array{Int64, 1}, Array{Float64,1}})
 
 Weight X and Y using the frequencies in freq. Then use the Cholesky
 decomposition to calculate the transformation matrix from X to Y,
@@ -336,7 +336,7 @@ where X is a sparse matrix and Y is a sparse matrix.
 # Obligatory Arguments
 - `X::SparseMatrixCSC`: the X matrix, where X is a sparse matrix
 - `Y::SparseMatrixCSC`: the Y matrix, where Y is a sparse matrix
-- `freq::Array{Int64,1}`: list of frequencies of the wordforms in X and Y
+- `freq::Union{Array{Int64, 1}, Array{Float64,1}}`: list of frequencies of the wordforms in X and Y
 
 # Optional Arguments
 - `method::Symbol = :additive`: whether :additive or :multiplicative decomposition is required

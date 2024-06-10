@@ -14,11 +14,11 @@ Pkg.add("JudiLing")
 ```
 For brave adventurers, install test version of JudiLing by:
 ```
-julia> Pkg.add(url="https://github.com/MegamindHenry/JudiLing.jl.git")
+julia> Pkg.add(url="https://github.com/quantling/JudiLing.jl.git")
 ```
 Or from the Julia REPL, type `]` to enter the Pkg REPL mode and run
 ```
-pkg> add https://github.com/MegamindHenry/JudiLing.jl.git
+pkg> add https://github.com/quantling/JudiLing.jl.git
 ```
 
 ## Running Julia with multiple threads

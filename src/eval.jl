@@ -225,12 +225,15 @@ function accuracy_comprehension(
     Comp_Acc_Struct(dfr, acc, err)
 end
 
+
 """
     eval_SC(SChat::AbstractArray, SC::AbstractArray)
 
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
 of the pertinent correlation matrices.
+
+If `freq` is added, token-based accuracy is computed. Token-based accuracy weighs accuracy values according to words' frequency, i.e. if a word has a frequency of 30 and overall there are 3000 tokens (the frequencies of all types sum to 3000), this token's accuracy will contribute 30/3000.
 
 !!! note
     If there are homophones/homographs in the dataset, this evaluation method may be misleading: the predicted vector will be equally correlated with the target vector of both words and the one on the diagonal will not necessarily be selected as the most correlated. In such cases, supplying the dataset and `target_col` is recommended which enables taking into account homophones/homographs.
@@ -242,6 +245,7 @@ of the pertinent correlation matrices.
 # Optional Arguments
 - `digits`: the specified number of digits after the decimal place (or before if negative)
 - `R::Bool=false`: if true, pairwise correlation matrix R is return
+- `freq::Union{Missing, Array{Int64, 1}, Array{Float64,1}}=missing`: list of frequencies of the wordforms in X and Y
 
 ```julia
 eval_SC(Chat_train, cue_obj_train.C)
@@ -250,7 +254,8 @@ eval_SC(Shat_train, S_train)
 eval_SC(Shat_val, S_val)
 ```
 """
-function eval_SC(SChat::AbstractArray, SC::AbstractArray; digits=4, R=false)
+function eval_SC(SChat::AbstractArray, SC::AbstractArray; digits=4, R=false,
+    freq::Union{Missing, Array{Int64, 1}, Array{Float64,1}}=missing)
 
     if size(unique(SC, dims=1), 1) != size(SC, 1)
         @warn "eval_SC: The C or S matrix contains duplicate vectors (usually because of homophones/homographs). Supplying the dataset and target column is recommended for a realistic evaluation. See the documentation of this function for more information."
@@ -262,7 +267,12 @@ function eval_SC(SChat::AbstractArray, SC::AbstractArray; digits=4, R=false)
         dims = 2,
     )
     v = [rSC[i[1], i[1]] == rSC[i] ? 1 : 0 for i in argmax(rSC, dims = 2)]
-    acc = round(sum(v) / length(v), digits=digits)
+    if !ismissing(freq)
+        v .*= freq
+        acc = round(sum(v) / sum(freq), digits=digits)
+    else
+        acc = round(sum(v) / length(v), digits=digits)
+    end
     if R
         return acc, rSC
     else
@@ -276,6 +286,8 @@ end
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
 of the pertinent correlation matrices.
+
+If `freq` is added, token-based accuracy is computed. Token-based accuracy weighs accuracy values according to words' frequency, i.e. if a word has a frequency of 30 and overall there are 3000 tokens (the frequencies of all types sum to 3000), this token's accuracy will contribute 30/3000.
 
 !!! note
     The order is important. The fist gold standard matrix has to be corresponing
@@ -292,6 +304,7 @@ of the pertinent correlation matrices.
 # Optional Arguments
 - `digits`: the specified number of digits after the decimal place (or before if negative)
 - `R::Bool=false`: if true, pairwise correlation matrix R is return
+- `freq::Union{Missing, Array{Int64, 1}, Array{Float64,1}}=missing`: list of frequencies of the wordforms in X and Y
 
 ```julia
 eval_SC(Chat_train, cue_obj_train.C, cue_obj_val.C)
@@ -305,11 +318,13 @@ function eval_SC(
     SC::AbstractArray,
     SC_rest::AbstractArray;
     digits = 4,
-    R = false
+    R = false,
+    freq::Union{Missing, Array{Int64, 1}, Array{Float64,1}}=missing
     )
 
-    eval_SC(SChat, vcat(SC, SC_rest); digits=digits, R=R)
+    eval_SC(SChat, vcat(SC, SC_rest); digits=digits, R=R, freq=freq)
 end
+
 
 """
     eval_SC(SChat::AbstractArray, SC::AbstractArray, data::DataFrame, target_col::Union{String, Symbol})
@@ -317,6 +332,8 @@ end
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
 of the pertinent correlation matrices. Support for homophones.
+
+If `freq` is added, token-based accuracy is computed. Token-based accuracy weighs accuracy values according to words' frequency, i.e. if a word has a frequency of 30 and overall there are 3000 tokens (the frequencies of all types sum to 3000), this token's accuracy will contribute 30/3000.
 
 # Obligatory Arguments
 - `SChat::Union{SparseMatrixCSC, Matrix}`: the Chat or Shat matrix
@@ -327,6 +344,7 @@ of the pertinent correlation matrices. Support for homophones.
 # Optional Arguments
 - `digits`: the specified number of digits after the decimal place (or before if negative)
 - `R::Bool=false`: if true, pairwise correlation matrix R is return
+- `freq::Union{Missing, Array{Int64, 1}, Array{Float64,1}}=missing`: list of frequencies of the wordforms in X and Y
 
 ```julia
 eval_SC(Chat_train, cue_obj_train.C, latin, :Word)
@@ -341,7 +359,8 @@ function eval_SC(
     data::DataFrame,
     target_col::Union{String, Symbol};
     digits = 4,
-    R = false
+    R = false,
+    freq::Union{Missing, Array{Int64, 1}, Array{Float64,1}}=missing
     )
 
     rSC = cor(
@@ -353,7 +372,12 @@ function eval_SC(
         data[i[1], target_col] == data[i[2], target_col] ? 1 : 0
         for i in argmax(rSC, dims = 2)
     ]
-    acc = round(sum(v) / length(v), digits=digits)
+    if !ismissing(freq)
+        v .*= freq
+        acc = round(sum(v) / sum(freq), digits=digits)
+    else
+        acc = round(sum(v) / length(v), digits=digits)
+    end
     if R
         return acc, rSC
     else
@@ -367,6 +391,8 @@ end
 Assess model accuracy on the basis of the correlations of row vectors of Chat and
 C or Shat and S. Ideally the target words have highest correlations on the diagonal
 of the pertinent correlation matrices.
+
+If `freq` is added, token-based accuracy is computed. Token-based accuracy weighs accuracy values according to words' frequency, i.e. if a word has a frequency of 30 and overall there are 3000 tokens (the frequencies of all types sum to 3000), this token's accuracy will contribute 30/3000.
 
 !!! note
     The order is important. The fist gold standard matrix has to be corresponing
@@ -384,6 +410,7 @@ of the pertinent correlation matrices.
 # Optional Arguments
 - `digits`: the specified number of digits after the decimal place (or before if negative)
 - `R::Bool=false`: if true, pairwise correlation matrix R is return
+- `freq::Union{Missing, Array{Int64, 1}, Array{Float64,1}}=missing`: list of frequencies of the wordforms in X and Y
 
 ```julia
 eval_SC(Chat_train, cue_obj_train.C, cue_obj_val.C, latin, :Word)
@@ -400,7 +427,8 @@ function eval_SC(
     data_rest::DataFrame,
     target_col::Union{String, Symbol};
     digits = 4,
-    R = false
+    R = false,
+    freq::Union{Missing, Array{Int64, 1}, Array{Float64,1}}=missing
     )
 
     n_data = size(data, 1)
@@ -428,7 +456,8 @@ function eval_SC(
         data_combined,
         target_col,
         digits = digits,
-        R = R
+        R = R,
+        freq=freq
         )
 end
 
