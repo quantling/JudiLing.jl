@@ -5,12 +5,12 @@ using Documenter
 
 makedocs(;
     modules=[JudiLing],
-    authors="Xuefeng Luo",
-    repo="https://github.com/MegamindHenry/JudiLing.jl/blob/{commit}{path}#L{line}",
+    authors="Xuefeng Luo, Maria Heitmeier",
+    repo="https://github.com/quantling/JudiLing.jl/blob/{commit}{path}#L{line}",
     sitename="JudiLing.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://MegamindHenry.github.io/JudiLing.jl",
+        canonical="https://quantling.github.io/JudiLing.jl",
         assets=String[],
     ),
     pages=[
@@ -39,5 +39,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/MegamindHenry/JudiLing.jl",
+    repo="github.com/quantling/JudiLing.jl",
 )
