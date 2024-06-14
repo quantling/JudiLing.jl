@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Measures function · JudiLing.jl</title><link rel="canonical" href="https://quantling.github.io/JudiLing.jl/man/measures_func/"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit">JudiLing.jl</span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../input/">Loading data</a></li><li><a class="tocitem" href="../make_cue_matrix/">Make Cue Matrix</a></li><li><a class="tocitem" href="../make_semantic_matrix/">Make Semantic Matrix</a></li><li><a class="tocitem" href="../cholesky/">Cholesky</a></li><li><a class="tocitem" href="../make_adjacency_matrix/">Make Adjacency Matrix</a></li><li><a class="tocitem" href="../make_yt_matrix/">Make Yt Matrix</a></li><li><a class="tocitem" href="../find_path/">Find Paths</a></li><li><a class="tocitem" href="../eval/">Evaluation</a></li><li><a class="tocitem" href="../output/">Output</a></li><li><a class="tocitem" href="../test_combo/">Test Combo</a></li><li><a class="tocitem" href="../display/">Display</a></li><li><a class="tocitem" href="../utils/">Utils</a></li><li><a class="tocitem" href="../pickle/">Pickle</a></li><li><a class="tocitem" href="../pyndl/">Pyndl</a></li><li><a class="tocitem" href="../wh/">Widrow-Hoff Learning</a></li><li><a class="tocitem" href="../deep_learning/">Deep learning</a></li><li class="is-active"><a class="tocitem" href>Measures function</a><ul class="internal"><li><a class="tocitem" href="#For-get_and_train_model"><span>For <code>get_and_train_model</code></span></a></li><li><a class="tocitem" href="#For-fiddl"><span>For <code>fiddl</code></span></a></li></ul></li></ul></li><li><a class="tocitem" href="../all_manual/">All Manual index</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>Measures function</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Measures function</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/quantling/JudiLing.jl/blob/master/docs/src/man/measures_func.md#L" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="The-measures_func-argument"><a class="docs-heading-anchor" href="#The-measures_func-argument">The <code>measures_func</code> argument</a><a id="The-measures_func-argument-1"></a><a class="docs-heading-anchor-permalink" href="#The-measures_func-argument" title="Permalink"></a></h1><p>The deep learning functions <code>get_and_train_model</code> and <code>fiddl</code> take a <code>measures_func</code> as one of their arguments. This helps computing measures during the training. For this to work, the <code>measures_func</code> has to conform to the following format.</p><h2 id="For-get_and_train_model"><a class="docs-heading-anchor" href="#For-get_and_train_model">For <code>get_and_train_model</code></a><a id="For-get_and_train_model-1"></a><a class="docs-heading-anchor-permalink" href="#For-get_and_train_model" title="Permalink"></a></h2><pre><code class="language-none">data_train, data_val = measures_func(X_train,
+                                    Y_train,
+                                    X_val,
+                                    Y_val,
+                                    Yhat_train,
+                                    Yhat_val,
+                                    data_train,
+                                    data_val,
+                                    target_col,
+                                    model,
+                                    epoch;
+                                    kargs...)
+
+## Input
+
+- `X_train`: The input training matrix.
+- `Y_train`: The target training matrix
+- `X_val`: The input validation matrix.
+- `Y_val`: The target validation matrix.
+- `Yhat_train`: The predicted training matrix.
+- `Yhat_val`: The predicted validation matrix.
+- `data_train`: The training dataset.
+- `data_val`: The validation dataset.
+- `target_col`: The name of the column with the target wordforms in the datasets.
+- `model`: The trained model.
+- `epoch`: The epoch the training is currently in.
+- `kargs...`: Any other keyword arguments that should be passed to the function.
+
+Note: the `kargs` are just keyword arguments that are passed on from the parameters of `get_and_train_model` to the `measures_func`. For example, this could be a suffix that should be added to each added column in `measures_func`.
+
+## Output
+The function has to return the training and validation dataframes.</code></pre><h3 id="Example"><a class="docs-heading-anchor" href="#Example">Example</a><a id="Example-1"></a><a class="docs-heading-anchor-permalink" href="#Example" title="Permalink"></a></h3><p>Define a <code>measures_func</code>. This one computes target correlations for both training and validation datasets.</p><pre><code class="language-none">function compute_target_corr(X_train, Y_train, X_val, Y_val,
+                                    Yhat_train, Yhat_val, data_train,
+                                    data_val, target_col, model, epoch)
+        _, corr = JudiLing.eval_SC(Yhat_train, Y_train, R=true)
+        data_train[!, string(&quot;target_corr_&quot;, epoch)] = diag(corr)
+        _, corr = JudiLing.eval_SC(Yhat_val, Y_val, R=true)
+        data_val[!, string(&quot;target_corr_&quot;, epoch)] = diag(corr)
+        return(data_train, data_val)
+end</code></pre><p>Train a model for 100 epochs, call <code>compute_target_corr</code> after each epoch.</p><pre><code class="language-none">res = JudiLing.get_and_train_model(cue_obj_train.C,
+                            S_train,
+                            cue_obj_val.C,
+                            S_val,
+                            train, val,
+                            :Word,
+                            &quot;test.bson&quot;,
+                            return_losses=true,
+                            batchsize=3,
+                            measures_func=compute_target_corr)
+</code></pre><h2 id="For-fiddl"><a class="docs-heading-anchor" href="#For-fiddl">For <code>fiddl</code></a><a id="For-fiddl-1"></a><a class="docs-heading-anchor-permalink" href="#For-fiddl" title="Permalink"></a></h2><pre><code class="language-none">data = measures_func(X_train,
+                      Y_train,
+                      Yhat_train,
+                      data,
+                      target_col,
+                      model,
+                      step;
+                      kargs...)
+
+## Input
+
+- `X_train`: The input matrix of the full dataset.
+- `Y_train`: The target matrix of the full dataset.
+- `Yhat_train`: The predicted matrix of the full dataset at current step.
+- `data_train`: The full dataset.
+- `target_col`: The name of the column with the target wordforms in the dataset.
+- `model`: The trained model.
+- `step`: The step the training is currently in.
+- `kargs...`: Any other keyword arguments that should be passed to the function.
+
+Note: the `kargs` are just keyword arguments that are passed on from the parameters of `get_and_train_model` to the `measures_func`. For example, this could be a suffix that should be added to each added column in `measures_func`.
+
+## Output
+The function has to return the dataset.</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../deep_learning/">« Deep learning</a><a class="docs-footer-nextpage" href="../all_manual/">All Manual index »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Friday 14 June 2024 09:32">Friday 14 June 2024</span>. Using Julia version 1.10.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
