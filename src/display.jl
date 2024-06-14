@@ -21,16 +21,16 @@ function display_matrix(M, rownames, colnames; nrow=6, ncol=6, return_matrix=fal
 end
 
 """
-    display_matrix(data, target_col, cue_obj, M, M_type)
+    display_matrix(data, target_col, cue_pS_obj, M, M_type)
 
 Display matrix with rownames and colnames.
 
 # Obligatory Arguments
 - `data::DataFrame`: the dataset
 - `target_col::Union{String, Symbol}`: the target column name
-- `cue_obj::Cue_Matrix_Struct`: the cue matrix structure
+- `cue_pS_obj::Union{Cue_Matrix_Struct,PS_Matrix_Struct}`: the cue matrix or pS matrix structure
 - `M::Union{SparseMatrixCSC, Matrix}`: the matrix
-- `M_type::Union{String, Symbol}`: the type of the matrix, currently support :C, :S, :F, :G, :Chat, :Shat, :A and :R
+- `M_type::Union{String, Symbol}`: the type of the matrix, currently support :C, :S, :F, :G, :Chat, :Shat, :A, :R and :pS
 
 # Optional Arguments
 - `nrow::Int64 = 6`: the number of rows to display
@@ -47,12 +47,13 @@ JudiLing.display_matrix(latin, :Word, cue_obj, F, :F)
 JudiLing.display_matrix(latin, :Word, cue_obj, Shat, :Shat)
 JudiLing.display_matrix(latin, :Word, cue_obj, A, :A)
 JudiLing.display_matrix(latin, :Word, cue_obj, R, :R)
+JudiLing.display_matrix(latin, :Word, pS_obj, pS_obj.pS, :pS)
 ```
 """
 function display_matrix(
     data,
     target_col,
-    cue_obj,
+    cue_pS_obj,
     M,
     M_type;
     nrow = 6,
@@ -62,10 +63,13 @@ function display_matrix(
 
     if M_type == :C || M_type == "C"
         rownames = data[:,target_col]
-        colnames = [cue_obj.i2f[i] for i in 1:size(M,2)]
+        colnames = [cue_pS_obj.i2f[i] for i in 1:size(M,2)]
+    elseif M_type == :pS || M_type == "pS"
+        rownames = data[:,target_col]
+        colnames = [cue_pS_obj.i2f[i] for i in 1:size(M,2)]
     elseif M_type == :Chat || M_type == "Chat"
         rownames = data[:,target_col]
-        colnames = [cue_obj.i2f[i] for i in 1:size(M,2)]
+        colnames = [cue_pS_obj.i2f[i] for i in 1:size(M,2)]
     elseif M_type == :S || M_type == "S"
         rownames = data[:,target_col]
         colnames = ["S$i" for i in 1:size(M,2)]
@@ -73,20 +77,20 @@ function display_matrix(
         rownames = data[:,target_col]
         colnames = ["S$i" for i in 1:size(M,2)]
     elseif M_type == :F || M_type == "F"
-        rownames = [cue_obj.i2f[i] for i in 1:size(M,1)]
+        rownames = [cue_pS_obj.i2f[i] for i in 1:size(M,1)]
         colnames = ["S$i" for i in 1:size(M,2)]
     elseif M_type == :G || M_type == "G"
         rownames = ["S$i" for i in 1:size(M,1)]
-        colnames = [cue_obj.i2f[i] for i in 1:size(M,2)]
+        colnames = [cue_pS_obj.i2f[i] for i in 1:size(M,2)]
     elseif M_type == :A || M_type == "A"
-        rownames = [cue_obj.i2f[i] for i in 1:size(M,1)]
-        colnames = [cue_obj.i2f[i] for i in 1:size(M,2)]
+        rownames = [cue_pS_obj.i2f[i] for i in 1:size(M,1)]
+        colnames = [cue_pS_obj.i2f[i] for i in 1:size(M,2)]
     elseif M_type == :R || M_type == "R"
         rownames = data[:,target_col]
         colnames = data[:,target_col]
     else
         throw(ArgumentError("type is incorrect, using :C," *
-            " :S, :Chat, :Shat, :F, :G, :A and :R"))
+            " :S, :Chat, :Shat, :F, :G, :A, :R and :pS"))
     end
 
     display_matrix(M, rownames, colnames, nrow=nrow, ncol=ncol, return_matrix=return_matrix)

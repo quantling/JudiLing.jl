@@ -41,4 +41,7 @@ using DataFrames
 
     acc, R = JudiLing.eval_SC(Chat, cue_obj.C, R = true)
     JudiLing.display_matrix(latin, :Word, cue_obj, R, :R)
+
+    pS_obj = JudiLing.make_pS_matrix(latin, features_col="Word")
+    JudiLing.display_matrix(latin, :Word, pS_obj, pS_obj.pS, :pS)
 end
