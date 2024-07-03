@@ -554,10 +554,6 @@ There are two types of supports in outputs. An utterance level and a set of supp
 
 This project was supported by the ERC advanced grant WIDE-742545 and by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany’s Excellence Strategy - EXC number 2064/1 - Project number 390727645.
 
-## Acknowledgments
-
-This project was supported by the ERC advanced grant WIDE-742545 and by the Deutsche Forschungsgemeinschaft (DFG, German Research Foundation) under Germany’s Excellence Strategy - EXC number 2064/1 - Project number 390727645.
-
 ## Citation
 
 If you find this package helpful, please cite it as follows:
