@@ -58,6 +58,9 @@ KWARGS_DUMP = Dict()
 
 A wrapper function for a full model for a specific combination of parameters. A detailed introduction is in [Test Combo Introduction](@ref)
 
+!!! note
+    test_combo: test_combo is deprecated. While it will remain in the package it is no longer actively maintained.
+
 # Obligatory Arguments
 - `test_mode::Symbol`: which test mode, currently supports :train_only, :pre_split, :careful_split and :random_split.
 
@@ -125,6 +128,8 @@ function test_combo(test_mode; kwargs...)
     path_sep_token = get_kwarg(kwargs, :path_sep_token, required=false)
     random_seed = get_kwarg(kwargs, :random_seed, required=false)
     if_combined = get_kwarg(kwargs, :if_combined, required=false)
+
+    @warn "test_combo: test_combo is deprecated. While it will remain in the package it is no longer actively maintained."
 
     verbose && println("="^20)
     verbose && println("Preparing datasets...")
