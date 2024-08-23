@@ -136,6 +136,8 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
         model = Chain(
             Dense(size(X_train, 2) => hidden_dim, relu),   # activation function inside layer
             Dense(hidden_dim => size(Y_train, 2))) |> gpu        # move model to GPU, if available
+    else
+        model = model |> gpu
     end
 
     verbose && @show model
