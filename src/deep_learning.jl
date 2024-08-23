@@ -538,6 +538,7 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
     mean_loss = missing
     acc = missing
 
+    nbatch = 0
     for (x_cpu, y_cpu) in fiddl_data_loader
 
         x = x_cpu |> gpu
@@ -557,8 +558,10 @@ function fiddl(X_train::Union{SparseMatrixCSC,Matrix},
             step = length(learn_seq)
         end
 
+        nbatch += 1
 
-        if (step % n_batch_eval == 0) || (step == length(learn_seq))
+
+        if (nbatch % n_batch_eval == 0) || (step == length(learn_seq))
             # store mean loss of epoch
             mean_train_loss = mean(all_losses_epoch_train)
             push!(losses_train, mean_train_loss)
