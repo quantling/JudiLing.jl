@@ -108,6 +108,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                             verbose::Bool=true,
                             measures_func::Union{Missing, Function}=missing,
                             return_train_acc::Bool=false,
+                            regularisation_func::Union{Missing, Function} = missing,
                             kargs...)
 
     data_train = deepcopy(data_train)
