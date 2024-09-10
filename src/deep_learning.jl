@@ -36,6 +36,7 @@ end
                         verbose::Bool=true,
                         measures_func::Union{Missing, Function}=missing,
                         return_train_acc::Bool=false,
+                        regularisation_func::Union{Missing, Function} = missing,
                         ...kargs
                         )
 
@@ -188,7 +189,11 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
             loss, grads = Flux.withgradient(model) do m
                 # Evaluate model and loss inside gradient context:
                 y_hat = m(x)
-                loss_func(y_hat, y)
+                if !ismissing(regularisation_func)
+                    loss_func(y_hat, y) + regularisation_func(m)
+                else
+                    loss_func(y_hat, y)
+                end
             end
             Flux.update!(optim, model, grads[1])
             push!(all_losses_epoch_train, loss)  # logging, outside gradient context
