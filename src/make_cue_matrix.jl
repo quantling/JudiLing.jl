@@ -125,7 +125,6 @@ function make_cue_matrix(
 
     n = length(ngrams_features)
     
-    # Calculate total number of ngrams
     n_f = sum(length.(ngrams_results)) 
     
     # Define m based on the length of grams
