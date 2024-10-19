@@ -130,9 +130,9 @@ function make_cue_matrix(
     
     # Define m based on the length of grams
     if length(grams) == 1
-        m = size(data, 1)  # 只有一个 n-gram 时，m 等于数据的行数
+        m = size(data, 1)  # When there's only one n-gram, m equals the number of rows in the data
     else
-        m = size(data, 1) * length(grams)  # 如果 grams 含有多个 n-gram，m 为行数的倍数
+        m = size(data, 1) * length(grams)  # If grams contains multiple n-grams, m is the row count multiplied
     end
 
     # Initialize I, J, V
