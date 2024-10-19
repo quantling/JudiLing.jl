@@ -242,7 +242,7 @@ cue_obj_val = JudiLing.make_cue_matrix(
 function make_cue_matrix(
     data::DataFrame,
     cue_obj::Cue_Matrix_Struct;
-    grams = 3,
+    grams = [3],
     target_col = "Words",
     tokenized = false,
     sep_token = nothing,
@@ -337,7 +337,7 @@ cue_obj_train, cue_obj_val = JudiLing.make_cue_matrix(
 function make_cue_matrix(
     data_train::DataFrame,
     data_val::DataFrame;
-    grams = 3,
+    grams = [3],
     target_col = "Words",
     tokenized = false,
     sep_token = nothing,
@@ -419,7 +419,7 @@ cue_obj_train, cue_obj_val = JudiLing.make_combined_cue_matrix(
 function make_combined_cue_matrix(
     data_train,
     data_val;
-    grams = 3,
+    grams = [3],
     target_col = "Words",
     tokenized = false,
     sep_token = nothing,
