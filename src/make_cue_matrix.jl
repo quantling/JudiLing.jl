@@ -84,7 +84,7 @@ cue_obj_train = JudiLing.make_cue_matrix(
 function make_cue_matrix(
     data;
     grams = [3],  # This is an array containing multiple values
-    target_col = :Ortho,
+    target_col = :Words,
     tokenized = false,
     sep_token = nothing,
     keep_sep = false,
