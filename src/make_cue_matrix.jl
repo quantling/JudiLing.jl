@@ -13,12 +13,12 @@ keep_sep is whether to keep separators in cues;
 start_end_token is the start and end token in boundary cues.
 """
 struct Cue_Matrix_Struct
-    C::Union{Matrix,SparseMatrixCSC}
+    C::Union{Matrix, SparseMatrixCSC}
     f2i::Dict
     i2f::Dict
     gold_ind::Vector{Vector{Int64}}
     A::SparseMatrixCSC
-    grams::Int64
+    grams::Union{Vector{Int64}, Int64}
     target_col::Union{Symbol, String}
     tokenized::Bool
     sep_token::Union{String, Nothing}
@@ -87,9 +87,9 @@ cue_obj_train = JudiLing.make_cue_matrix(
 ```
 """
 function make_cue_matrix(
-    data::DataFrame;
-    grams = 3,
-    target_col = :Words,
+    data;
+    grams = [3],  # This is an array containing multiple values
+    target_col = :Ortho,
     tokenized = false,
     sep_token = nothing,
     keep_sep = false,
@@ -97,35 +97,53 @@ function make_cue_matrix(
     verbose = false,
 )
 
-    # split tokens from words or other columns
+    # Process tokens
     if tokenized && !isnothing(sep_token)
         tokens = split.(data[:, target_col], sep_token)
     else
         tokens = split.(data[:, target_col], "")
     end
 
-    # making ngrams from tokens
-    # make_ngrams function are below
-    ngrams = make_ngrams.(tokens, grams, keep_sep, sep_token, start_end_token)
+    # Ensure each element in tokens is of String type
+    tokens = map(x -> map(string, x), tokens)
 
-    # find all unique ngrams features
-    ngrams_features = unique(vcat(ngrams...))
+    ngrams_results = []  # Store results of all n-grams
+
+    # Generate n-grams for each gram
+    for g in grams
+        for i in 1:length(tokens)
+            push!(ngrams_results, make_ngrams(tokens[i], g, keep_sep, sep_token, start_end_token))
+        end
+    end
+
+    # Find all unique n-gram features
+    ngrams_features = unique(vcat(ngrams_results...))
+
 
     f2i = Dict(v => i for (i, v) in enumerate(ngrams_features))
     i2f = Dict(i => v for (i, v) in enumerate(ngrams_features))
 
-    n_f = sum([length(v) for v in ngrams])
-
-    m = size(data, 1)
     n = length(ngrams_features)
-    I = zeros(Int64, n_f)
+    
+    # Calculate total number of ngrams
+    n_f = sum(length.(ngrams_results)) 
+    
+    # Define m based on the length of grams
+    if length(grams) == 1
+        m = size(data, 1)  # 只有一个 n-gram 时，m 等于数据的行数
+    else
+        m = size(data, 1) * length(grams)  # 如果 grams 含有多个 n-gram，m 为行数的倍数
+    end
+
+    # Initialize I, J, V
+    I = zeros(Int64, n_f)  # Initialize I as a vector of length n_f
     J = zeros(Int64, n_f)
     V = ones(Int64, n_f)
 
-    A = [Int64[] for i = 1:length(ngrams_features)]
+    A = [Int64[] for _ in 1:length(ngrams_features)]
 
-    cnt = 0
-    for (i, v) in enumerate(ngrams)
+    cnt = 0 
+    for (i, v) in enumerate(ngrams_results)
         last = 0
         for (j, f) in enumerate(v)
             cnt += 1
@@ -141,13 +159,13 @@ function make_cue_matrix(
         end
     end
 
-    cue = sparse(I, J, V, m, n, *)
-
-    ngrams_ind = [[f2i[x] for x in y] for y in ngrams]
+    cue = sparse(I, J, V, m, n)
+    ngrams_ind = [[f2i[x] for x in y] for y in ngrams_results]
 
     verbose && println("making adjacency matrix...")
     A = [sort(unique(i)) for i in A]
     n_adj = sum(length.(A))
+
     I = zeros(Int64, n_adj)
     J = zeros(Int64, n_adj)
     V = ones(Int64, n_adj)
@@ -157,6 +175,7 @@ function make_cue_matrix(
     if verbose
         pb = Progress(length(A))
     end
+
     for (i, v) in iter
         for j in v
             cnt += 1
@@ -170,8 +189,7 @@ function make_cue_matrix(
 
     A = sparse(I, J, V, length(f2i), length(f2i))
 
-    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A, grams, target_col,
-        tokenized, sep_token, keep_sep, start_end_token)
+    return Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A, grams, target_col, tokenized, sep_token, keep_sep, start_end_token)
 end
 
 """
@@ -563,29 +581,17 @@ end
 
 Given a list of string tokens return a list of all n-grams for these tokens.
 """
-function make_ngrams(
-    tokens,
-    grams,
-    keep_sep,
-    sep_token,
-    start_end_token,
-)
+function make_ngrams(tokens, g, keep_sep, sep_token, start_end_token)
+    ngrams = []
 
-    push!(pushfirst!(tokens, start_end_token), start_end_token)
+    tokens = collect(map(string, tokens))  # Ensure tokens are Strings
+    new_tokens = push!(pushfirst!(copy(tokens), start_end_token), start_end_token)
+
     if keep_sep
-        # collect ngrams
-        ngrams =
-            join.(
-                collect(zip((Iterators.drop(tokens, k) for k = 0:grams-1)...)),
-                sep_token,
-            )
+        ngrams = join.(collect(zip((Iterators.drop(new_tokens, k) for k in 0:g-1)...)), sep_token)
     else
-        ngrams =
-            join.(
-                collect(zip((Iterators.drop(tokens, k) for k = 0:grams-1)...)),
-                "",
-            )
+        ngrams = join.(collect(zip((Iterators.drop(new_tokens, k) for k in 0:g-1)...)), "")
     end
 
-    ngrams
+    return ngrams
 end
