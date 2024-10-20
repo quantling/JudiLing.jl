@@ -59,10 +59,11 @@ function display_matrix(
     nrow = 6,
     ncol = 6,
     return_matrix=false
+    grams  # Array indicating the n-gram sizes to be processed
     )
 
     if M_type == :C || M_type == "C"
-        rownames = data[:,target_col]
+        rownames = repeat(data[:, target_col], outer=length(grams))
         colnames = [cue_pS_obj.i2f[i] for i in 1:size(M,2)]
     elseif M_type == :pS || M_type == "pS"
         rownames = data[:,target_col]
