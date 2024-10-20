@@ -354,35 +354,39 @@ JudiLing.make_transform_matrix_frequency(
     data.Frequency)
 ```
 """
-function make_transform_matrix(X::Union{SparseMatrixCSC,Matrix},
-    Y::Union{SparseMatrixCSC,Matrix},
-    freq::Union{Array{Int64, 1}, Array{Float64,1}},
-    grams::Array{Int64, 1};
+function make_transform_matrix(X::Union{SparseMatrixCSC, Matrix},
+    Y::Union{SparseMatrixCSC, Matrix},
+    freq::Union{Array{Int64, 1}, Array{Float64, 1}},
+    grams::Array{Int64, 1};  # 添加 grams 参数
     method = :additive,
     shift = 0.02,
     multiplier = 1.01,
     output_format = :auto,
     sparse_ratio = 0.05,
-    verbose = false,)
+    verbose = false)
 
-expanded_freq = [fill(freq[i], grams[i]) for i in 1:length(freq)]
-expanded_freq = vcat(expanded_freq...)
+# 根据 grams 长度扩展 freq
+expanded_freq = repeat(freq, length(grams))
 
+# 找到最大频率
 max_freq, _ = findmax(expanded_freq)
 p_sqrt = sqrt.(expanded_freq ./ max_freq)
 
+# 构造对角矩阵 P_sqrt
 P_sqrt = spdiagm(0 => p_sqrt)
 
+# 对 X 和 Y 进行加权处理
 X_sch = P_sqrt * X
 Y_sch = P_sqrt * Y
-F_f = make_transform_matrix(X_sch, Y_sch, method=method,
-       shift=shift, multiplier=multiplier,
-       output_format=output_format,
-       sparse_ratio=sparse_ratio,
-       verbose=verbose)
-F_f
-end
 
+# 调用 make_transform_matrix 进行变换
+F_f = make_transform_matrix(X_sch, Y_sch, method=method,
+     shift=shift, multiplier=multiplier,
+     output_format=output_format,
+     sparse_ratio=sparse_ratio,
+     verbose=verbose)
+return F_f
+end
 """
     format_matrix(M::Union{SparseMatrixCSC, Matrix}, output_format=:auto)
 
