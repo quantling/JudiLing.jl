@@ -355,27 +355,32 @@ JudiLing.make_transform_matrix_frequency(
 ```
 """
 function make_transform_matrix(X::Union{SparseMatrixCSC,Matrix},
-                             Y::Union{SparseMatrixCSC,Matrix},
-                             freq::Union{Array{Int64, 1}, Array{Float64,1}};
-                             method = :additive,
-                             shift = 0.02,
-                             multiplier = 1.01,
-                             output_format = :auto,
-                             sparse_ratio = 0.05,
-                             verbose = false,)
-    max_freq, _ = findmax(freq)
-    p_sqrt = sqrt.(freq ./ max_freq)
+    Y::Union{SparseMatrixCSC,Matrix},
+    freq::Union{Array{Int64, 1}, Array{Float64,1}},
+    grams::Array{Int64, 1};
+    method = :additive,
+    shift = 0.02,
+    multiplier = 1.01,
+    output_format = :auto,
+    sparse_ratio = 0.05,
+    verbose = false,)
 
-    P_sqrt = spdiagm(0 => p_sqrt)
+expanded_freq = [fill(freq[i], grams[i]) for i in 1:length(freq)]
+expanded_freq = vcat(expanded_freq...)
 
-    X_sch = P_sqrt * X
-    Y_sch = P_sqrt * Y
-    F_f = make_transform_matrix(X_sch, Y_sch, method=method,
-                                shift=shift, multiplier=multiplier,
-                                output_format=output_format,
-                                sparse_ratio=sparse_ratio,
-                                verbose=verbose)
-    F_f
+max_freq, _ = findmax(expanded_freq)
+p_sqrt = sqrt.(expanded_freq ./ max_freq)
+
+P_sqrt = spdiagm(0 => p_sqrt)
+
+X_sch = P_sqrt * X
+Y_sch = P_sqrt * Y
+F_f = make_transform_matrix(X_sch, Y_sch, method=method,
+       shift=shift, multiplier=multiplier,
+       output_format=output_format,
+       sparse_ratio=sparse_ratio,
+       verbose=verbose)
+F_f
 end
 
 """
