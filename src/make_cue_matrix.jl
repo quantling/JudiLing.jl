@@ -102,37 +102,27 @@ function make_cue_matrix(
     # Ensure each element in tokens is of String type
     tokens = map(x -> map(string, x), tokens)
 
-    ngrams_results = []  # Store results of all n-grams
+    ngrams_results = [] 
 
-    # Generate n-grams for each gram
     for i in 1:length(tokens)
-        feat_buf = []  # Initialize buffer for each token
+        feat_buf = []
         for g in grams
-            ngrams_x = make_ngrams(tokens[i], g, false, nothing, "#")
-            feat_buf = vcat(feat_buf, ngrams_x)  # Append n-grams to buffer
+            ngrams_x = make_ngrams(tokens[i], g, keep_sep, sep_token, start_end_token)
+            feat_buf = vcat(feat_buf, ngrams_x)
         end
-        push!(ngrams_results, feat_buf)  # Push buffer to results after processing
-    end    
-
-    # Find all unique n-gram features
+        push!(ngrams_results, feat_buf)
+    end
+    
     ngrams_features = unique(vcat(ngrams_results...))
-
 
     f2i = Dict(v => i for (i, v) in enumerate(ngrams_features))
     i2f = Dict(i => v for (i, v) in enumerate(ngrams_features))
 
     n = length(ngrams_features)
     
-    n_f = sum(length.(ngrams_results)) 
+    n_f = sum(length.(ngrams_results))
     
-    # Define m based on the length of grams
-    if length(grams) == 1
-        m = size(data, 1)  # When there's only one n-gram, m equals the number of rows in the data
-    else
-        m = size(data, 1) * length(grams)  # If grams contains multiple n-grams, m is the row count multiplied
-    end
-
-    # Initialize I, J, V
+    m = size(data, 1)
     I = zeros(Int64, n_f)  # Initialize I as a vector of length n_f
     J = zeros(Int64, n_f)
     V = ones(Int64, n_f)
