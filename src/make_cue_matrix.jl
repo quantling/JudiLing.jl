@@ -105,11 +105,14 @@ function make_cue_matrix(
     ngrams_results = []  # Store results of all n-grams
 
     # Generate n-grams for each gram
-    for g in grams
-        for i in 1:length(tokens)
-            push!(ngrams_results, make_ngrams(tokens[i], g, keep_sep, sep_token, start_end_token))
+    for i in 1:length(tokens)
+        feat_buf = []  # Initialize buffer for each token
+        for g in grams
+            ngrams_x = make_ngrams(tokens[i], g, false, nothing, "#")
+            feat_buf = vcat(feat_buf, ngrams_x)  # Append n-grams to buffer
         end
-    end
+        push!(ngrams_results, feat_buf)  # Push buffer to results after processing
+    end    
 
     # Find all unique n-gram features
     ngrams_features = unique(vcat(ngrams_results...))
