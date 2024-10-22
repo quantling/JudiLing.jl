@@ -186,17 +186,32 @@ end
 
 Given a list of string tokens return a list of all n-grams for these tokens.
 """
-function make_ngrams(tokens, g, keep_sep, sep_token, start_end_token)
+function make_ngrams(
+    tokens,
+    grams,
+    keep_sep,
+    sep_token,
+    start_end_token,
+)
+
     ngrams = []
 
     tokens = collect(map(string, tokens))  # Ensure tokens are Strings
-    new_tokens = push!(pushfirst!(copy(tokens), start_end_token), start_end_token)
-
+    new_tokens = push!(pushfirst!(tokens, start_end_token), start_end_token)
+    
     if keep_sep
-        ngrams = join.(collect(zip((Iterators.drop(new_tokens, k) for k in 0:g-1)...)), sep_token)
+        # collect ngrams
+        ngrams =
+            join.(
+                collect(zip((Iterators.drop(new_tokens, k) for k = 0:grams-1)...)),
+                sep_token,
+            )
     else
-        ngrams = join.(collect(zip((Iterators.drop(new_tokens, k) for k in 0:g-1)...)), "")
-    end
-
-    return ngrams
+        ngrams =
+            join.(
+                collect(zip((Iterators.drop(new_tokens, k) for k = 0:grams-1)...)),
+                "",
+            )
+    end 
+    ngrams
 end
