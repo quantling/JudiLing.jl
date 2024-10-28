@@ -118,11 +118,10 @@ function make_cue_matrix(
     f2i = Dict(v => i for (i, v) in enumerate(ngrams_features))
     i2f = Dict(i => v for (i, v) in enumerate(ngrams_features))
 
-    n = length(ngrams_features)
-    
     n_f = sum(length.(ngrams_results))
     
     m = size(data, 1)
+    n = length(ngrams_features)
     I = zeros(Int64, n_f)  # Initialize I as a vector of length n_f
     J = zeros(Int64, n_f)
     V = ones(Int64, n_f)
@@ -146,7 +145,7 @@ function make_cue_matrix(
         end
     end
 
-    cue = sparse(I, J, V, m, n)
+    cue = sparse(I, J, V, m, n, *)
     ngrams_ind = [[f2i[x] for x in y] for y in ngrams_results]
 
     verbose && println("making adjacency matrix...")
