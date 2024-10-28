@@ -194,9 +194,7 @@ function make_ngrams(
     start_end_token,
 )
 
-    ngrams = []
-
-    tokens = collect(map(string, tokens))  # Ensure tokens are Strings
+    tokens = collect(map(string, tokens))  
     new_tokens = push!(pushfirst!(tokens, start_end_token), start_end_token)
     
     if keep_sep
