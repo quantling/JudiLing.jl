@@ -297,6 +297,36 @@ end
     @test JudiLing.eval_SC(Shat_val, S_val, S_train, val_es, train_es, :Word) ≈ findmax(accs_val)[1]
     @test findmax(accs_val)[2] + 20 == length(accs_val)
 
+    res = JudiLing.get_and_train_model(cue_obj_train.C,
+                                S_train,
+                                cue_obj_val.C,
+                                S_val,
+                                train_es, val_es,
+                                :Word,
+                                "test.bson",
+                                return_losses=true,
+                                early_stopping=10,
+                                optimise_for_acc = true,
+                                batchsize=2)
+
+    model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
+    @test findmax(accs_val)[2] + 10 == length(accs_val)
+
+    res = JudiLing.get_and_train_model(cue_obj_train.C,
+                                S_train,
+                                cue_obj_val.C,
+                                S_val,
+                                train_es, val_es,
+                                :Word,
+                                "test.bson",
+                                return_losses=true,
+                                early_stopping=10,
+                                n_epochs=1000,
+                                batchsize=2)
+
+    model, losses_train, losses_val, accs_val = res.model, res.losses_train, res.losses_val, res.accs_val
+    @test findmin(losses_val)[2] + 10 == length(losses_val)
+
 end
 
 @testset "changing hyperparameters" begin

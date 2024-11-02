@@ -267,7 +267,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                 if acc > max_acc_es
                      max_acc_es = acc
                      early_stopping_lag = 1
-                elseif early_stopping == early_stopping_lag
+                elseif early_stopping_lag >= early_stopping
                     break
                 else
                      early_stopping_lag += 1
@@ -276,7 +276,7 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
                  if mean_val_loss < min_loss_es
                       min_loss_es = mean_val_loss
                       early_stopping_lag = 1
-                 elseif early_stopping == early_stopping_lag
+                 elseif early_stopping_lag >= early_stopping
                      break
                  else
                       early_stopping_lag += 1
