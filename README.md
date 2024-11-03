@@ -10,6 +10,9 @@ JudiLing: An implementation for Linear Discriminative Learning in Julia
 Maintainer: Maria Heitmeier [@MariaHei](https://github.com/MariaHei)\
 Original codebase: Xuefeng Luo [@MegamindHenry](https://github.com/MegamindHenry)
 
+**Note:**
+JudiLing versions prior to 0.12 had a bug in the early stopping mechanism. Training stopped automatically after `early_stopping` many epochs after beginning of training, rather than after `early_stopping` many epochs after the **best** epoch (in terms of loss or accuracy). Please use at least version 0.12 to get accurate results with `early_stopping`.
+
 ## Installation
 
 ```

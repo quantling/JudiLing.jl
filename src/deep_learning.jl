@@ -115,19 +115,9 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
     # set up early stopping and saving of best models
     min_loss = typemax(Float64)
     max_acc = -1
-
-    function id_func(x)
-        return (x)
-    end
-
-    if !ismissing(early_stopping)
-        if optimise_for_acc
-            init_score = max_acc
-        else
-            init_score = min_loss
-        end
-        es = Flux.early_stopping(id_func, early_stopping, init_score=init_score)
-    end
+    min_loss_es = typemax(Float64)
+    max_acc_es = -1
+    early_stopping_lag = 1
 
     # Set up the model if not provided
     verbose && println("Setting up model...")
@@ -273,11 +263,27 @@ function get_and_train_model(X_train::Union{SparseMatrixCSC,Matrix},
              end
 
              # early stopping
-             if optimise_for_acc
-                 !ismissing(early_stopping) && es(-acc) && break
-             else
-                 !ismissing(early_stopping) && es(mean_val_loss) && break
-             end
+             if !ismissing(early_stopping)
+                 if optimise_for_acc
+                    if acc > max_acc_es
+                         max_acc_es = acc
+                         early_stopping_lag = 1
+                    elseif early_stopping_lag >= early_stopping
+                        break
+                    else
+                         early_stopping_lag += 1
+                    end
+                else
+                     if mean_val_loss < min_loss_es
+                          min_loss_es = mean_val_loss
+                          early_stopping_lag = 1
+                     elseif early_stopping_lag >= early_stopping
+                         break
+                     else
+                          early_stopping_lag += 1
+                     end
+                 end
+            end
         else
 
             if !ismissing(measures_func)
