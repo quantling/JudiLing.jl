@@ -45,7 +45,108 @@ function make_cue_matrix(
     verbose = false,
 )
 
-    # Process tokens
+    # Tokenize
+    if tokenized && !isnothing(sep_token)
+        tokens = split.(data[:, target_col], sep_token)
+    else
+        tokens = split.(data[:, target_col], "")
+    end
+    tokens = map(x -> map(string, x), tokens) 
+
+    ngrams_results = []
+
+    for i in 1:length(tokens)
+        feat_buf = []
+        for g in grams
+            ngrams_x = make_ngrams(tokens[i], g, keep_sep, sep_token, start_end_token)
+            feat_buf = vcat(feat_buf, ngrams_x)
+        end
+        push!(ngrams_results, feat_buf)
+    end
+
+    ngrams_features = unique(vcat(ngrams_results...))
+    f2i = Dict(v => i for (i, v) in enumerate(ngrams_features))
+    i2f = Dict(i => v for (i, v) in enumerate(ngrams_features))
+
+    n_f = sum(length.(ngrams_results))
+    m = size(data, 1)
+    n = length(ngrams_features)
+    I = zeros(Int64, n_f)
+    J = zeros(Int64, n_f)
+    V = ones(Int64, n_f)
+
+    A = length(grams) > 1 ? nothing : [Int64[] for _ in 1:length(ngrams_features)]
+
+    cnt = 0 
+    for (i, v) in enumerate(ngrams_results)
+        last = 0
+        for (j, f) in enumerate(v)
+            cnt += 1
+            I[cnt] = i
+            fi = f2i[f]
+            J[cnt] = fi
+            if j == 1
+                last = fi
+            else
+                if A !== nothing 
+                    push!(A[last], fi)
+                end
+                last = fi
+            end
+        end
+    end    
+
+    cue = sparse(I, J, V, m, n, *)
+
+    ngrams_ind = [[f2i[x] for x in y] for y in ngrams_results]
+
+    verbose && println("making adjacency matrix...")
+
+    if A !== nothing
+        A = [sort(unique(i)) for i in A]
+        n_adj = sum(length.(A))
+
+        I = zeros(Int64, n_adj)
+        J = zeros(Int64, n_adj)
+        V = ones(Int64, n_adj)
+
+        cnt = 0
+        for (i, v) in enumerate(A)
+            for j in v
+                cnt += 1
+                I[cnt] = i
+                J[cnt] = j
+            end
+        end
+
+        A = sparse(I, J, V, length(f2i), length(f2i))
+    end
+
+    return Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A, grams, target_col, tokenized, sep_token, keep_sep, start_end_token)
+end
+
+"""
+    make_cue_matrix(data::DataFrame, cue_obj::Cue_Matrix_Struct)
+
+Make the cue matrix for validation datasets and corresponding indices as well as the adjacency matrix
+and gold paths given a dataset in a form of dataframe.
+
+
+"""
+
+function make_cue_matrix(
+    data::DataFrame,
+    cue_obj::Cue_Matrix_Struct;
+    grams = [3],
+    target_col = "Words",
+    tokenized = false,
+    sep_token = nothing,
+    keep_sep = false,
+    start_end_token = "#",
+    verbose = false,
+)
+
+    # split tokens from words or other columns
     if tokenized && !isnothing(sep_token)
         tokens = split.(data[:, target_col], sep_token)
     else
@@ -66,70 +167,34 @@ function make_cue_matrix(
         push!(ngrams_results, feat_buf)
     end
     
-    ngrams_features = unique(vcat(ngrams_results...))
 
-    f2i = Dict(v => i for (i, v) in enumerate(ngrams_features))
-    i2f = Dict(i => v for (i, v) in enumerate(ngrams_features))
+    f2i = cue_obj.f2i
+    i2f = cue_obj.i2f
 
     n_f = sum(length.(ngrams_results))
     
     m = size(data, 1)
-    n = length(ngrams_features)
+    n = length(f2i)
     I = zeros(Int64, n_f)  # Initialize I as a vector of length n_f
     J = zeros(Int64, n_f)
     V = ones(Int64, n_f)
 
-    A = [Int64[] for _ in 1:length(ngrams_features)]
-
-    cnt = 0 
+    cnt = 0
     for (i, v) in enumerate(ngrams_results)
-        last = 0
         for (j, f) in enumerate(v)
             cnt += 1
             I[cnt] = i
-            fi = f2i[f]
-            J[cnt] = fi
-            if j == 1
-                last = fi
-            else
-                push!(A[last], fi)
-                last = fi
-            end
+            J[cnt] = f2i[f]
         end
     end
 
     cue = sparse(I, J, V, m, n, *)
     ngrams_ind = [[f2i[x] for x in y] for y in ngrams_results]
 
-    verbose && println("making adjacency matrix...")
-    A = [sort(unique(i)) for i in A]
-    n_adj = sum(length.(A))
-
-    I = zeros(Int64, n_adj)
-    J = zeros(Int64, n_adj)
-    V = ones(Int64, n_adj)
-
-    cnt = 0
-    iter = enumerate(A)
-    if verbose
-        pb = Progress(length(A))
-    end
-
-    for (i, v) in iter
-        for j in v
-            cnt += 1
-            I[cnt] = i
-            J[cnt] = j
-        end
-        if verbose
-            ProgressMeter.next!(pb)
-        end
-    end
-
-    A = sparse(I, J, V, length(f2i), length(f2i))
-
-    return Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, A, grams, target_col, tokenized, sep_token, keep_sep, start_end_token)
+    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, cue_obj.A, grams, target_col,
+        tokenized, sep_token, keep_sep, start_end_token)
 end
+
 
 """
     make_cue_matrix(data::DataFrame, cue_obj::Cue_Matrix_Struct)
@@ -248,7 +313,7 @@ end
 function make_combined_cue_matrix(
     data_train,
     data_val;
-    grams = [3],  # 允许多个 n-gram
+    grams = [3],  
     target_col = :Words,
     tokenized = false,
     sep_token = nothing,
@@ -260,7 +325,6 @@ function make_combined_cue_matrix(
     data_combined = copy(data_train)
     data_val = copy(data_val)
 
-    # 将列转换为字符串
     for col in names(data_combined)
         data_combined[!, col] = inlinestring2string.(data_combined[!,col])
         data_val[!, col] = inlinestring2string.(data_val[!,col])
@@ -268,7 +332,6 @@ function make_combined_cue_matrix(
 
     append!(data_combined, data_val, promote=true)
 
-    # 传递 grams 为数组
     cue_obj_combined = make_cue_matrix(
         data_combined,
         grams = grams,
