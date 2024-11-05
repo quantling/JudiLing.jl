@@ -175,7 +175,7 @@ function make_cue_matrix(
     
     m = size(data, 1)
     n = length(f2i)
-    I = zeros(Int64, n_f)  # Initialize I as a vector of length n_f
+    I = zeros(Int64, n_f)   
     J = zeros(Int64, n_f)
     V = ones(Int64, n_f)
 
@@ -195,75 +195,6 @@ function make_cue_matrix(
         tokenized, sep_token, keep_sep, start_end_token)
 end
 
-
-"""
-    make_cue_matrix(data::DataFrame, cue_obj::Cue_Matrix_Struct)
-
-Make the cue matrix for validation datasets and corresponding indices as well as the adjacency matrix
-and gold paths given a dataset in a form of dataframe.
-
-
-"""
-function make_cue_matrix(
-    data::DataFrame,
-    cue_obj::Cue_Matrix_Struct;
-    grams = [3],
-    target_col = "Words",
-    tokenized = false,
-    sep_token = nothing,
-    keep_sep = false,
-    start_end_token = "#",
-    verbose = false,
-)
-
-    # split tokens from words or other columns
-    if tokenized && !isnothing(sep_token)
-        tokens = split.(data[:, target_col], sep_token)
-    else
-        tokens = split.(data[:, target_col], "")
-    end
-
-    # Ensure each element in tokens is of String type
-    tokens = map(x -> map(string, x), tokens)
-
-    ngrams_results = [] 
-
-    for i in 1:length(tokens)
-        feat_buf = []
-        for g in grams
-            ngrams_x = make_ngrams(tokens[i], g, keep_sep, sep_token, start_end_token)
-            feat_buf = vcat(feat_buf, ngrams_x)
-        end
-        push!(ngrams_results, feat_buf)
-    end
-    
-
-    f2i = cue_obj.f2i
-    i2f = cue_obj.i2f
-
-    n_f = sum(length.(ngrams_results))
-    
-    m = size(data, 1)
-    n = length(f2i)
-    I = zeros(Int64, n_f)  # Initialize I as a vector of length n_f
-    J = zeros(Int64, n_f)
-    V = ones(Int64, n_f)
-
-    cnt = 0
-    for (i, v) in enumerate(ngrams_results)
-        for (j, f) in enumerate(v)
-            cnt += 1
-            I[cnt] = i
-            J[cnt] = f2i[f]
-        end
-    end
-
-    cue = sparse(I, J, V, m, n, *)
-    ngrams_ind = [[f2i[x] for x in y] for y in ngrams_results]
-
-    Cue_Matrix_Struct(cue, f2i, i2f, ngrams_ind, cue_obj.A, grams, target_col,
-        tokenized, sep_token, keep_sep, start_end_token)
-end
 
 """
     make_cue_matrix(data_train::DataFrame, data_val::DataFrame)
