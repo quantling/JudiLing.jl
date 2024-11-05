@@ -3,7 +3,7 @@ struct Cue_Matrix_Struct
     f2i::Dict
     i2f::Dict
     gold_ind::Vector{Vector{Int64}}
-    A::SparseMatrixCSC
+    A::Union{SparseMatrixCSC, Nothing} 
     grams::Union{Vector{Int64}, Int64}
     target_col::Union{Symbol, String}
     tokenized::Bool
