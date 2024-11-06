@@ -56,11 +56,7 @@ function make_cue_matrix(
     ngrams_results = []
 
     for i in 1:length(tokens)
-        feat_buf = []
-        for g in grams
-            ngrams_x = make_ngrams(tokens[i], g, keep_sep, sep_token, start_end_token)
-            feat_buf = vcat(feat_buf, ngrams_x)
-        end
+        feat_buf = make_ngrams(tokens[i], grams, keep_sep, sep_token, start_end_token)
         push!(ngrams_results, feat_buf)
     end
 
@@ -318,21 +314,19 @@ function make_ngrams(
     tokens = collect(map(string, tokens))  
     new_tokens = push!(pushfirst!(tokens, start_end_token), start_end_token)
     
-    if keep_sep
-        # collect ngrams
-        ngrams =
-            join.(
-                collect(zip((Iterators.drop(new_tokens, k) for k = 0:grams-1)...)),
-                sep_token,
-            )
-    else
-        ngrams =
-            join.(
-                collect(zip((Iterators.drop(new_tokens, k) for k = 0:grams-1)...)),
-                "",
-            )
-    end 
-    ngrams
+    # 用于存储所有 n-grams
+    ngrams_results = []
+
+    # 为每种 n-gram 长度生成 n-grams
+    for g in grams
+        if keep_sep
+            ngrams = join.(collect(zip((Iterators.drop(new_tokens, k) for k = 0:g-1)...)), sep_token)
+        else
+            ngrams = join.(collect(zip((Iterators.drop(new_tokens, k) for k = 0:g-1)...)), "")
+        end
+        append!(ngrams_results, ngrams)
+    end
+    return ngrams_results
 end
 
  
