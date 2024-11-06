@@ -152,14 +152,10 @@ function make_cue_matrix(
     # Ensure each element in tokens is of String type
     tokens = map(x -> map(string, x), tokens)
 
-    ngrams_results = [] 
+    ngrams_results = []
 
     for i in 1:length(tokens)
-        feat_buf = []
-        for g in grams
-            ngrams_x = make_ngrams(tokens[i], g, keep_sep, sep_token, start_end_token)
-            feat_buf = vcat(feat_buf, ngrams_x)
-        end
+        feat_buf = make_ngrams(tokens[i], grams, keep_sep, sep_token, start_end_token)
         push!(ngrams_results, feat_buf)
     end
     
