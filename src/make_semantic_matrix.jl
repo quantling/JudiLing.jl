@@ -1721,11 +1721,9 @@ function load_S_matrix_from_fasttext_file(data_train::DataFrame,
     data_combined = copy(data_train)
     append!(data_combined, data_val)
 
-        # Get the set of words from the target column and convert to Set{String}
-        keep_words = Set{String}(map(string, data_combined[!, target_col]))
+    keep_words = Set(data_combined[!, target_col])
 
-        # Ensure that only the words present in the 'keep_words' set will be loaded from the FastText embeddings.
-        embtable = load_embeddings(FastText_Text, filepath, keep_words = keep_words)
+    embtable = load_embeddings(FastText_Text, filepath, keep_words)
 
     return(create_S_matrix_from_embeddings(embtable, data_train, data_val, target_col))
 end
