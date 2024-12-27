@@ -106,6 +106,9 @@ end
 Make Widrow-Hoff learning sequence from frequencies.
 Creates a randomly ordered sequences of indices where each index appears according to its frequncy.
 
+!!! note
+    Though the generation of the learning sequence is controlled by a random seed, it may change across Julia versions, see here: https://docs.julialang.org/en/v1/stdlib/Random/
+
 # Obligatory arguments
 - `freq`: Vector with frequencies.
 

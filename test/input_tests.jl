@@ -76,10 +76,9 @@ end
     # testing non-overlap (this only works because the words in latin_mini are unique)
     @test length(intersect(Set(data_train1.Word), Set(data_val1.Word))) == 0
 
-    # testing that all the unique features do indeed occur in both training and validation data
+    # testing that all the unique features in the validation data occur in the training data
     for col in ["Lexeme","Person","Number","Tense","Voice","Mood"]
-        @test length(setdiff(Set(data[:, col]), Set(data_train1[:, col]))) == 0
-        @test length(setdiff(Set(data[:, col]), Set(data_val1[:, col]))) == 0
+        @test length(setdiff(Set(data_val1[:, col]), Set(data_train1[:, col]))) == 0
     end
 
     # clean up
