@@ -1583,10 +1583,8 @@ function my_load_embeddings(filepath, keep_words)
         LL = Array{Float32}(undef, vector_size, max_stored_vocab_size)
         index = 1
         @showprogress for _ in 1:vocab_size
-            line = readline(fh)
-            parts = split(line)
-            word = join(parts[1:end - vector_size], " ")
-            vector = parse.(Float32, parts[end - vector_size + 1:end])
+            word = readuntil(fh, ' ', keep=false)
+            vector = parse.(Float32, split(readline(fh)))
             if !occursin("_", word) && (length(keep_words)==0 || word in keep_words ) #If it isn't a phrase
                 LL[:,index]=vector
                 indexed_words[index] = word
