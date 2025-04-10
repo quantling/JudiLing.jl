@@ -212,7 +212,7 @@ function loading_data_careful_split(
     n_grams_target_col::Union{Symbol, String} = :Word,
     n_grams_tokenized::Bool = false,
     n_grams_sep_token::Union{Nothing, String} = nothing,
-    grams::Int = 3,
+    grams::Union{Vector{Int64}, Int64}=[3],
     n_grams_keep_sep::Bool = false,
     start_end_token::String = "#",
     random_seed::Int = 314,
