@@ -299,29 +299,26 @@ end
 
 Given a list of string tokens return a list of all n-grams for these tokens.
 """
-function make_ngrams(
-    tokens,
-    grams,
-    keep_sep,
-    sep_token,
-    start_end_token,
-)
-
+function make_ngrams(tokens, grams, keep_sep, sep_token, start_end_token)
     tokens = collect(map(string, tokens))  
     new_tokens = push!(pushfirst!(tokens, start_end_token), start_end_token)
-    
-    # 用于存储所有 n-grams
+
     ngrams_results = []
 
-    # 为每种 n-gram 长度生成 n-grams
     for g in grams
-        if keep_sep
-            ngrams = join.(collect(zip((Iterators.drop(new_tokens, k) for k = 0:g-1)...)), sep_token)
+        if length(new_tokens) < g
+            padded = vcat(new_tokens, fill(start_end_token, g - length(new_tokens)))
+            push!(ngrams_results, join(padded, ""))
         else
-            ngrams = join.(collect(zip((Iterators.drop(new_tokens, k) for k = 0:g-1)...)), "")
+            if keep_sep
+                ngrams = join.(collect(zip((Iterators.drop(new_tokens, k) for k = 0:g-1)...)), sep_token)
+            else
+                ngrams = join.(collect(zip((Iterators.drop(new_tokens, k) for k = 0:g-1)...)), "")
+            end
+            append!(ngrams_results, ngrams)
         end
-        append!(ngrams_results, ngrams)
     end
+
     return ngrams_results
 end
 
