@@ -5,7 +5,16 @@ using Test
     freq = [1, 2, 3, 4]
     learn_seq = JudiLing.make_learn_seq(freq)
 
-    @test learn_seq == [2, 4, 2, 4, 4, 3, 1, 4, 3, 3]
+    @test all([count(==(i), learn_seq) == i for i in freq])
+
+    learn_seq2 = JudiLing.make_learn_seq(freq)
+
+    @test learn_seq == learn_seq2
+
+    freq = [1, 2, 3, 4, 5, 6]
+    learn_seq = JudiLing.make_learn_seq(freq, random_seed=42)
+
+    @test all([count(==(i), learn_seq) == i for i in freq])
 end
 
 @testset "wh tests" begin
