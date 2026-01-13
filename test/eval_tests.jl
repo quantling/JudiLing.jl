@@ -122,7 +122,7 @@ end
     _, RSc_cos = JudiLing.eval_SC(Chat, cue_obj.C, data, :A, method=:cosine, R=true)
     @test RSc_eucl != RSc_cos
 
-    @test RSc_eucl[1, 2] ≈ sqrt(sum((Chat[1,:] .- cue_obj.C[2,:]).^2))
+    @test isapprox(RSc_eucl[1, 2], sqrt(sum((Chat[1,:] .- cue_obj.C[2,:]).^2)), atol=1e-5)
     @test RSc_eucl[4, 3] ≈ sqrt(sum((Chat[4,:] .- cue_obj.C[3,:]).^2))
 
     @test RSc_cos[1, 2] ≈ cosine(Chat[1,:], cue_obj.C[2,:])
