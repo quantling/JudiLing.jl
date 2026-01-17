@@ -1,6 +1,6 @@
 name = "JudiLing"
 uuid = "b43a184b-0e9d-488b-813a-80fd5dbc9fd8"
-version = "0.13.0"
+version = "1.0.0"
 authors = ["Xuefeng Luo", "Maria Heitmeier"]
 
 [deps]
