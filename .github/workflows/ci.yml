@@ -54,10 +54,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install netcdf4 cython pandas xarray numpy pyndl
-      - name: Configure PyCall to use correct Python
-        run: |
-          echo "PYTHON=${{ steps.setup-python.outputs.python-path }}" >> $GITHUB_ENV
-        shell: bash
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
@@ -75,14 +71,6 @@ jobs:
       - uses: julia-actions/julia-buildpkg@latest
         env:
           PYTHON: ${{ steps.setup-python.outputs.python-path }}
-      - name: Remove PyCall cache and rebuild
-        if: runner.os == 'macOS'
-        run: |
-          rm -rf ~/.julia/packages/PyCall/*/deps/deps.jl
-          rm -rf ~/.julia/prefs/PyCall
-          echo "PYTHON=${{ steps.setup-python.outputs.python-path }}"
-          julia --project=test -e 'ENV["PYTHON"] = ENV["PYTHON"]; using Pkg; Pkg.build("PyCall"; verbose=true)'
-
       - uses: julia-actions/julia-runtest@latest
         env:
           PYTHON: ${{ steps.setup-python.outputs.python-path }}
