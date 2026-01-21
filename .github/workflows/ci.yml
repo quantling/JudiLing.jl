@@ -48,11 +48,9 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         id: setup-python
         uses: actions/setup-python@v4
-        if: ${{ runner.os != 'windows-latest' }}
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Python dependencies
-        if: ${{ runner.os != 'windows-latest' }}
         run: |
           python -m pip install --upgrade pip
           pip install netcdf4 cython pandas xarray numpy pyndl
@@ -74,11 +72,10 @@ jobs:
         env:
           PYTHON: ${{ runner.os == 'Windows' && 'python' || 'python3' }}
       - name: Rebuild PyCall
-        if: ${{ runner.os != 'windows-latest' }}
         run: |
           julia --project=test -e 'using Pkg; Pkg.build("PyCall"; verbose=true)'
         env:
-          PYTHON: python3
+          PYTHON: ${{ runner.os == 'Windows' && 'python' || 'python3' }}
       - uses: julia-actions/julia-runtest@latest
         env:
           PYTHON: ${{ runner.os == 'Windows' && 'python' || 'python3' }}
