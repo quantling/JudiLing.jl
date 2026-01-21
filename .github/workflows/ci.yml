@@ -70,16 +70,13 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
-      - name: Resolve test project manifest
-        run: |
-          julia --project=test -e 'using Pkg; Pkg.resolve()'
       - uses: julia-actions/julia-buildpkg@latest
         env:
           PYTHON: ${{ runner.os == 'Windows' && 'python' || 'python3' }}
       - name: Rebuild PyCall
         if: ${{ runner.os != 'windows-latest' }}
         run: |
-          julia --project=test -e 'using Pkg; Pkg.build("PyCall")'
+          julia --project=test -e 'using Pkg; Pkg.build("PyCall"; verbose=true)'
         env:
           PYTHON: python3
       - uses: julia-actions/julia-runtest@latest
