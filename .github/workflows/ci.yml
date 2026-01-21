@@ -75,11 +75,12 @@ jobs:
       - uses: julia-actions/julia-buildpkg@latest
         env:
           PYTHON: ${{ steps.setup-python.outputs.python-path }}
-      - name: Rebuild PyCall
+      - name: Remove PyCall cache and rebuild
         run: |
+          rm -rf ~/.julia/packages/PyCall/*/deps/deps.jl
+          rm -rf ~/.julia/prefs/PyCall
           julia --project=test -e 'using Pkg; Pkg.build("PyCall"; verbose=true)'
-        env:
-          PYTHON: ${{ steps.setup-python.outputs.python-path }}
+
       - uses: julia-actions/julia-runtest@latest
         env:
           PYTHON: ${{ steps.setup-python.outputs.python-path }}
