@@ -54,6 +54,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install netcdf4 cython pandas xarray numpy pyndl
+      - name: Configure PyCall to use correct Python
+        run: |
+          echo "PYTHON=${{ steps.setup-python.outputs.python-path }}" >> $GITHUB_ENV
+        shell: bash
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
