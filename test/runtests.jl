@@ -1,9 +1,7 @@
 using SafeTestsets
 
-if !Sys.iswindows()
-    @safetestset "pyndl tests" begin
-        include("pyndl_tests.jl")
-    end
+@safetestset "pyndl tests" begin
+    include("pyndl_tests.jl")
 end
 
 @safetestset "input tests" begin
