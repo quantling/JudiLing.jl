@@ -60,12 +60,6 @@ jobs:
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - name: Rebuild PyCall
-        if: ${{ runner.os != 'windows-latest' }}
-        run: |
-          julia --project=test -e 'using Pkg; Pkg.build("PyCall")'
-        env:
-          PYTHON: python3
       - uses: actions/cache@v3
         env:
           cache-name: cache-artifacts
@@ -79,6 +73,12 @@ jobs:
       - uses: julia-actions/julia-buildpkg@latest
         env:
           PYTHON: ${{ runner.os == 'Windows' && 'python' || 'python3' }}
+      - name: Rebuild PyCall
+        if: ${{ runner.os != 'windows-latest' }}
+        run: |
+          julia --project=test -e 'using Pkg; Pkg.build("PyCall")'
+        env:
+          PYTHON: python3
       - uses: julia-actions/julia-runtest@latest
         env:
           PYTHON: ${{ runner.os == 'Windows' && 'python' || 'python3' }}
