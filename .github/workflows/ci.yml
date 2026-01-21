@@ -76,10 +76,12 @@ jobs:
         env:
           PYTHON: ${{ steps.setup-python.outputs.python-path }}
       - name: Remove PyCall cache and rebuild
+        if: runner.os == 'macOS'
         run: |
           rm -rf ~/.julia/packages/PyCall/*/deps/deps.jl
           rm -rf ~/.julia/prefs/PyCall
-          julia --project=test -e 'using Pkg; Pkg.build("PyCall"; verbose=true)'
+          echo "PYTHON=${{ steps.setup-python.outputs.python-path }}"
+          julia --project=test -e 'ENV["PYTHON"] = ENV["PYTHON"]; using Pkg; Pkg.build("PyCall"; verbose=true)'
 
       - uses: julia-actions/julia-runtest@latest
         env:
