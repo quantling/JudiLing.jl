@@ -1,6 +1,6 @@
 using SafeTestsets
 
-if !Sys.ismacos()
+if !Sys.isapple()
     @safetestset "pyndl tests" begin
         include("pyndl_tests.jl")
     end
