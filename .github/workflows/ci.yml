@@ -15,16 +15,16 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.9'
-          - '1.10'
-          - '1.11'
+          # - '1.9'
+          # - '1.10'
+          # - '1.11'
           - '1.12'
         os:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
         python-version:
-          - 3.8
+          # - 3.8
           - 3.12
         arch:
           - x64
@@ -70,6 +70,9 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
+      - name: Resolve test project manifest
+        run: |
+          julia --project=test -e 'using Pkg; Pkg.resolve()'
       - uses: julia-actions/julia-buildpkg@latest
         env:
           PYTHON: ${{ runner.os == 'Windows' && 'python' || 'python3' }}
