@@ -38,7 +38,7 @@ Likewise, the code involving deep learning is only available if Julia's deep lea
 using Flux
 using JudiLing
 ```
-Note that Flux and PyCall have to be installed separately, and the newest version of Flux requires at least Julia 1.9. If you want to run deep learning in a GPU, make sure to also install and import [CUDA](https://cuda.juliagpu.org/stable/).
+Note that Flux and PyCall have to be installed separately, and the newest version of Flux requires at least Julia 1.9. If you want to run deep learning in a GPU, make sure to also install and import [CUDA](https://cuda.juliagpu.org/stable/). Also note that in order to use the pyndl functionality (which calls python functions internally) you need to install pyndl separately. Installation instructions can be found [here](https://pyndl.readthedocs.io/en/latest/installation.html), instructions for how to make sure that PyCall uses the correct python version are [in the documentation of the PyCall package](https://github.com/JuliaPy/PyCall.jl?tab=readme-ov-file#specifying-the-python-version).
 
 ## Running Julia with multiple threads
 JudiLing supports the use of multiple threads. Simply start up Julia in your terminal as follows:
