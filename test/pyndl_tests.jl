@@ -3,19 +3,6 @@ using PyCall
 using JudiLing
 using CSV, DataFrames
 
-using Conda
-
-@info "Installing pyndl dependencies..."
-Conda.add("numpy", Conda.ROOTENV)
-Conda.add("cython", Conda.ROOTENV)
-Conda.add("pandas", Conda.ROOTENV)
-Conda.add("xarray", Conda.ROOTENV)
-Conda.add("netcdf4", Conda.ROOTENV)
-
-@info "Installing pyndl..."
-pip_exe = joinpath(Conda.PYTHONDIR, "pip")
-run(`$pip_exe install pyndl`)
-
 
 train = DataFrame(CSV.File(joinpath("data", "careful", "latin_train.csv")))
 val = DataFrame(CSV.File(joinpath("data", "careful", "latin_val.csv")))

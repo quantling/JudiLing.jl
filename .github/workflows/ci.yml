@@ -1,8 +1,11 @@
 name: CI
 on:
-  - push
-  - pull_request
-  - workflow_dispatch
+  push:
+    branches:
+      - main
+    tags: '*'
+  pull_request:
+  workflow_dispatch:
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
@@ -21,7 +24,6 @@ jobs:
           - macOS-latest
           - windows-latest
         python-version:
-          - 3.8
           - 3.12
         arch:
           - x64
@@ -43,15 +45,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
+        id: setup-python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install pyndl (Linux)
-        if: ${{ runner.os == 'Linux' }}
+      - name: Install Python dependencies
         run: |
-          pip install pyndl
-        env:
-          PYTHON: 3.8
+          python -m pip install --upgrade pip
+          pip install netcdf4 cython pandas xarray numpy pyndl
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
@@ -68,8 +69,10 @@ jobs:
             ${{ runner.os }}-
       - uses: julia-actions/julia-buildpkg@latest
         env:
-          PYTHON: python
+          PYTHON: ${{ steps.setup-python.outputs.python-path }}
       - uses: julia-actions/julia-runtest@latest
+        env:
+          PYTHON: ${{ steps.setup-python.outputs.python-path }}
       - uses: julia-actions/julia-processcoverage@v1
       - uses: codecov/codecov-action@v1
         with:
